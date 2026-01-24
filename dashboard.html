@@ -1,0 +1,2579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - InternTrack</title>
+    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .dashboard-container {
+            display: flex;
+            min-height: 100vh;
+            background: var(--bg-primary);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .sidebar-logo i {
+            color: var(--accent-color);
+            font-size: 1.8rem;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 1.5rem 0;
+        }
+
+        .nav-item {
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+            border-left: 3px solid transparent;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-primary);
+            color: var(--accent-color);
+        }
+
+        .nav-item.active {
+            background: var(--bg-primary);
+            color: var(--accent-color);
+            border-left-color: var(--accent-color);
+        }
+
+        .nav-item i {
+            font-size: 1.2rem;
+            width: 24px;
+            text-align: center;
+        }
+
+        .nav-item span {
+            font-weight: 500;
+            font-size: 1rem;
+        }
+
+        .sidebar-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 8px;
+            background: var(--bg-primary);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .user-info h4 {
+            font-size: 0.9rem;
+            color: var(--text-primary);
+            margin-bottom: 0.2rem;
+        }
+
+        .user-info p {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* Main Content Area */
+        .main-area {
+            flex: 1;
+            margin-left: 280px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: var(--bg-secondary);
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .search-bar {
+            position: relative;
+            flex: 1;
+            max-width: 400px;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 0.7rem 1rem 0.7rem 2.8rem;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 0.95rem;
+            transition: all 0.3s;
+        }
+
+        .search-bar input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        /* User Profile Dropdown */
+        .user-profile-container {
+            position: relative;
+        }
+
+        .user-profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .user-profile-btn:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .user-avatar-top {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .user-name {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .dropdown-icon {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            transition: transform 0.3s;
+        }
+
+        .user-profile-btn.active .dropdown-icon {
+            transform: rotate(180deg);
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            right: 0;
+            min-width: 240px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .user-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-header {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .dropdown-header h4 {
+            font-size: 1rem;
+            color: var(--text-primary);
+            margin-bottom: 0.3rem;
+        }
+
+        .dropdown-header p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .dropdown-menu {
+            padding: 0.5rem;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background: var(--bg-primary);
+            color: var(--accent-color);
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            text-align: center;
+        }
+
+        .dropdown-item.logout {
+            color: #ef4444;
+            border-top: 1px solid var(--border-color);
+            margin-top: 0.5rem;
+        }
+
+        .dropdown-item.logout:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        /* Content Sections */
+        .content-section {
+            display: none;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .content-section.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Calendar section specific */
+        #calendar-section {
+            padding: 2rem;
+            height: calc(100vh - 80px);
+            overflow: hidden;
+        }
+
+        #calendar-section.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Other sections keep normal scroll */
+        #home-section,
+        #resources-section {
+            padding: 2rem;
+            overflow-y: auto;
+        }
+
+        .section-title {
+            font-size: 2rem;
+            color: var(--text-primary);
+            margin-bottom: 2rem;
+        }
+
+        /* Home Section - Selected Events */
+        .selected-events-grid {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .event-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--accent-color);
+            transition: all 0.3s;
+        }
+
+        .event-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .event-card.deadline-soon {
+            border-left-color: #ef4444;
+        }
+
+        .event-card.upcoming {
+            border-left-color: #10b981;
+        }
+
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+        .remove-event-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: all 0.2s ease;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .remove-event-btn:hover {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+        .event-title {
+            font-size: 1.3rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .event-company {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        .event-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--accent-color);
+        }
+
+        .event-badge.deadline {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+        }
+
+        .event-badge.upcoming {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+        }
+
+        .event-details {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .event-detail {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .event-detail i {
+            color: var(--accent-color);
+        }
+
+        /* Event Register Button */
+        .event-register-btn {
+            display: block;
+            width: 100%;
+            margin-top: 1rem;
+            padding: 0.75rem 1rem;
+            background: var(--accent-color);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            text-decoration: none;
+        }
+
+        .event-register-btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .event-register-btn i {
+            margin-right: 0.5rem;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--accent-color);
+            opacity: 0.3;
+            margin-bottom: 1rem;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Progress Tracking Widget */
+        .progress-tracking-widget {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .widget-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .widget-header h2 {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .widget-header p {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+
+        .view-roadmap-btn {
+            padding: 0.625rem 1.25rem;
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .view-roadmap-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .progress-tracks {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .track-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem;
+            background: var(--bg-primary);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+        }
+
+        .track-item:hover {
+            transform: translateX(4px);
+            border-color: var(--accent-color);
+        }
+
+        .track-info {
+            flex: 1;
+        }
+
+        .track-name {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .track-subject-badge {
+            padding: 0.25rem 0.625rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .track-subject-badge.dsa { background: #3b82f6; color: white; }
+        .track-subject-badge.os { background: #10b981; color: white; }
+        .track-subject-badge.dbms { background: #f59e0b; color: white; }
+        .track-subject-badge.cn { background: #8b5cf6; color: white; }
+        .track-subject-badge.sd { background: #ec4899; color: white; }
+
+        .track-progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--bg-secondary);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .track-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent-color), var(--accent-hover));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .track-percentage {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            min-width: 60px;
+            text-align: right;
+        }
+
+        .no-roadmap-state {
+            text-align: center;
+            padding: 3rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .no-roadmap-state i {
+            font-size: 3.5rem;
+            color: var(--accent-color);
+            opacity: 0.3;
+            margin-bottom: 1rem;
+        }
+
+        .no-roadmap-state h3 {
+            font-size: 1.25rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .create-roadmap-btn {
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.3s;
+        }
+
+        .create-roadmap-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Home Page Layout */
+        .home-layout {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+            padding: 1.5rem 2rem;
+        }
+
+        .home-main {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .home-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .events-widget {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .widget-title {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Dashboard Cards (Right Sidebar) */
+        .dashboard-card {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+        }
+
+        /* Progress Chart */
+        .progress-chart-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+        }
+
+        .chart-center-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .chart-percentage {
+            display: block;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-color);
+            line-height: 1;
+        }
+
+        .chart-label {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-top: 0.25rem;
+        }
+
+        /* Quick Stats */
+        .stats-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            background: var(--bg-primary);
+            border-radius: 10px;
+            transition: all 0.3s;
+        }
+
+        .stat-item:hover {
+            transform: translateX(4px);
+        }
+
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.125rem;
+        }
+
+        .stat-details {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .home-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .home-sidebar {
+                grid-template-columns: repeat(2, 1fr);
+                display: grid;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .home-sidebar {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Calendar Section */
+        #calendar-section {
+            padding: 1.5rem 2rem;
+            height: calc(100vh - 80px);
+            overflow: hidden;
+        }
+
+        .calendar-layout {
+            display: flex;
+            height: 100%;
+            gap: 2rem;
+            flex-direction: row-reverse;
+        }
+
+        .calendar-sidebar {
+            width: 320px;
+            background: var(--bg-secondary);
+            border-left: 1px solid var(--border-color);
+            padding: 1.5rem;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .sidebar-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 0.5rem 0;
+            flex-shrink: 0;
+        }
+
+        .sidebar-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin: 0 0 1rem 0;
+            flex-shrink: 0;
+        }
+
+        .upcoming-events-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            overflow-y: auto;
+            overflow-x: hidden;
+            flex: 1;
+            padding-right: 0.5rem;
+            max-height: calc(100vh - 250px);
+        }
+
+        .upcoming-events-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .upcoming-events-list::-webkit-scrollbar-track {
+            background: var(--bg-primary);
+            border-radius: 4px;
+        }
+
+        .upcoming-events-list::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 4px;
+        }
+
+        .upcoming-events-list::-webkit-scrollbar-thumb:hover {
+            background: var(--accent-hover);
+        }
+
+        .upcoming-event-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .upcoming-event-card:hover {
+            border-color: var(--accent-color);
+            transform: translateX(4px);
+        }
+
+        .upcoming-event-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .event-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--bg-secondary);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .upcoming-event-title {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .upcoming-event-time {
+            font-size: 13px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        /* Platform Badges */
+        .platform-badge {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-top: 0.25rem;
+        }
+
+        .platform-codeforces {
+            background: #1F8ACB;
+            color: white;
+        }
+
+        .platform-leetcode {
+            background: #FFA116;
+            color: white;
+        }
+
+        .platform-codechef {
+            background: #5B4638;
+            color: white;
+        }
+
+        .platform-atcoder {
+            background: #FF6B35;
+            color: white;
+        }
+
+        .event-view-btn {
+            display: block;
+            width: 100%;
+            margin-top: 0.75rem;
+            padding: 0.5rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .event-view-btn:hover {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        /* Event Goal Button */
+        .event-goal-btn {
+            display: block;
+            width: 100%;
+            margin-top: 0.75rem;
+            padding: 0.5rem;
+            background: var(--accent-color);
+            border: 1px solid var(--accent-color);
+            border-radius: 6px;
+            color: white;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .event-goal-btn:hover {
+            background: var(--accent-hover);
+            border-color: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .event-goal-btn.in-goals {
+            background: var(--bg-secondary);
+            border-color: var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .event-goal-btn.in-goals:hover {
+            background: #ef4444;
+            border-color: #ef4444;
+            color: white;
+        }
+
+        .event-goal-btn.in-goals:hover i {
+            transform: rotate(0deg);
+        }
+
+        .event-goal-btn i {
+            margin-right: 0.25rem;
+        }
+
+        .empty-state-small {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-state-small i {
+            font-size: 32px;
+            margin-bottom: 0.5rem;
+            opacity: 0.5;
+        }
+
+        .empty-state-small p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .calendar-main {
+            flex: 1;
+            background: var(--bg-primary);
+            overflow: hidden;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 0;
+            padding-right: 1rem;
+        }
+
+        #calendar {
+            max-width: 100%;
+            width: 100%;
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        /* Dark mode calendar background */
+        [data-theme="dark"] #calendar {
+            background: var(--bg-secondary);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* FullCalendar Custom Styling - Codeforces style */
+        .fc {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .fc .fc-toolbar {
+            padding: 0 0 1.5rem 0;
+            margin-bottom: 0;
+        }
+
+        .fc .fc-toolbar-chunk {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .fc .fc-toolbar-title {
+            font-size: 24px;
+            font-weight: 400;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .fc .fc-button {
+            background: var(--accent-color) !important;
+            border: none !important;
+            color: white !important;
+            padding: 0.5rem 1rem;
+            font-weight: 500;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .fc .fc-button:hover {
+            background: #5558dd !important;
+            opacity: 0.9;
+        }
+
+        .fc .fc-button-active {
+            background: #4a4ec5 !important;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .fc .fc-prev-button,
+        .fc .fc-next-button {
+            padding: 0.5rem 0.75rem !important;
+        }
+
+        .fc-theme-standard td,
+        .fc-theme-standard th {
+            border-color: var(--border-color) !important;
+        }
+
+        .fc .fc-scrollgrid {
+            border-color: var(--border-color) !important;
+        }
+
+        .fc .fc-col-header-cell {
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color) !important;
+            padding: 0.75rem 0.5rem;
+        }
+
+        .fc .fc-col-header-cell-cushion {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 14px;
+            text-transform: capitalize;
+        }
+
+        .fc .fc-daygrid-day {
+            background: transparent;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .fc .fc-daygrid-day:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .fc .fc-daygrid-day-number {
+            color: var(--text-primary);
+            font-size: 14px;
+            padding: 0.5rem;
+            font-weight: 500;
+        }
+
+        .fc .fc-day-other .fc-daygrid-day-number {
+            color: var(--text-secondary);
+            opacity: 0.3;
+        }
+
+        .fc .fc-day-today {
+            background: rgba(99, 102, 241, 0.08) !important;
+        }
+
+        .fc .fc-day-today .fc-daygrid-day-number {
+            color: var(--accent-color);
+            font-weight: 700;
+        }
+
+        .fc-daygrid-day-frame {
+            min-height: 120px;
+            cursor: pointer;
+        }
+
+        /* Event styling - Color coded */
+        .fc-event {
+            border: none !important;
+            border-radius: 6px;
+            padding: 6px 8px;
+            font-size: 12px;
+            margin-bottom: 3px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        /* Hackathon events - Blue */
+        .fc-event.event-hackathon {
+            background: #3b82f6 !important;
+            color: white !important;
+        }
+
+        .fc-event.event-hackathon:hover {
+            background: #2563eb !important;
+        }
+
+        /* Internship events - Orange */
+        .fc-event.event-internship {
+            background: #f97316 !important;
+         
+
+        /* Event Detail Modal */
+        .event-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            padding: 2rem;
+        }
+
+        .event-modal.active {
+            display: flex;
+        }
+
+        .event-modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+        }
+
+        [data-theme="dark"] .event-modal-content {
+            background: var(--bg-secondary);
+        }
+
+        .event-modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--text-secondary);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .event-modal-close:hover {
+            background: rgba(0, 0, 0, 0.1);
+            color: var(--text-primary);
+        }
+
+        .event-modal-header {
+            margin-bottom: 1.5rem;
+            padding-right: 2rem;
+        }
+
+        .event-modal-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .event-modal-company {
+            font-size: 16px;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .event-modal-badges {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .event-modal-badge {
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .badge-hackathon {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .badge-internship {
+            background: #fed7aa;
+            color: #9a3412;
+        }
+
+        .badge-contest {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .event-modal-body {
+            margin-bottom: 1.5rem;
+        }
+
+        .event-detail-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .event-detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .event-detail-row i {
+            color: var(--accent-color);
+            width: 20px;
+            text-align: center;
+        }
+
+        .event-detail-label {
+            font-weight: 600;
+            color: var(--text-primary);
+            min-width: 100px;
+        }
+
+        .event-detail-value {
+            color: var(--text-secondary);
+            flex: 1;
+        }
+
+        .event-modal-description {
+            margin: 1.5rem 0;
+            padding: 1rem;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .event-modal-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+            font-size: 14px;
+        }
+
+        .modal-btn-primary {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .modal-btn-primary:hover {
+            background: #5558dd;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .modal-btn-secondary {
+            background: transparent;
+            color: var(--text-primary);
+            border: 2px solid var(--border-color);
+        }
+
+        .modal-btn-secondary:hover {
+            background: var(--bg-primary);
+            border-color: var(--accent-color);
+        }   color: white !important;
+        }
+
+        .fc-event.event-internship:hover {
+            background: #ea580c !important;
+        }
+
+        /* Contest events - Green */
+        .fc-event.event-contest {
+            background: #10b981 !important;
+            color: white !important;
+        }
+
+        .fc-event.event-contest:hover {
+            background: #059669 !important;
+        }
+
+        /* External Contest Styling */
+        .fc-event.external-contest {
+            font-style: italic;
+            border-left: 4px solid white !important;
+        }
+
+        .fc-event.external-contest .fc-event-title:before {
+            content: '🌐 ';
+            margin-right: 2px;
+        }
+
+        .fc-event-title {
+            font-weight: 500;
+        }
+
+        .fc-event:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .fc .fc-daygrid-event {
+            margin: 2px 3px;
+        }
+
+        @media (max-width: 1024px) {
+            .calendar-sidebar {
+                display: none;
+            }
+        }
+
+        /* Filter Buttons */
+        .filter-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.75rem 1.5rem;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+            transform: translateY(-2px);
+        }
+
+        .filter-btn.active {
+            background: var(--accent-color);
+            border-color: var(--accent-color);
+            color: white;
+        }
+
+        .filter-btn i {
+            font-size: 1rem;
+        }
+
+        /* Resources Section */
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+        }
+
+        .resource-card {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 2rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .resource-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .resource-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .resource-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: white;
+        }
+
+        .resource-header h2 {
+            font-size: 1.5rem;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .resource-content h3 {
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin: 1.5rem 0 0.75rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .resource-content h3 i {
+            color: var(--accent-color);
+            font-size: 1rem;
+        }
+
+        .resource-content ul {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 1rem 0;
+        }
+
+        .resource-content li {
+            padding: 0.5rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .resource-content li::before {
+            content: "\2022";
+            color: var(--accent-color);
+            font-weight: bold;
+            position: absolute;
+            left: 0;
+        }
+
+        .resource-content li strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .resources-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-buttons {
+                gap: 0.5rem;
+            }
+            
+            .filter-btn {
+                padding: 0.6rem 1rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        /* Profile, Settings, Notifications Sections */
+        .profile-container,
+        .settings-container,
+        .notifications-container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .profile-card,
+        .settings-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .profile-avatar-large {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-color), #a78bfa);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        .profile-info h2 {
+            font-size: 1.8rem;
+            color: var(--text-primary);
+            margin-bottom: 0.3rem;
+        }
+
+        .profile-info p {
+            color: var(--text-secondary);
+            margin-bottom: 0.5rem;
+        }
+
+        .profile-stats {
+            display: flex;
+            gap: 2rem;
+            margin-top: 1rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .btn-primary,
+        .btn-secondary {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5a4fcc;
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-primary);
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .setting-item:last-child {
+            border-bottom: none;
+        }
+
+        .setting-info h3 {
+            font-size: 1rem;
+            color: var(--text-primary);
+            margin-bottom: 0.3rem;
+        }
+
+        .setting-info p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            background: #ccc;
+            border-radius: 13px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: var(--accent-color);
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.3s;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(24px);
+        }
+
+        .notification-item {
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s;
+        }
+
+        .notification-item:hover {
+            border-color: var(--accent-color);
+        }
+
+        .notification-item.unread {
+            background: rgba(99, 102, 241, 0.1);
+            border-color: var(--accent-color);
+        }
+
+        .notification-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-color), #a78bfa);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .notification-content {
+            flex: 1;
+        }
+
+        .notification-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 0.3rem;
+        }
+
+        .notification-message {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .notification-time {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+
+        .notification-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .notification-actions button {
+            padding: 0.4rem 0.8rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+        }
+
+        .mark-read-btn {
+            background: var(--accent-color);
+            color: white;
+        }
+
+        .mark-read-btn:hover {
+            background: #5a4fcc;
+        }
+
+        .delete-notif-btn {
+            background: #ef4444;
+            color: white;
+        }
+
+        .delete-notif-btn:hover {
+            background: #dc2626;
+        }
+
+        .notification-filters {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .notif-filter-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .notif-filter-btn:hover {
+            border-color: var(--accent-color);
+        }
+
+        .notif-filter-btn.active {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Theme Toggle */
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s;
+                z-index: 1000;
+            }
+
+            .sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .main-area {
+                margin-left: 0;
+            }
+
+            .top-bar {
+                padding: 1rem;
+            }
+
+            .content-section {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="dashboard.html" class="sidebar-logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>InternTrack</span>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-item active" data-section="home">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </div>
+                <a href="roadmap.html" class="nav-item">
+                    <i class="fas fa-route"></i>
+                    <span>My Roadmap</span>
+                </a>
+                <div class="nav-item" data-section="calendar">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Calendar</span>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- Main Area -->
+        <div class="main-area">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search events, companies, resources...">
+                </div>
+                
+                <!-- User Profile -->
+                <div class="user-profile-container">
+                    <div class="user-profile-btn" id="userProfileBtn">
+                        <div class="user-avatar-top" id="userAvatarTop">U</div>
+                        <span class="user-name" id="userNameTop">User</span>
+                        <i class="fas fa-chevron-down dropdown-icon"></i>
+                    </div>
+                    
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="dropdown-header">
+                            <h4 id="dropdownUserName">User Name</h4>
+                            <p id="dropdownUserEmail">user@example.com</p>
+                        </div>
+                        <div class="dropdown-menu">
+                            <a href="#" class="dropdown-item" data-section="profile">
+                                <i class="fas fa-user"></i>
+                                <span>My Profile</span>
+                            </a>
+                            <a href="#" class="dropdown-item" data-section="settings">
+                                <i class="fas fa-cog"></i>
+                                <span>Settings</span>
+                            </a>
+                            <a href="#" class="dropdown-item" data-section="notifications">
+                                <i class="fas fa-bell"></i>
+                                <span>Notifications</span>
+                            </a>
+                            <a href="#" class="dropdown-item logout" id="logoutBtn">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Home Section -->
+            <section class="content-section active" id="home-section">
+                <div class="home-layout">
+                    <!-- Main Content Area -->
+                    <div class="home-main">
+                        <!-- Events Section -->
+                        <div class="events-widget">
+                            <h2 class="widget-title">📅 Upcoming Events</h2>
+                            <div class="selected-events-grid" id="selectedEvents">
+                                <!-- Empty State -->
+                                <div class="empty-state">
+                                    <i class="fas fa-calendar-check"></i>
+                                    <h3>No Events Selected Yet</h3>
+                                    <p>Go to Calendar to browse and select internships & hackathons</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Sidebar Dashboard -->
+                    <div class="home-sidebar">
+                        <!-- Overall Progress Chart -->
+                        <div class="dashboard-card">
+                            <h3 class="card-title">Overall Progress</h3>
+                            <div class="progress-chart-container">
+                                <canvas id="progressChart" width="200" height="200"></canvas>
+                                <div class="chart-center-text">
+                                    <span class="chart-percentage" id="overallPercentage">0%</span>
+                                    <span class="chart-label">Complete</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Track Progress by Subject -->
+                        <div class="dashboard-card">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+                                <h3 class="card-title" style="margin: 0;">📊 Track Progress</h3>
+                                <a href="roadmap.html" style="font-size: 0.875rem; color: var(--accent-color); text-decoration: none; display: flex; align-items: center; gap: 0.25rem;">
+                                    View All
+                                    <i class="fas fa-arrow-right"></i>
+                                </a>
+                            </div>
+                            <div class="progress-tracks" id="progressTracks">
+                                <!-- Progress tracks will be dynamically loaded here -->
+                                <div class="no-roadmap-state">
+                                    <i class="fas fa-map-marked-alt"></i>
+                                    <h3>No Active Roadmap</h3>
+                                    <p>Create a learning roadmap to start tracking your progress</p>
+                                    <a href="roadmap.html" class="create-roadmap-btn">
+                                        <i class="fas fa-plus"></i>
+                                        Create Roadmap
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Calendar Section -->
+            <section class="content-section" id="calendar-section">
+                <div style="margin-bottom: 1.5rem;">
+                    <h1 class="section-title" style="margin-bottom: 1rem;">Event Calendar</h1>
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-filter="all">
+                            <i class="fas fa-calendar-alt"></i> All Events
+                        </button>
+                        <button class="filter-btn" data-filter="hackathon">
+                            <i class="fas fa-code"></i> Hackathons
+                        </button>
+                        <button class="filter-btn" data-filter="internship">
+                            <i class="fas fa-briefcase"></i> Internships
+                        </button>
+                        <button class="filter-btn" data-filter="contest">
+                            <i class="fas fa-trophy"></i> Contests
+                        </button>
+                    </div>
+                </div>
+                <div class="calendar-layout">
+                    <!-- Sidebar for upcoming events -->
+                    <div class="calendar-sidebar">
+                        <h2 class="sidebar-title">Upcoming Events</h2>
+                        <div id="upcomingEventsList" class="upcoming-events-list">
+                            <div class="empty-state-small">
+                                <i class="fas fa-calendar-check"></i>
+                                <p>No upcoming events</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Main calendar area -->
+                    <div class="calendar-main">
+                        <div id="calendar"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Removed Resources Section - Now integrated into event details page -->
+            <section class="content-section" id="resources-section" style="display:none;">
+                <h1 class="section-title">Preparation Guides & Resources</h1>
+                
+                <div class="resources-grid">
+                    <!-- Hackathon Preparation -->
+                    <div class="resource-card">
+                        <div class="resource-header">
+                            <div class="resource-icon" style="background: linear-gradient(135deg, #10b981, #059669);">
+                                <i class="fas fa-code"></i>
+                            </div>
+                            <h2>Hackathon Preparation Guide</h2>
+                        </div>
+                        <div class="resource-content">
+                            <h3><i class="fas fa-info-circle"></i> What is a Hackathon?</h3>
+                            <ul>
+                                <li>A <strong>hackathon</strong> is an intensive event (usually 24-48 hours) where developers, designers, and innovators collaborate to build working prototypes or solutions to specific problems</li>
+                                <li>Companies use hackathons to identify talented developers, promote innovation, and sometimes recruit directly</li>
+                                <li>Participants compete in teams (usually 2-4 members) to create functional software, apps, or hardware solutions</li>
+                                <li><strong>Prize:</strong> Cash rewards, internship opportunities, mentorship, and recognition</li>
+                                <li><strong>Types:</strong> Physical (on-campus), Virtual (online), or Hybrid format</li>
+                            </ul>
+
+                            <h3><i class="fas fa-list-ol"></i> Typical Hackathon Round Structure</h3>
+                            <ul>
+                                <li><strong>Total Rounds:</strong> Usually 3-4 rounds spanning 1-3 months</li>
+                                <li>Each round eliminates teams progressively until the final winners</li>
+                                <li>Top companies: Google, Microsoft, Meta, Uber conduct multi-round hackathons</li>
+                            </ul>
+
+                            <h3><i class="fas fa-clipboard-list"></i> Round 1: Registration & Idea Submission (Week 1-2)</h3>
+                            <ul>
+                                <li><strong>What happens:</strong> Teams register on the company's portal and submit their initial idea or problem statement</li>
+                                <li><strong>Deliverables:</strong> Team details, project title, abstract (200-500 words), technology stack, and expected impact</li>
+                                <li><strong>Duration:</strong> Typically 1-2 weeks for registration window</li>
+                                <li><strong>Selection Criteria:</strong> Innovation, feasibility, alignment with hackathon theme (e.g., FinTech, HealthTech, Sustainability)</li>
+                                <li><strong>Example Themes:</strong> "Build for billion users" (Uber), "Social Good" (Microsoft), "Future of Commerce" (Amazon)</li>
+                                <li><strong>Outcome:</strong> 40-50% of teams are shortlisted for next round</li>
+                                <li><strong>Pro Tip:</strong> Make your abstract compelling - clearly state the problem you're solving and why it matters</li>
+                            </ul>
+
+                            <h3><i class="fas fa-code"></i> Round 2: Online Screening/Quiz (Week 3)</h3>
+                            <ul>
+                                <li><strong>What happens:</strong> Shortlisted teams take an online technical assessment to prove coding skills</li>
+                                <li><strong>Format:</strong> MCQs + Coding Problems (2-3 questions)</li>
+                                <li><strong>Topics Tested:</strong> Data Structures, Algorithms, Problem Solving, Domain Knowledge (based on theme)</li>
+                                <li><strong>Duration:</strong> 90-120 minutes</li>
+                                <li><strong>Difficulty Level:</strong> Easy to Medium (similar to LeetCode Medium)</li>
+                                <li><strong>Team Participation:</strong> Either 1 representative per team OR entire team (varies by hackathon)</li>
+                                <li><strong>Outcome:</strong> Top 20-30% teams advance to prototyping round</li>
+                                <li><strong>Example (Google HackTag):</strong> 2 coding problems + 20 MCQs on data structures in 2 hours</li>
+                            </ul>
+
+                            <h3><i class="fas fa-laptop-code"></i> Round 3: Prototype Development (Week 4-6)</h3>
+                            <ul>
+                                <li><strong>What happens:</strong> The actual hackathon phase where teams build their product from scratch</li>
+                                <li><strong>Duration:</strong> 24-48 hours continuous coding (can be spread over a weekend)</li>
+                                <li><strong>Start Time:</strong> Usually Friday evening or Saturday morning</li>
+                                <li><strong>Submission Deadline:</strong> Sunday evening with strict cutoff</li>
+                                <li><strong>Environment:</strong> Physical venue (college/company office) OR virtual (Discord/Slack channels)</li>
+                            </ul>
+
+                            <h3><i class="fas fa-clock"></i> Hour-by-Hour Hackathon Strategy (24-hour format)</h3>
+                            <ul>
+                                <li><strong>Hour 0-1 (Opening Ceremony):</strong> Problem statement reveal, mentors introduced, rules explained. Attend carefully!</li>
+                                <li><strong>Hour 1-3 (Ideation & Planning):</strong> Brainstorm solutions, finalize ONE idea, sketch wireframes, divide tasks (Frontend/Backend/DB/Design)</li>
+                                <li><strong>Hour 3-4 (Setup):</strong> Create GitHub repo, setup development environment, initialize project (React + Node/Flask), configure database</li>
+                                <li><strong>Hour 4-12 (Core Development):</strong> Build the MVP - focus on critical features only. Frontend builds UI, Backend creates APIs, Designer polishes mockups</li>
+                                <li><strong>Hour 12-14 (Integration Break):</strong> Take short power naps (crucial!), grab food, integrate frontend-backend</li>
+                                <li><strong>Hour 14-18 (Feature Completion):</strong> Complete all planned features, connect all components, add error handling</li>
+                                <li><strong>Hour 18-20 (Testing & Bug Fixing):</strong> Test every feature thoroughly, fix critical bugs, handle edge cases</li>
+                                <li><strong>Hour 20-22 (UI Polish & Deployment):</strong> Improve UI/UX, add animations, deploy on cloud (Vercel/Heroku), test live URL</li>
+                                <li><strong>Hour 22-24 (Presentation Prep):</strong> Create PPT (10 slides max), record demo video (3-5 min), prepare pitch script, rehearse demo</li>
+                                <li><strong>Submission:</strong> Upload code to GitHub, submit live URL, PPT, and video before deadline (miss deadline = disqualification!)</li>
+                            </ul>
+
+                            <h3><i class="fas fa-presentation"></i> Round 4: Presentation & Demo (Finals)</h3>
+                            <ul>
+                                <li><strong>What happens:</strong> Top 10-15 teams present their solutions to judges (company engineers, CTOs, VPs)</li>
+                                <li><strong>Format:</strong> 5 min presentation + 5 min live demo + 5 min Q&A = 15 min total per team</li>
+                                <li><strong>Presentation Structure:</strong> 
+                                    <br>• Slide 1: Team intro (names, colleges, roles)
+                                    <br>• Slide 2-3: Problem statement (make judges feel the pain point)
+                                    <br>• Slide 4-5: Your solution (how it works, uniqueness)
+                                    <br>• Slide 6-7: Live demo or video walkthrough
+                                    <br>• Slide 8: Tech stack & architecture diagram
+                                    <br>• Slide 9: Impact & scalability (how it helps users)
+                                    <br>• Slide 10: Future scope & thank you
+                                </li>
+                                <li><strong>Live Demo Tips:</strong> Rehearse 10+ times, use sample data (don't create new data live), have backup video if WiFi fails, test on judges' screen beforehand</li>
+                                <li><strong>Common Judge Questions:</strong> "How is this different from existing solutions?", "What if X scenario happens?", "How will you scale this?", "What challenges did you face?"</li>
+                                <li><strong>Judging Criteria (typical breakdown):</strong>
+                                    <br>• Innovation & Creativity: 25%
+                                    <br>• Technical Complexity: 20%
+                                    <br>• Usefulness & Impact: 25%
+                                    <br>• Design & User Experience: 15%
+                                    <br>• Presentation Quality: 15%
+                                </li>
+                                <li><strong>Outcome:</strong> Winners announced (1st, 2nd, 3rd prizes + special mentions)</li>
+                            </ul>
+
+                            <h3><i class="fas fa-users"></i> Team Formation Strategy</h3>
+                            <ul>
+                                <li><strong>Ideal Team Size:</strong> 3-4 members (2 is too risky, 5+ creates coordination issues)</li>
+                                <li><strong>Role Distribution:</strong>
+                                    <br>• <strong>Full Stack Developer (2 people):</strong> One focuses on frontend (React/Vue), other on backend (Node/Django)
+                                    <br>• <strong>UI/UX Designer (1 person):</strong> Creates mockups in Figma, ensures polished interface
+                                    <br>• <strong>Presenter/PM (1 person):</strong> Manages timeline, prepares presentation, often overlaps with backend dev
+                                </li>
+                                <li><strong>Team Chemistry:</strong> Work with people you've collaborated before, shared GitHub repos, or done projects together</li>
+                                <li><strong>Where to find teammates:</strong> College coding clubs, GitHub, LinkedIn, hackathon Discord servers, or friends from previous competitions</li>
+                            </ul>
+
+                            <h3><i class="fas fa-tools"></i> Tech Stack Recommendations</h3>
+                            <ul>
+                                <li><strong>Use what you KNOW:</strong> Hackathons are NOT the time to learn new frameworks - stick to familiar tech</li>
+                                <li><strong>Quick Setup Stack:</strong>
+                                    <br>• Frontend: React + Tailwind CSS (fast UI building)
+                                    <br>• Backend: Node.js + Express (JavaScript everywhere) OR Python Flask (simple APIs)
+                                    <br>• Database: Firebase (real-time, zero setup) OR MongoDB Atlas (free cloud database)
+                                    <br>• Deployment: Vercel (frontend), Render/Railway (backend)
+                                </li>
+                                <li><strong>Advanced Stack (if experienced):</strong> Next.js (full-stack React), Supabase (Firebase alternative), TypeScript, PostgreSQL</li>
+                                <li><strong>Must-Have Tools:</strong> Git/GitHub (version control), Postman (API testing), Figma (design), VS Code Live Share (real-time collaboration)</li>
+                            </ul>
+
+                            <h3><i class="fas fa-trophy"></i> Winning Strategies</h3>
+                            <ul>
+                                <li><strong>Problem > Technology:</strong> Judges care about the problem you're solving, not fancy tech you used</li>
+                                <li><strong>Working Demo is KING:</strong> A simple working solution beats a complex broken one - always!</li>
+                                <li><strong>Storytelling Matters:</strong> Start with a relatable story/scenario to hook judges emotionally</li>
+                                <li><strong>Quantify Impact:</strong> "Saves 2 hours daily for 10,000 students" > "Makes life easier"</li>
+                                <li><strong>Backup Everything:</strong> Record demo video, take screenshots, have GitHub README ready</li>
+                                <li><strong>Practice Pitch:</strong> Rehearse in front of friends, time yourself, anticipate questions</li>
+                                <li><strong>Mentorship:</strong> Talk to mentors during hackathon - they give valuable feedback and may influence judges</li>
+                                <li><strong>Git Commits:</strong> Commit frequently with good messages - judges often check commit history for genuine work</li>
+                            </ul>
+
+                            <h3><i class="fas fa-exclamation-triangle"></i> Common Pitfalls to Avoid</h3>
+                            <ul>
+                                <li><strong>Scope Creep:</strong> Trying to build 10 features instead of 3 core ones - keep it simple!</li>
+                                <li><strong>Poor Time Management:</strong> Spending 15 hours on one feature - timebox tasks!</li>
+                                <li><strong>Ignoring UI:</strong> Great backend with ugly UI loses to decent backend with polished UI</li>
+                                <li><strong>No Testing:</strong> Demo crashes during presentation - always test before submitting</li>
+                                <li><strong>Plagiarism:</strong> Copying existing projects - judges can tell, leads to disqualification</li>
+                                <li><strong>Overconfidence:</strong> Not rehearsing presentation - practice makes perfect!</li>
+                            </ul>
+
+                            <h3><i class="fas fa-calendar-alt"></i> Pre-Hackathon Checklist (1 week before)</h3>
+                            <ul>
+                                <li>☐ Team finalized and registered</li>
+                                <li>☐ Roles assigned to each member</li>
+                                <li>☐ Tech stack decided and tested locally</li>
+                                <li>☐ GitHub organization/repo created</li>
+                                <li>☐ Design tools setup (Figma/Canva)</li>
+                                <li>☐ Cloud accounts created (Vercel, MongoDB Atlas, Firebase)</li>
+                                <li>☐ Boilerplate code ready (React template, Express server template)</li>
+                                <li>☐ Communication channel setup (WhatsApp group, Discord server)</li>
+                                <li>☐ Laptop charged, stable internet verified</li>
+                                <li>☐ Snacks, energy drinks, and backup plan for meals ready!</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Internship Preparation -->
+                    <div class="resource-card">
+                        <div class="resource-header">
+                            <div class="resource-icon" style="background: linear-gradient(135deg, #f97316, #ea580c);">
+                                <i class="fas fa-briefcase"></i>
+                            </div>
+                            <h2>Internship Preparation</h2>
+                        </div>
+                        <div class="resource-content">
+                            <h3><i class="fas fa-code"></i> Technical Preparation</h3>
+                            <ul>
+                                <li><strong>Data Structures:</strong> Arrays, Linked Lists, Trees, Graphs, Hash Tables</li>
+                                <li><strong>Algorithms:</strong> Sorting, Searching, Dynamic Programming, Greedy</li>
+                                <li><strong>Practice Platforms:</strong> LeetCode, HackerRank, CodeForces</li>
+                                <li><strong>Target:</strong> Solve 150-200 problems (Easy: 40%, Medium: 50%, Hard: 10%)</li>
+                            </ul>
+
+                            <h3><i class="fas fa-laptop-code"></i> Development Skills</h3>
+                            <ul>
+                                <li>Build 2-3 full-stack projects (showcase on GitHub)</li>
+                                <li>Learn Git & version control (commits, branches, PRs)</li>
+                                <li>Understand REST APIs and databases</li>
+                                <li>Deploy projects (use free hosting: Vercel, Netlify)</li>
+                            </ul>
+
+                            <h3><i class="fas fa-file-alt"></i> Resume Building</h3>
+                            <ul>
+                                <li>Keep it to 1 page (2 pages max for experienced)</li>
+                                <li>Highlight projects with tech stack & impact</li>
+                                <li>Use action verbs: Built, Developed, Optimized, Implemented</li>
+                                <li>Quantify achievements: "Improved performance by 40%"</li>
+                                <li>Tailor resume for each company</li>
+                            </ul>
+
+                            <h3><i class="fas fa-comments"></i> Interview Rounds</h3>
+                            <ul>
+                                <li><strong>Round 1 - Online Test:</strong> Coding + MCQs (2-3 hours)</li>
+                                <li><strong>Round 2 - Technical:</strong> DSA + CS fundamentals</li>
+                                <li><strong>Round 3 - Project Discussion:</strong> Deep dive into your projects</li>
+                                <li><strong>Round 4 - HR:</strong> Behavioral questions + culture fit</li>
+                            </ul>
+
+                            <h3><i class="fas fa-star"></i> Pro Tips</h3>
+                            <ul>
+                                <li>Start preparing 3-6 months before placement season</li>
+                                <li>Consistency > Intensity (1-2 hours daily better than cramming)</li>
+                                <li>Practice mock interviews with peers</li>
+                                <li>Follow company-specific interview patterns</li>
+                                <li>Network on LinkedIn - connect with alumni</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Contest Preparation -->
+                    <div class="resource-card">
+                        <div class="resource-header">
+                            <div class="resource-icon" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                                <i class="fas fa-trophy"></i>
+                            </div>
+                            <h2>Contest Preparation</h2>
+                        </div>
+                        <div class="resource-content">
+                            <h3><i class="fas fa-book"></i> Core Topics to Master</h3>
+                            <ul>
+                                <li><strong>Math:</strong> Number Theory, Combinatorics, Probability</li>
+                                <li><strong>Algorithms:</strong> Greedy, DP, Graph algorithms, String algorithms</li>
+                                <li><strong>Data Structures:</strong> Segment Trees, Fenwick Trees, Trie</li>
+                                <li><strong>Advanced:</strong> Suffix Arrays, KMP, Z-algorithm</li>
+                            </ul>
+
+                            <h3><i class="fas fa-chart-line"></i> Rating Journey</h3>
+                            <ul>
+                                <li><strong>Newbie (0-1199):</strong> Focus on implementation & basic math</li>
+                                <li><strong>Pupil (1200-1399):</strong> Binary search, two pointers, greedy</li>
+                                <li><strong>Specialist (1400-1599):</strong> DP basics, graph traversal</li>
+                                <li><strong>Expert (1600+):</strong> Advanced DP, segment trees, number theory</li>
+                            </ul>
+
+                            <h3><i class="fas fa-dumbbell"></i> Training Regimen</h3>
+                            <ul>
+                                <li>Participate in 2-3 contests per week (Codeforces, AtCoder, LeetCode)</li>
+                                <li>Upsolve problems you couldn't solve during contest</li>
+                                <li>Practice problems 100-200 rating above your current level</li>
+                                <li>Learn from editorials and others' solutions</li>
+                            </ul>
+
+                            <h3><i class="fas fa-clock"></i> Contest Strategy</h3>
+                            <ul>
+                                <li>Read all problems in first 5-10 minutes</li>
+                                <li>Solve in order of difficulty (usually A → B → C)</li>
+                                <li>Don't get stuck on one problem for too long</li>
+                                <li>Test with edge cases before submitting</li>
+                                <li>Watch penalty time - fewer wrong submissions = better rank</li>
+                            </ul>
+
+                            <h3><i class="fas fa-graduation-cap"></i> Learning Resources</h3>
+                            <ul>
+                                <li><strong>Books:</strong> Competitive Programming 4, Guide to CP</li>
+                                <li><strong>YouTube:</strong> Errichto, William Lin, Colin Galen</li>
+                                <li><strong>Practice:</strong> Codeforces, AtCoder, CodeChef, CSES</li>
+                                <li><strong>Visualizers:</strong> VisuAlgo, Algorithm Visualizer</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- My Profile Section -->
+            <section class="content-section" id="profile-section">
+                <div class="profile-container">
+                    <h1 class="section-title">My Profile</h1>
+                    
+                    <div class="profile-card">
+                        <div class="profile-header">
+                            <div class="profile-avatar-large" id="profileAvatarLarge">U</div>
+                            <div class="profile-info">
+                                <h2 id="profileName">User Name</h2>
+                                <p id="profileEmail">user@example.com</p>
+                                <div class="profile-stats">
+                                    <div class="stat-item">
+                                        <div class="stat-value" id="totalEventsCount">0</div>
+                                        <div class="stat-label">Total Goals</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-value" id="upcomingEventsCount">0</div>
+                                        <div class="stat-label">Upcoming</div>
+                                    </div>
+                                    <div class="stat-item">
+                                        <div class="stat-value" id="memberSince">2026</div>
+                                        <div class="stat-label">Member Since</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <form id="profileForm">
+                            <h3 style="margin-bottom: 1rem; color: var(--text-primary);">Personal Information</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="profile-fullname">Full Name</label>
+                                    <input type="text" id="profile-fullname" placeholder="Enter your full name">
+                                </div>
+                                <div class="form-group">
+                                    <label for="profile-email-display">Email</label>
+                                    <input type="email" id="profile-email-display" placeholder="your@email.com" disabled>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="profile-phone">Phone Number</label>
+                                    <input type="tel" id="profile-phone" placeholder="+1 234 567 8900">
+                                </div>
+                                <div class="form-group">
+                                    <label for="profile-college">College/University</label>
+                                    <input type="text" id="profile-college" placeholder="Your institution">
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="profile-department">Department</label>
+                                    <input type="text" id="profile-department" placeholder="Computer Science, IT, etc.">
+                                </div>
+                                <div class="form-group">
+                                    <label for="profile-year">Year</label>
+                                    <select id="profile-year">
+                                        <option value="">Select Year</option>
+                                        <option value="1">1st Year</option>
+                                        <option value="2">2nd Year</option>
+                                        <option value="3">3rd Year</option>
+                                        <option value="4">4th Year</option>
+                                        <option value="graduate">Graduate</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <h3 style="margin: 2rem 0 1rem; color: var(--text-primary);">Professional Links</h3>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="profile-linkedin"><i class="fab fa-linkedin"></i> LinkedIn</label>
+                                    <input type="url" id="profile-linkedin" placeholder="https://linkedin.com/in/username">
+                                </div>
+                                <div class="form-group">
+                                    <label for="profile-github"><i class="fab fa-github"></i> GitHub</label>
+                                    <input type="url" id="profile-github" placeholder="https://github.com/username">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="profile-portfolio"><i class="fas fa-globe"></i> Portfolio Website</label>
+                                <input type="url" id="profile-portfolio" placeholder="https://yourportfolio.com">
+                            </div>
+
+                            <h3 style="margin: 2rem 0 1rem; color: var(--text-primary);">Skills</h3>
+                            <div class="form-group">
+                                <label for="profile-skills">Technical Skills</label>
+                                <textarea id="profile-skills" rows="3" placeholder="React, Node.js, Python, Java, etc."></textarea>
+                            </div>
+
+                            <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                                <button type="submit" class="btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+                                <button type="button" class="btn-secondary" onclick="loadProfileData()"><i class="fas fa-undo"></i> Reset</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section class="content-section" id="settings-section">
+                <div class="settings-container">
+                    <h1 class="section-title">Settings</h1>
+
+                    <!-- Account Settings -->
+                    <div class="settings-card">
+                        <h3 style="margin-bottom: 1.5rem; color: var(--text-primary);"><i class="fas fa-user-cog"></i> Account Settings</h3>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Change Password</h3>
+                                <p>Update your password to keep your account secure</p>
+                            </div>
+                            <button class="btn-secondary" onclick="showChangePassword()">Change</button>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Email Preferences</h3>
+                                <p>Manage your email communication settings</p>
+                            </div>
+                            <div class="toggle-switch" id="emailPrefToggle" onclick="toggleSetting(this, 'emailPreferences')"></div>
+                        </div>
+                    </div>
+
+                    <!-- Notification Settings -->
+                    <div class="settings-card">
+                        <h3 style="margin-bottom: 1.5rem; color: var(--text-primary);"><i class="fas fa-bell"></i> Notification Settings</h3>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Event Reminders</h3>
+                                <p>Get notified about upcoming events and deadlines</p>
+                            </div>
+                            <div class="toggle-switch active" id="eventRemindersToggle" onclick="toggleSetting(this, 'eventReminders')"></div>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>New Opportunities</h3>
+                                <p>Receive alerts when new internships or hackathons are posted</p>
+                            </div>
+                            <div class="toggle-switch active" id="newOpportunitiesToggle" onclick="toggleSetting(this, 'newOpportunities')"></div>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Deadline Alerts</h3>
+                                <p>Get reminded 24 hours before event deadlines</p>
+                            </div>
+                            <div class="toggle-switch active" id="deadlineAlertsToggle" onclick="toggleSetting(this, 'deadlineAlerts')"></div>
+                        </div>
+                    </div>
+
+                    <!-- Display Preferences -->
+                    <div class="settings-card">
+                        <h3 style="margin-bottom: 1.5rem; color: var(--text-primary);"><i class="fas fa-palette"></i> Display Preferences</h3>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Dark Mode</h3>
+                                <p>Toggle between light and dark theme</p>
+                            </div>
+                            <div class="toggle-switch" id="darkModeToggle" onclick="toggleDarkModeFromSettings()"></div>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Compact View</h3>
+                                <p>Show more events in a condensed layout</p>
+                            </div>
+                            <div class="toggle-switch" id="compactViewToggle" onclick="toggleSetting(this, 'compactView')"></div>
+                        </div>
+                    </div>
+
+                    <!-- Privacy Settings -->
+                    <div class="settings-card">
+                        <h3 style="margin-bottom: 1.5rem; color: var(--text-primary);"><i class="fas fa-shield-alt"></i> Privacy & Security</h3>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Profile Visibility</h3>
+                                <p>Control who can see your profile information</p>
+                            </div>
+                            <select class="btn-secondary" style="padding: 0.5rem 1rem;" onchange="updatePrivacySetting('profileVisibility', this.value)">
+                                <option value="public">Public</option>
+                                <option value="students" selected>Students Only</option>
+                                <option value="private">Private</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Data Collection</h3>
+                                <p>Allow anonymous usage data to improve the platform</p>
+                            </div>
+                            <div class="toggle-switch active" id="dataCollectionToggle" onclick="toggleSetting(this, 'dataCollection')"></div>
+                        </div>
+                    </div>
+
+                    <!-- Danger Zone -->
+                    <div class="settings-card" style="border-color: #ef4444;">
+                        <h3 style="margin-bottom: 1.5rem; color: #ef4444;"><i class="fas fa-exclamation-triangle"></i> Danger Zone</h3>
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <h3>Delete Account</h3>
+                                <p>Permanently delete your account and all associated data</p>
+                            </div>
+                            <button class="btn-secondary" style="background: #ef4444; color: white; border: none;" onclick="confirmDeleteAccount()">Delete</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Notifications Section -->
+            <section class="content-section" id="notifications-section">
+                <div class="notifications-container">
+                    <div class="section-header">
+                        <h1 class="section-title" style="margin-bottom: 0;">Notifications</h1>
+                        <button class="btn-secondary" onclick="markAllAsRead()"><i class="fas fa-check-double"></i> Mark All as Read</button>
+                    </div>
+
+                    <div class="notification-filters">
+                        <button class="notif-filter-btn active" data-filter="all" onclick="filterNotifications('all', this)">All</button>
+                        <button class="notif-filter-btn" data-filter="events" onclick="filterNotifications('events', this)">Events</button>
+                        <button class="notif-filter-btn" data-filter="deadlines" onclick="filterNotifications('deadlines', this)">Deadlines</button>
+                        <button class="notif-filter-btn" data-filter="announcements" onclick="filterNotifications('announcements', this)">Announcements</button>
+                    </div>
+
+                    <div id="notificationsList">
+                        <!-- Notifications will be loaded here -->
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Theme Toggle -->
+        <button class="theme-toggle" id="themeToggle">
+            <i class="fas fa-moon" id="themeIcon"></i>
+        </button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+    <script src="theme.js"></script>
+    <script src="dashboard.js"></script>
+</body>
+</html>
