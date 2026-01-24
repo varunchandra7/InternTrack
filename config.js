@@ -3,7 +3,7 @@ const API_CONFIG = {
   // Update this URL after deploying backend to Render
   BASE_URL: window.location.hostname === 'localhost' 
     ? 'http://localhost:5000/api'
-    : 'https://your-backend-url.onrender.com/api' // Replace after deployment
+    : 'https://interntrack-backend-3cjd.onrender.com/api'
 };
 
 // Export for use in other files
