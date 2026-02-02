@@ -19,7 +19,7 @@ if (!eventId) {
 }
 
 // API Base URL
-const API_URL = 'http://localhost:5000/api';
+const API_URL = window.API_CONFIG?.BASE_URL || 'http://localhost:5000/api';
 
 // Fetch and display event details
 async function fetchEventDetails() {

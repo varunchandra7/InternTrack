@@ -16,7 +16,7 @@ showSigninBtn.addEventListener('click', (e) => {
     signinSection.style.display = 'block';
 });
 
-// API Base URL
+// API Base URL (loaded from config.js)
 const API_URL = window.API_CONFIG?.BASE_URL || 'http://localhost:5000/api';
 
 /**

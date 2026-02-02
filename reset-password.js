@@ -3,7 +3,7 @@
  * This page handles OTP verification for password reset
  */
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = window.API_CONFIG?.BASE_URL || 'http://localhost:5000/api';
 
 // Get email from URL parameter
 const urlParams = new URLSearchParams(window.location.search);

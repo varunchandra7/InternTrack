@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="common.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        .split-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Left Side - Branding */
+        .left-side {
+            flex: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            padding: 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .left-side::before {
+            content: '';
+            position: absolute;
+            width: 400px;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            top: -100px;
+            left: -100px;
+        }
+
+        .left-side::after {
+            content: '';
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            bottom: -80px;
+            right: -80px;
+        }
+
+        /* Logo at top left */
+        .top-logo {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            width: fit-content;
+        }
+
+        .top-logo:hover {
+            transform: translateX(5px);
+        }
+
+        .logo-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .logo-icon i {
+            font-size: 28px;
+            color: white;
+        }
+
+        .logo-text h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0;
+            color: white;
+        }
+
+        /* Content in center */
+        .brand-content {
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            color: white;
+            max-width: 500px;
+            margin: auto;
+        }
+
+        .main-heading {
+            font-size: 56px;
+            font-weight: 800;
+            margin-bottom: 25px;
+            letter-spacing: -2px;
+            line-height: 1.1;
+            background: linear-gradient(to right, #ffffff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 4px 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .brand-tagline {
+            font-size: 22px;
+            opacity: 0.95;
+            font-weight: 300;
+            line-height: 1.6;
+            letter-spacing: 0.5px;
+        }
+
+        .quote-box {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-top: 40px;
+        }
+
+        .quote-text {
+            font-size: 20px;
+            font-style: italic;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .quote-author {
+            font-size: 14px;
+            opacity: 0.9;
+            text-align: right;
+        }
+
+        /* Right Side - Forms */
+        .right-side {
+            flex: 1;
+            background: var(--bg-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            transition: background-color 0.3s ease;
+        }
+
+        .form-container {
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .form-card {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 40px;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 4px 20px var(--shadow);
+        }
+
+        /* Theme Toggle - Positioned at bottom-left corner */
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .split-container {
+                flex-direction: column;
+            }
+
+            .left-side {
+                min-height: 40vh;
+                padding: 40px 30px;
+            }
+
+            .brand-logo {
+                width: 80px;
+                height: 80px;
+            }
+
+            .brand-logo i {
+                font-size: 40px;
+            }
+
+            .brand-title {
+                font-size: 32px;
+            }
+
+            .brand-tagline {
+                font-size: 16px;
+            }
+
+            .quote-box {
+                display: none;
+            }
+
+            .right-side {
+                min-height: 60vh;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form-card {
+                padding: 30px 25px;
+            }
+        }
+    </style>
+    <title>InternTrack - Login</title>
+</head>
+
+<body>
+    <!-- Theme Toggle -->
+    <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+        <i class="fas fa-moon" id="themeIcon"></i>
+    </button>
+
+    <div class="split-container">
+        <!-- Left Side - Branding -->
+        <div class="left-side">
+            <!-- Logo at top left -->
+            <div class="top-logo" onclick="window.location.reload()">
+                <div class="logo-icon">
+                    <i class="fas fa-graduation-cap"></i>
+                </div>
+                <div class="logo-text">
+                    <h1>InternTrack</h1>
+                </div>
+            </div>
+
+            <!-- Center content -->
+            <div class="brand-content">
+                <h2 class="main-heading">Your Success,<br>Our Mission</h2>
+                <p class="brand-tagline">Discover. Apply. Succeed.<br>Your one-stop platform for internships & hackathons</p>
+            </div>
+        </div>
+
+        <!-- Right Side - Forms -->
+        <div class="right-side">
+            <div class="form-container">
+                <div class="form-card">
+                    <!-- Sign In Form -->
+                    <div class="form-section active" id="signinSection">
+                        <h2>Welcome Back</h2>
+                        <p class="subtitle">Sign in to track your internships</p>
+
+                        <form id="signinForm" action="#" method="post" autocomplete="on">
+                            <div id="signin-message" class="message"></div>
+                            
+                            <div class="input-group">
+                                <label for="signin-email">Email Address</label>
+                                <input type="email" id="signin-email" name="email" autocomplete="username" placeholder="Enter your email address" required class="input-with-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="signin-password">Password</label>
+                                <input type="password" id="signin-password" name="password" autocomplete="current-password" placeholder="Enter your password" required class="input-with-icon">
+                                <i class="fas fa-lock"></i>
+                            </div>
+
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
+                                    <input type="checkbox" id="remember-me" style="width: 16px; height: 16px; cursor: pointer;">
+                                    <span style="font-size: 14px; color: var(--text-secondary);">Remember Me</span>
+                                </label>
+                                <a href="forgot-password.html" class="link">
+                                    <i class="fas fa-key"></i> Forgot Password?
+                                </a>
+                            </div>
+
+                            <button type="submit" id="signin-btn" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt"></i> Sign In
+                            </button>
+                        </form>
+
+                        <div class="divider"></div>
+
+                        <div class="text-center">
+                            Don't have an account? <a href="#" id="showSignup" class="link">Create Account</a>
+                        </div>
+                    </div>
+
+                    <!-- Sign Up Form -->
+                    <div class="form-section" id="signupSection" style="display: none;">
+                        <h2>Create Account</h2>
+                        <p class="subtitle">Start managing your internships</p>
+
+                        <form id="signupForm" action="#" method="post" autocomplete="on">
+                            <div id="signup-message" class="message"></div>
+                            
+                            <div class="input-group">
+                                <label for="signup-name">Full Name</label>
+                                <input type="text" id="signup-name" name="name" autocomplete="name" placeholder="John Doe" required class="input-with-icon">
+                                <i class="fas fa-user"></i>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="signup-email">Gmail Address</label>
+                                <input type="email" id="signup-email" name="email" autocomplete="username" placeholder="Enter your email address" required class="input-with-icon">
+                                <i class="fas fa-envelope"></i>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="signup-password">New Password</label>
+                                <input type="password" id="signup-password" name="password" autocomplete="new-password" placeholder="Minimum 7 characters" required minlength="7" class="input-with-icon">
+                                <i class="fas fa-lock"></i>
+                                <small style="display: block; margin-top: 5px; color: var(--text-secondary); font-size: 12px;">
+                                    <i class="fas fa-info-circle"></i> Password: 7+ chars, only @ and ! allowed
+                                </small>
+                            </div>
+
+                            <div class="input-group">
+                                <label for="signup-reenter-password">Re-enter Password</label>
+                                <input type="password" id="signup-reenter-password" name="reenter-password" autocomplete="new-password" placeholder="Re-enter your password" required minlength="7" class="input-with-icon">
+                                <i class="fas fa-lock"></i>
+                            </div>
+
+                            <div class="input-group" style="display: flex; align-items: start; gap: 10px;">
+                                <input type="checkbox" id="terms-checkbox" required style="width: 18px; height: 18px; margin-top: 2px; cursor: pointer;">
+                                <label for="terms-checkbox" style="font-size: 14px; color: var(--text-secondary); cursor: pointer; user-select: none;">
+                                    I agree to the <a href="terms-and-conditions.html" target="_blank" class="link" style="text-decoration: underline;">Terms & Conditions</a> and <a href="privacy-policy.html" target="_blank" class="link" style="text-decoration: underline;">Privacy Policy</a>
+                                </label>
+                            </div>
+
+                            <button type="submit" id="signup-btn" class="btn btn-primary">
+                                <i class="fas fa-user-plus"></i> Create Account
+                            </button>
+                        </form>
+
+                        <div class="divider"></div>
+
+                        <div class="text-center">
+                            Already have an account? <a href="#" id="showSignin" class="link">Sign In</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="theme.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>

@@ -96,6 +96,9 @@ document.addEventListener('DOMContentLoaded', () => {
     navItems = document.querySelectorAll('.nav-item');
     contentSections = document.querySelectorAll('.content-section');
     
+    // Load progress tracking data
+    loadProgressTracking();
+    
     // Restore active section on page load
     const savedSection = localStorage.getItem('activeSection') || 'home';
     
@@ -138,13 +141,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     calendar.updateSize();
                 }, 100);
             }
-            
-            // If home section, reload roadmap progress
-            if (sectionName === 'home') {
-                setTimeout(() => {
-                    loadRoadmapProgress();
-                }, 100);
-            }
         });
     });
     
@@ -153,13 +149,10 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Render selected events on home page
     renderSelectedEvents();
-    
-    // Load roadmap progress for home page
-    loadRoadmapProgress();
 });
 
 // API Base URL
-const API_URL = window.API_CONFIG?.BASE_URL || 'http://localhost:5000/api';
+const API_URL = 'http://localhost:5000/api';
 
 // Sample selected events (stored in localStorage)
 let selectedEvents = JSON.parse(localStorage.getItem('selectedEvents') || '[]');
@@ -223,7 +216,7 @@ let currentEventData = null;
 
 async function fetchEvents() {
     try {
-        const response = await fetch(`${API_URL}/events`, {
+        const response = await fetch('http://localhost:5000/api/events', {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}`
             }
@@ -806,7 +799,6 @@ observer.observe(document.documentElement, {
 // Filter functionality
 let currentFilter = 'all';
 let unfilteredEvents = [];
-let currentSearchQuery = '';
 
 document.addEventListener('DOMContentLoaded', () => {
     const filterButtons = document.querySelectorAll('.filter-btn');
@@ -824,15 +816,6 @@ document.addEventListener('DOMContentLoaded', () => {
             filterCalendarEvents();
         });
     });
-    
-    // Add search functionality
-    const searchInput = document.getElementById('calendarSearchInput');
-    if (searchInput) {
-        searchInput.addEventListener('input', (e) => {
-            currentSearchQuery = e.target.value.toLowerCase().trim();
-            filterCalendarEvents();
-        });
-    }
 });
 
 function filterCalendarEvents() {
@@ -845,27 +828,6 @@ function filterCalendarEvents() {
     let eventsToShow = allEvents;
     if (currentFilter !== 'all') {
         eventsToShow = allEvents.filter(event => event.type === currentFilter);
-    }
-    
-    // Apply search filter (only search internships and hackathons)
-    if (currentSearchQuery) {
-        eventsToShow = eventsToShow.filter(event => {
-            // Only search through internships and hackathons
-            if (event.type !== 'internship' && event.type !== 'hackathon') {
-                // If it's a contest and there's a search query, don't show it
-                return false;
-            }
-            
-            // Search in title, company, description, and skills
-            const searchableText = [
-                event.title,
-                event.company,
-                event.description,
-                ...(event.skills || [])
-            ].join(' ').toLowerCase();
-            
-            return searchableText.includes(currentSearchQuery);
-        });
     }
     
     // Add filtered events to calendar
@@ -1352,189 +1314,95 @@ function deleteNotification(notifId) {
     renderNotifications(notifications, filter);
 }
 
-// ============================================
-// ROADMAP PROGRESS FUNCTIONALITY
-// ============================================
-
 /**
- * Load and display roadmap progress on home page
+ * Load and display progress tracking data from roadmap
  */
-async function loadRoadmapProgress() {
+async function loadProgressTracking() {
+    const progressTracksDiv = document.getElementById('progressTracks');
+    if (!progressTracksDiv) return;
+
+    const userId = user.id || user._id;
+    if (!userId) return;
+
     try {
-        const userId = user._id || user.id;
-        if (!userId) {
-            console.error('No user ID found');
-            return;
-        }
-        
-        const response = await fetch(`${API_URL}/roadmap/${userId}`);
+        const response = await fetch(`http://localhost:5000/api/roadmap/${userId}`);
         const data = await response.json();
-        
+
         if (data.success && data.roadmap) {
-            // Display progress chart
-            displayProgressChart(data.roadmap.progress);
+            const roadmap = data.roadmap;
             
-            // Display progress tracks by subject
-            displayProgressTracks(data.roadmap);
+            // Update overall stats
+            updateDashboardStats(roadmap);
+            
+            // Draw progress chart
+            drawProgressChart(roadmap.progress.percentage);
+            
+            // Calculate progress per subject
+            const subjectProgress = {};
+            
+            roadmap.dailyTasks.forEach(task => {
+                if (!subjectProgress[task.subject]) {
+                    subjectProgress[task.subject] = {
+                        total: 0,
+                        completed: 0
+                    };
+                }
+                subjectProgress[task.subject].total++;
+                if (task.isCompleted) {
+                    subjectProgress[task.subject].completed++;
+                }
+            });
+
+            // Get full subject names
+            const subjectNames = {
+                'DSA': 'Data Structures & Algorithms',
+                'OS': 'Operating Systems',
+                'DBMS': 'Database Management Systems',
+                'CN': 'Computer Networks',
+                'SD': 'System Design'
+            };
+
+            // Build HTML
+            let html = '';
+            for (const [subject, progress] of Object.entries(subjectProgress)) {
+                const percentage = Math.round((progress.completed / progress.total) * 100);
+                const subjectLower = subject.toLowerCase();
+                const subjectName = subjectNames[subject] || subject;
+                
+                html += `
+                    <div class="track-item">
+                        <div class="track-info">
+                            <div class="track-name">
+                                <span>${subjectName}</span>
+                                <span class="track-subject-badge ${subjectLower}">${subject}</span>
+                            </div>
+                            <div class="track-progress-bar">
+                                <div class="track-progress-fill" style="width: ${percentage}%"></div>
+                            </div>
+                        </div>
+                        <div class="track-percentage">${percentage}%</div>
+                    </div>
+                `;
+            }
+
+            progressTracksDiv.innerHTML = html;
         } else {
-            // Show empty state for progress sections
-            showEmptyProgressState();
+            // Show no roadmap state
+            showNoRoadmapState();
         }
     } catch (error) {
-        console.error('Error loading roadmap progress:', error);
-        showEmptyProgressState();
+        console.error('Error loading progress:', error);
+        showNoRoadmapState();
     }
 }
 
 /**
- * Display overall progress chart
+ * Show no roadmap state for both progress tracks and dashboard
  */
-function displayProgressChart(progress) {
-    const canvas = document.getElementById('progressChart');
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    const percentage = progress.percentage || 0;
-    
-    // Update percentage text
-    const percentageEl = document.getElementById('overallPercentage');
-    if (percentageEl) {
-        percentageEl.textContent = `${percentage}%`;
-    }
-    
-    // Draw donut chart
-    const centerX = canvas.width / 2;
-    const centerY = canvas.height / 2;
-    const radius = 70;
-    const lineWidth = 15;
-    
-    // Clear canvas
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    
-    // Background circle
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim() || '#e2e8f0';
-    ctx.lineWidth = lineWidth;
-    ctx.stroke();
-    
-    // Progress arc
-    if (percentage > 0) {
-        const endAngle = (percentage / 100) * 2 * Math.PI - Math.PI / 2;
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, -Math.PI / 2, endAngle);
-        ctx.strokeStyle = '#6366f1';
-        ctx.lineWidth = lineWidth;
-        ctx.lineCap = 'round';
-        ctx.stroke();
-    }
-}
-
-/**
- * Display progress tracks by subject
- */
-function displayProgressTracks(roadmap) {
-    const container = document.getElementById('progressTracks');
-    if (!container) return;
-    
-    // Calculate progress per subject
-    const subjectProgress = {};
-    
-    roadmap.subjects.forEach(subject => {
-        subjectProgress[subject] = {
-            total: 0,
-            completed: 0
-        };
-    });
-    
-    // Count tasks per subject
-    roadmap.dailyTasks.forEach(task => {
-        const subject = task.subject;
-        if (subjectProgress[subject]) {
-            subjectProgress[subject].total++;
-            if (task.isCompleted) {
-                subjectProgress[subject].completed++;
-            }
-        }
-    });
-    
-    // Get subject full names
-    const subjectNames = {
-        'DSA': 'Data Structures & Algorithms',
-        'OS': 'Operating Systems',
-        'DBMS': 'Database Management',
-        'CN': 'Computer Networks',
-        'SD': 'System Design'
-    };
-    
-    // Get subject emojis
-    const subjectEmojis = {
-        'DSA': '💻',
-        'OS': '⚙️',
-        'DBMS': '🗄️',
-        'CN': '🌐',
-        'SD': '🏗️'
-    };
-    
-    // Generate HTML for each subject
-    const html = roadmap.subjects.map(subject => {
-        const progress = subjectProgress[subject];
-        const percentage = progress.total > 0 ? Math.round((progress.completed / progress.total) * 100) : 0;
-        const emoji = subjectEmojis[subject] || '📚';
-        const name = subjectNames[subject] || subject;
-        
-        return `
-            <div class="progress-track-item">
-                <div class="track-header">
-                    <span class="track-emoji">${emoji}</span>
-                    <div class="track-info">
-                        <h4 class="track-title">${name}</h4>
-                        <span class="track-stats">${progress.completed}/${progress.total} tasks</span>
-                    </div>
-                    <span class="track-percentage">${percentage}%</span>
-                </div>
-                <div class="track-progress-bar">
-                    <div class="track-progress-fill" style="width: ${percentage}%"></div>
-                </div>
-            </div>
-        `;
-    }).join('');
-    
-    container.innerHTML = html;
-}
-
-/**
- * Show empty state when no roadmap exists
- */
-function showEmptyProgressState() {
-    // Reset progress chart
-    const percentageEl = document.getElementById('overallPercentage');
-    if (percentageEl) {
-        percentageEl.textContent = '0%';
-    }
-    
-    const canvas = document.getElementById('progressChart');
-    if (canvas) {
-        const ctx = canvas.getContext('2d');
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // Draw empty circle
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height / 2;
-        const radius = 70;
-        const lineWidth = 15;
-        
-        ctx.beginPath();
-        ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-        ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--border-color').trim() || '#e2e8f0';
-        ctx.lineWidth = lineWidth;
-        ctx.stroke();
-    }
-    
-    // Show empty state in progress tracks
-    const container = document.getElementById('progressTracks');
-    if (container) {
-        container.innerHTML = `
+function showNoRoadmapState() {
+    const progressTracksDiv = document.getElementById('progressTracks');
+    if (progressTracksDiv) {
+        progressTracksDiv.innerHTML = `
             <div class="no-roadmap-state">
                 <i class="fas fa-map-marked-alt"></i>
                 <h3>No Active Roadmap</h3>
@@ -1546,4 +1414,67 @@ function showEmptyProgressState() {
             </div>
         `;
     }
+    
+    // Reset stats
+    updateDashboardStats({ progress: { percentage: 0, totalTasks: 0, completedTasks: 0 }, subjects: [] });
+    drawProgressChart(0);
+}
+
+/**
+ * Update dashboard stats in the sidebar
+ */
+function updateDashboardStats(roadmap) {
+    // Update quick stats
+    const totalDaysEl = document.getElementById('totalDaysStat');
+    const completedEl = document.getElementById('completedStat');
+    const remainingEl = document.getElementById('remainingStat');
+    const subjectsEl = document.getElementById('subjectsStat');
+    const overallPercentageEl = document.getElementById('overallPercentage');
+    
+    if (totalDaysEl) totalDaysEl.textContent = roadmap.totalDays || roadmap.progress?.totalTasks || 0;
+    if (completedEl) completedEl.textContent = roadmap.progress?.completedTasks || 0;
+    if (remainingEl) remainingEl.textContent = (roadmap.progress?.totalTasks || 0) - (roadmap.progress?.completedTasks || 0);
+    if (subjectsEl) subjectsEl.textContent = roadmap.subjects?.length || 0;
+    if (overallPercentageEl) overallPercentageEl.textContent = `${roadmap.progress?.percentage || 0}%`;
+}
+
+/**
+ * Draw circular progress chart using Canvas
+ */
+function drawProgressChart(percentage) {
+    const canvas = document.getElementById('progressChart');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const radius = 80;
+    const lineWidth = 20;
+    
+    // Clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    // Draw background circle
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+    ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--border-color') || '#e5e7eb';
+    ctx.lineWidth = lineWidth;
+    ctx.stroke();
+    
+    // Draw progress arc
+    const startAngle = -Math.PI / 2; // Start from top
+    const endAngle = startAngle + (2 * Math.PI * percentage / 100);
+    
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius, startAngle, endAngle);
+    
+    // Create gradient
+    const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+    gradient.addColorStop(0, '#6366f1'); // accent-color
+    gradient.addColorStop(1, '#4f46e5'); // accent-hover
+    
+    ctx.strokeStyle = gradient;
+    ctx.lineWidth = lineWidth;
+    ctx.lineCap = 'round';
+    ctx.stroke();
 }

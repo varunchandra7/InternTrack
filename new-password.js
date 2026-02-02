@@ -2,7 +2,7 @@
  * New Password JavaScript
  */
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = window.API_CONFIG?.BASE_URL || 'http://localhost:5000/api';
 
 // Get email and OTP from sessionStorage
 const userEmail = sessionStorage.getItem('resetEmail');
