@@ -1548,66 +1548,66 @@ function showEmptyProgressState() {
     }
 }
 
-// Mobile Menu Toggle Functionality
+// Mobile sidebar toggle (single source of truth)
 document.addEventListener('DOMContentLoaded', () => {
-    const menuToggle = document.getElementById('menuToggle');
+    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
     const sidebar = document.querySelector('.sidebar');
     const mainArea = document.querySelector('.main-area');
-    
-    if (!menuToggle) return;
-    
-    // Toggle menu
-    menuToggle.addEventListener('click', (e) => {
-        e.stopPropagation();
-        menuToggle.classList.toggle('active');
-        sidebar.classList.toggle('active');
-        mainArea.classList.toggle('sidebar-open');
-    });
-    
-    // Close menu when clicking on a nav item
-    document.querySelectorAll('.nav-item').forEach(item => {
-        item.addEventListener('click', () => {
-            menuToggle.classList.remove('active');
-            sidebar.classList.remove('active');
+    const mobileSidebarBackdrop = document.getElementById('mobileSidebarBackdrop');
+    const navigationItems = document.querySelectorAll('.nav-item');
+
+    if (!mobileMenuToggle || !sidebar) return;
+
+    const closeMobileSidebar = () => {
+        mobileMenuToggle.classList.remove('active');
+        sidebar.classList.remove('active');
+        if (mainArea) {
             mainArea.classList.remove('sidebar-open');
+        }
+        if (mobileSidebarBackdrop) {
+            mobileSidebarBackdrop.classList.remove('active');
+        }
+    };
+
+    mobileMenuToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpening = !sidebar.classList.contains('active');
+
+        mobileMenuToggle.classList.toggle('active', isOpening);
+        sidebar.classList.toggle('active', isOpening);
+
+        if (mainArea) {
+            mainArea.classList.toggle('sidebar-open', isOpening);
+        }
+
+        if (mobileSidebarBackdrop) {
+            mobileSidebarBackdrop.classList.toggle('active', isOpening);
+        }
+    });
+
+    navigationItems.forEach(item => {
+        item.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                closeMobileSidebar();
+            }
         });
     });
-    
-    // Close menu when clicking outside
+
+    if (mobileSidebarBackdrop) {
+        mobileSidebarBackdrop.addEventListener('click', closeMobileSidebar);
+    }
+
     document.addEventListener('click', (e) => {
-        if (!e.target.closest('.sidebar') && !e.target.closest('.menu-toggle')) {
-            menuToggle.classList.remove('active');
-            sidebar.classList.remove('active');
-            mainArea.classList.remove('sidebar-open');
+        if (window.innerWidth > 768) return;
+
+        if (!e.target.closest('.sidebar') && !e.target.closest('.mobile-menu-toggle')) {
+            closeMobileSidebar();
+        }
+    });
+
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768) {
+            closeMobileSidebar();
         }
     });
 });
-
-    // Mobile menu toggle functionality
-    const mobileMenuToggle = document.getElementById('mobileMenuToggle');
-    const sidebar = document.querySelector('.sidebar');
-    const dashboardMain = document.querySelector('.dashboard-main');
-    
-    if (mobileMenuToggle && sidebar) {
-        mobileMenuToggle.addEventListener('click', (e) => {
-            e.stopPropagation();
-            mobileMenuToggle.classList.toggle('active');
-            sidebar.classList.toggle('active');
-        });
-        
-        // Close sidebar when clicking on navigation items
-        navItems.forEach(item => {
-            item.addEventListener('click', () => {
-                mobileMenuToggle.classList.remove('active');
-                sidebar.classList.remove('active');
-            });
-        });
-        
-        // Close sidebar when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.sidebar') && !e.target.closest('.mobile-menu-toggle')) {
-                mobileMenuToggle.classList.remove('active');
-                sidebar.classList.remove('active');
-            }
-        });
-    }

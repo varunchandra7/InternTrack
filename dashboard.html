@@ -85,6 +85,18 @@
             transform: rotate(45deg) translate(8px, 8px);
         }
 
+        .mobile-sidebar-backdrop {
+            display: none;
+            position: fixed;
+            inset: 55px 0 0 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 998;
+        }
+
+        .mobile-sidebar-backdrop.active {
+            display: block;
+        }
+
         .mobile-menu-toggle.active span:nth-child(2) {
             opacity: 0;
         }
@@ -904,55 +916,7 @@
             color: var(--text-primary);
         }
 
-        /* Hamburger Menu Toggle Button */
-        .menu-toggle {
-            display: flex !important;
-            flex-direction: column;
-            cursor: pointer;
-            background: var(--bg-secondary);
-            border: 2px solid var(--border-color);
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            gap: 5px;
-            padding: 0;
-            position: fixed;
-            bottom: 20px;
-            left: 80px;
-            z-index: 999;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 8px var(--shadow);
-        }
-
-        .menu-toggle:hover {
-            transform: scale(1.1);
-            border-color: var(--accent-color);
-        }
-
-        .menu-toggle span {
-            width: 20px;
-            height: 2px;
-            background: var(--text-primary);
-            border-radius: 2px;
-            transition: all 0.3s;
-            display: block;
-        }
-
-        .menu-toggle.active span:nth-child(1) {
-            transform: rotate(45deg) translate(10px, 10px);
-        }
-
-        .menu-toggle.active span:nth-child(2) {
-            opacity: 0;
-        }
-
-        .menu-toggle.active span:nth-child(3) {
-            transform: rotate(-45deg) translate(7px, -7px);
-        }
-        /* Responsive */
-            /* Responsive Design */
+        /* Responsive Design */
         @media (max-width: 1200px) {
             .home-layout {
                 grid-template-columns: 1fr;
@@ -986,17 +950,12 @@
         @media (max-width: 768px) {
             .dashboard-container {
                 position: relative;
+                padding-top: 55px;
             }
 
             /* Show mobile header */
             .mobile-header {
                 display: flex !important;
-            }
-
-            .dashboard-main {
-                display: flex;
-                width: 100%;
-                margin-top: 55px;
             }
 
             .sidebar {
@@ -1022,12 +981,13 @@
             }
 
             .main-area.sidebar-open {
-                margin-left: 280px;
+                margin-left: 0;
             }
 
             .top-bar {
                 padding: 1rem;
                 gap: 1rem;
+                justify-content: flex-end;
             }
 
             .search-bar {
@@ -1143,20 +1103,6 @@
                 width: 100%;
             }
 
-            .menu-toggle {
-                display: flex !important;
-                bottom: 18px;
-                left: 16px;
-                width: 42px;
-                height: 42px;
-                z-index: 1000;
-            }
-
-            .menu-toggle span {
-                width: 16px;
-                height: 2px;
-            }
-
             .theme-toggle {
                 bottom: 68px;
                 left: 16px;
@@ -1170,10 +1116,6 @@
             .sidebar {
                 height: 100vh;
                 overflow-y: auto;
-            }
-
-            .menu-toggle {
-                bottom: 15px;
             }
 
             .theme-toggle {
@@ -1191,14 +1133,6 @@
 
         /* Extra Small Phones */
         @media (max-width: 320px) {
-            .menu-toggle {
-                display: flex !important;
-                bottom: 12px;
-                left: 12px;
-                width: 40px;
-                height: 40px;
-            }
-
             .theme-toggle {
                 bottom: 60px;
                 left: 12px;
@@ -2339,6 +2273,23 @@
 </head>
 <body>
     <div class="dashboard-container">
+        <!-- Mobile Header -->
+        <header class="mobile-header">
+            <div class="mobile-header-left">
+                <a href="dashboard.html" class="mobile-header-logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>InternTrack</span>
+                </a>
+            </div>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle navigation menu" type="button">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </header>
+
+        <div class="mobile-sidebar-backdrop" id="mobileSidebarBackdrop"></div>
+
         <!-- Sidebar -->
         <aside class="sidebar">
             <div class="sidebar-header">
