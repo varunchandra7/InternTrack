@@ -176,6 +176,25 @@
         }
 
         /* Responsive */
+        @media (max-width: 1024px) {
+            .split-container {
+                flex-direction: column;
+            }
+
+            .left-side {
+                min-height: 35vh;
+                padding: 30px 25px;
+            }
+
+            .right-side {
+                min-height: 65vh;
+            }
+
+            .form-card {
+                padding: 35px 30px;
+            }
+        }
+
         @media (max-width: 968px) {
             .split-container {
                 flex-direction: column;
@@ -212,9 +231,179 @@
             }
         }
 
-        @media (max-width: 480px) {
+        @media (max-width: 768px) {
+            .split-container {
+                flex-direction: column;
+                min-height: 100vh;
+            }
+
+            .left-side {
+                min-height: 30vh;
+                padding: 30px 20px;
+            }
+
+            .brand-logo {
+                width: 70px;
+                height: 70px;
+            }
+
+            .brand-logo i {
+                font-size: 35px;
+            }
+
+            .brand-title {
+                font-size: 28px;
+                margin-bottom: 5px;
+            }
+
+            .brand-tagline {
+                font-size: 14px;
+            }
+
+            .right-side {
+                min-height: 70vh;
+                padding: 20px;
+            }
+
             .form-card {
-                padding: 30px 25px;
+                padding: 30px 24px;
+            }
+
+            .theme-toggle {
+                width: 45px;
+                height: 45px;
+                bottom: 15px;
+                left: 15px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .split-container {
+                flex-direction: column;
+                min-height: 100vh;
+            }
+
+            .left-side {
+                min-height: 25vh;
+                padding: 25px 15px;
+            }
+
+            .brand-logo {
+                width: 65px;
+                height: 65px;
+            }
+
+            .brand-logo i {
+                font-size: 30px;
+            }
+
+            .brand-title {
+                font-size: 24px;
+                margin-bottom: 3px;
+            }
+
+            .brand-tagline {
+                font-size: 12px;
+            }
+
+            .right-side {
+                min-height: 75vh;
+                padding: 15px;
+            }
+
+            .form-container {
+                max-width: 100%;
+            }
+
+            .form-card {
+                padding: 25px 20px;
+                border-radius: 12px;
+            }
+
+            input {
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+
+            button {
+                padding: 11px;
+                font-size: 13px;
+                min-height: 44px;
+            }
+
+            .theme-toggle {
+                width: 42px;
+                height: 42px;
+                bottom: 12px;
+                left: 12px;
+            }
+
+            .theme-toggle i {
+                font-size: 18px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .left-side {
+                min-height: 20vh;
+                padding: 20px 12px;
+            }
+
+            .brand-logo {
+                width: 60px;
+                height: 60px;
+            }
+
+            .brand-logo i {
+                font-size: 28px;
+            }
+
+            .brand-title {
+                font-size: 20px;
+            }
+
+            .right-side {
+                min-height: 80vh;
+                padding: 12px;
+            }
+
+            .form-card {
+                padding: 20px 16px;
+            }
+
+            input {
+                padding: 9px 10px;
+                font-size: 13px;
+            }
+
+            button {
+                padding: 9px;
+                font-size: 12px;
+            }
+
+            .theme-toggle {
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+        /* Landscape Orientation */
+        @media (max-height: 600px) and (orientation: landscape) {
+            .left-side {
+                min-height: 50vh;
+            }
+
+            .right-side {
+                min-height: 50vh;
+            }
+
+            .form-card {
+                padding: 20px 18px;
+            }
+
+            input {
+                padding: 8px 10px;
+                margin-bottom: 10px;
             }
         }
     </style>

@@ -18,6 +18,8 @@
             display: flex;
             min-height: 100vh;
             background: var(--bg-primary);
+            width: 100%;
+            overflow-x: hidden;
         }
 
         /* Sidebar */
@@ -135,6 +137,8 @@
             margin-left: 280px;
             display: flex;
             flex-direction: column;
+            width: calc(100% - 280px);
+            overflow-x: hidden;
         }
 
         /* Top Bar */
@@ -831,7 +835,7 @@
 
         /* Hamburger Menu Toggle Button */
         .menu-toggle {
-            display: none;
+            display: flex !important;
             flex-direction: column;
             cursor: pointer;
             background: var(--bg-secondary);
@@ -907,6 +911,13 @@
             }
         }
 
+        @media (max-width: 1024px) {
+            .theme-toggle {
+                bottom: 20px;
+                left: 20px;
+            }
+        }
+
         @media (max-width: 768px) {
             .dashboard-container {
                 position: relative;
@@ -917,10 +928,11 @@
                 position: fixed;
                 left: -280px;
                 transition: left 0.3s ease;
-                z-index: 999;
+                z-index: 1001;
                 width: 280px;
                 height: 100vh;
                 overflow-y: auto;
+                top: 0;
             }
 
             .sidebar.active {
@@ -928,19 +940,20 @@
             }
 
             .main-area {
-                margin-left: 0;
+                margin-left: 0 !important;
                 width: 100%;
                 transition: margin-left 0.3s ease;
             }
 
             .main-area.sidebar-open {
-                margin-left: 280px;
+                margin-left: 0;
             }
 
             .menu-toggle {
-                display: flex;
+                display: flex !important;
                 bottom: 20px;
                 left: 80px;
+                z-index: 1000;
             }
 
             .top-bar {
@@ -971,26 +984,41 @@
                 width: 100%;
                 left: -100%;
                 box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.5);
+                z-index: 1001;
             }
 
             .sidebar.active {
                 left: 0;
             }
 
+            .main-area {
+                width: 100%;
+                margin-left: 0 !important;
+            }
+
             .main-area.sidebar-open {
                 margin-left: 0;
+                width: 100%;
             }
 
             .menu-toggle {
-                display: flex;
+                display: flex !important;
                 bottom: 20px;
                 left: 20px;
                 width: 45px;
                 height: 45px;
+                z-index: 1000;
             }
 
             .menu-toggle span {
                 width: 18px;
+            }
+
+            .theme-toggle {
+                bottom: 75px;
+                left: 20px;
+                width: 45px;
+                height: 45px;
             }
 
             .top-bar {
@@ -1055,10 +1083,12 @@
             }
 
             .menu-toggle {
+                display: flex !important;
                 bottom: 18px;
                 left: 16px;
                 width: 42px;
                 height: 42px;
+                z-index: 1000;
             }
 
             .menu-toggle span {
@@ -1066,9 +1096,67 @@
                 height: 2px;
             }
 
+            .theme-toggle {
+                bottom: 68px;
+                left: 16px;
+                width: 42px;
+                height: 42px;
+            }
+        }
+
+        /* Landscape Orientation */
+        @media (max-height: 600px) and (orientation: landscape) {
+            .sidebar {
+                height: 100vh;
+                overflow-y: auto;
+            }
+
+            .menu-toggle {
+                bottom: 15px;
+            }
+
+            .theme-toggle {
+                bottom: 65px;
+            }
+
+            .page-header {
+                padding: 0.75rem;
+            }
+
+            .content-area {
+                padding: 0.5rem;
+            }
+        }
+
+        /* Extra Small Phones */
+        @media (max-width: 320px) {
+            .menu-toggle {
+                display: flex !important;
+                bottom: 12px;
+                left: 12px;
+                width: 40px;
+                height: 40px;
+            }
+
+            .theme-toggle {
+                bottom: 60px;
+                left: 12px;
+                width: 40px;
+                height: 40px;
+            }
+
             .top-bar {
                 padding: 0.5rem;
                 flex-wrap: wrap;
+            }
+
+            .user-profile-btn {
+                padding: 0.4rem 0.6rem;
+            }
+
+            .user-avatar-top {
+                width: 30px;
+                height: 30px;
             }
 
             .search-bar {
