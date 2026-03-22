@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - InternTrack</title>
-    <link rel="stylesheet" href="common.css?v=20260322-5">
+    <link rel="stylesheet" href="common.css?v=20260322-6">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css">
     <style>
@@ -1460,10 +1460,53 @@
             background: var(--bg-primary);
             overflow: hidden;
             display: flex;
+            flex-direction: column;
             align-items: flex-start;
             justify-content: center;
             padding: 0;
             padding-right: 1rem;
+        }
+
+        .mobile-goals-section {
+            display: none;
+            width: 100%;
+            margin-top: 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .mobile-goals-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 0.75rem 0;
+        }
+
+        .mobile-goals-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .mobile-goal-item {
+            border: 1px solid var(--border-color);
+            background: var(--bg-primary);
+            border-radius: 8px;
+            padding: 0.75rem;
+        }
+
+        .mobile-goal-item h4 {
+            font-size: 0.92rem;
+            color: var(--text-primary);
+            margin: 0 0 0.35rem 0;
+        }
+
+        .mobile-goal-item p {
+            margin: 0;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
         }
 
         #calendar {
@@ -1840,6 +1883,10 @@
         @media (max-width: 1024px) {
             .calendar-sidebar {
                 display: none;
+            }
+
+            .mobile-goals-section {
+                display: block;
             }
         }
 
@@ -2505,6 +2552,14 @@
                     <!-- Main calendar area -->
                     <div class="calendar-main">
                         <div id="calendar"></div>
+                        <div class="mobile-goals-section" id="mobileGoalsSection">
+                            <h3 class="mobile-goals-title">Add to Goals</h3>
+                            <div class="mobile-goals-list" id="mobileGoalsList">
+                                <div class="empty-state-small">
+                                    <p>No upcoming events available</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
@@ -3016,9 +3071,9 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
-    <script src="config.js?v=20260322-5"></script>
-    <script src="theme.js?v=20260322-5"></script>
-    <script src="dashboard.js?v=20260322-5"></script>
+    <script src="config.js?v=20260322-6"></script>
+    <script src="theme.js?v=20260322-6"></script>
+    <script src="dashboard.js?v=20260322-6"></script>
 </body>
 </html>
 

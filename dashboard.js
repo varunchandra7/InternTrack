@@ -287,6 +287,7 @@ async function fetchEvents() {
         
         // Render upcoming events in sidebar
         renderUpcomingEvents(futureEvents);
+        renderMobileGoalsOptions(futureEvents);
         
         // Apply current filter if not 'all'
         if (currentFilter !== 'all') {
@@ -657,6 +658,58 @@ function toggleEventGoal(event) {
     // Immediately refresh both displays to show the change
     renderSelectedEvents();
     renderUpcomingEvents(allEvents); // Pass the allEvents array to re-render with updated goal status
+    renderMobileGoalsOptions(allEvents);
+}
+
+function renderMobileGoalsOptions(events) {
+    const mobileGoalsList = document.getElementById('mobileGoalsList');
+    if (!mobileGoalsList) return;
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const upcomingEvents = (events || [])
+        .filter((event) => {
+            const eventDate = new Date(event.startDate || event.start);
+            eventDate.setHours(0, 0, 0, 0);
+            return eventDate >= today;
+        })
+        .sort((a, b) => new Date(a.startDate || a.start) - new Date(b.startDate || b.start))
+        .slice(0, 5);
+
+    if (upcomingEvents.length === 0) {
+        mobileGoalsList.innerHTML = `
+            <div class="empty-state-small">
+                <p>No upcoming events available</p>
+            </div>
+        `;
+        return;
+    }
+
+    mobileGoalsList.innerHTML = upcomingEvents.map((event) => {
+        const eventId = event._id || event.id || event.title;
+        const isInGoals = selectedEvents.some((selected) => {
+            const selectedId = selected._id || selected.id || selected.title;
+            return selectedId === eventId;
+        });
+
+        const eventDate = new Date(event.startDate || event.start).toLocaleDateString('en-US', {
+            month: 'short',
+            day: 'numeric'
+        });
+
+        return `
+            <div class="mobile-goal-item">
+                <h4>${event.title}</h4>
+                <p>${eventDate} • ${event.company || event.platform || 'Event'}</p>
+                <button class="event-goal-btn ${isInGoals ? 'in-goals' : ''}"
+                    onclick="toggleEventGoal(${JSON.stringify(event).replace(/"/g, '&quot;')})">
+                    <i class="fas ${isInGoals ? 'fa-check-circle' : 'fa-plus'}"></i>
+                    ${isInGoals ? 'Added as Goal' : 'Add to Goals'}
+                </button>
+            </div>
+        `;
+    }).join('');
 }
 
 // Render selected events on Home page
@@ -904,6 +957,7 @@ function filterCalendarEvents() {
     
     // Update upcoming events list with filtered events
     renderUpcomingEvents(eventsToShow);
+    renderMobileGoalsOptions(eventsToShow);
 }
 
 // ============================================
