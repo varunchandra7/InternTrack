@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - InternTrack</title>
-    <link rel="stylesheet" href="common.css?v=20260322-4">
+    <link rel="stylesheet" href="common.css?v=20260322-5">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css">
     <style>
@@ -1072,8 +1072,20 @@
 
             .top-bar {
                 padding: 0.75rem;
-                justify-content: space-between;
+                justify-content: flex-end;
                 gap: 0.5rem;
+            }
+
+            .user-profile-container {
+                margin-left: auto;
+            }
+
+            .user-dropdown {
+                right: 0;
+                left: auto;
+                min-width: 220px;
+                width: min(280px, calc(100vw - 1rem));
+                max-width: calc(100vw - 1rem);
             }
 
             .search-bar {
@@ -1185,7 +1197,8 @@
 
             .top-bar {
                 padding: 0.5rem;
-                flex-wrap: wrap;
+                flex-wrap: nowrap;
+                justify-content: flex-end;
             }
 
             .user-profile-btn {
@@ -3003,9 +3016,9 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
-    <script src="config.js?v=20260322-4"></script>
-    <script src="theme.js?v=20260322-4"></script>
-    <script src="dashboard.js?v=20260322-4"></script>
+    <script src="config.js?v=20260322-5"></script>
+    <script src="theme.js?v=20260322-5"></script>
+    <script src="dashboard.js?v=20260322-5"></script>
 </body>
 </html>
 
