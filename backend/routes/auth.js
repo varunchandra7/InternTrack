@@ -26,12 +26,15 @@ router.post('/signup', async (req, res) => {
     const { name, email, gender, password } = req.body;
 
     // Validate input
-    if (!name || !email || !gender || !password) {
+    if (!name || !email || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide name, email, gender, and password'
+        message: 'Please provide name, email, and password'
       });
     }
+
+    // Set default gender if not provided or invalid
+    let userGender = gender && ['Male', 'Female', 'Other'].includes(gender) ? gender : 'Other';
 
     // Validate password
     if (password.length <= 6) {
@@ -63,7 +66,7 @@ router.post('/signup', async (req, res) => {
     const user = await User.create({
       name,
       email,
-      gender,
+      gender: userGender,
       password,
       isVerified: true
     });
