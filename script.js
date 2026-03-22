@@ -71,6 +71,13 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
         return;
     }
 
+    // Check name length (max 30 characters)
+    if (name.length > 30) {
+        showMessage('signup-message', 'Name must be 30 characters or less', 'error');
+        resetSignupForm();
+        return;
+    }
+
     // Check for spaces before the starting letter
     if (nameRaw !== nameRaw.trimStart()) {
         showMessage('signup-message', 'Name cannot start with spaces', 'error');
