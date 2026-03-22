@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - InternTrack</title>
-    <link rel="stylesheet" href="common.css">
+    <link rel="stylesheet" href="common.css?v=20260322-3">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css">
     <style>
@@ -1012,7 +1012,6 @@
             .sidebar {
                 width: 100%;
                 left: -100%;
-                box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.5);
                 z-index: 1001;
             }
 
@@ -2247,16 +2246,6 @@
 
         /* Responsive */
         @media (max-width: 768px) {
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s;
-                z-index: 1000;
-            }
-
-            .sidebar.mobile-open {
-                transform: translateX(0);
-            }
-
             .main-area {
                 margin-left: 0;
             }
@@ -2970,9 +2959,9 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
-    <script src="config.js"></script>
-    <script src="theme.js"></script>
-    <script src="dashboard.js"></script>
+    <script src="config.js?v=20260322-3"></script>
+    <script src="theme.js?v=20260322-3"></script>
+    <script src="dashboard.js?v=20260322-3"></script>
 </body>
 </html>
 
