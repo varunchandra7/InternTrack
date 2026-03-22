@@ -90,6 +90,34 @@ if (logoutBtn) {
 let navItems;
 let contentSections;
 
+function showSection(sectionName) {
+    if (!sectionName) return;
+
+    if (!contentSections) {
+        contentSections = document.querySelectorAll('.content-section');
+    }
+
+    const targetSection = document.getElementById(`${sectionName}-section`);
+    if (!targetSection) return;
+
+    contentSections.forEach(section => section.classList.remove('active'));
+    targetSection.classList.add('active');
+
+    if (sectionName === 'calendar' && calendar) {
+        setTimeout(() => {
+            calendar.updateSize();
+        }, 100);
+    }
+
+    if (sectionName === 'home') {
+        setTimeout(() => {
+            loadRoadmapProgress();
+        }, 100);
+    }
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 // Consolidated DOMContentLoaded initialization
 document.addEventListener('DOMContentLoaded', () => {
     // Query navigation elements after DOM is ready
@@ -118,8 +146,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Add navigation click handlers
     navItems.forEach(item => {
-        item.addEventListener('click', () => {
+        item.addEventListener('click', (e) => {
             const sectionName = item.getAttribute('data-section');
+
+            // Allow normal navigation for links like roadmap.html
+            if (!sectionName) {
+                return;
+            }
+            e.preventDefault();
             
             // Save active section to localStorage
             localStorage.setItem('activeSection', sectionName);
@@ -127,24 +161,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Update active nav item
             navItems.forEach(nav => nav.classList.remove('active'));
             item.classList.add('active');
-            
-            // Show corresponding section
-            contentSections.forEach(section => section.classList.remove('active'));
-            document.getElementById(`${sectionName}-section`).classList.add('active');
-            
-            // If calendar section, ensure calendar is rendered
-            if (sectionName === 'calendar' && calendar) {
-                setTimeout(() => {
-                    calendar.updateSize();
-                }, 100);
-            }
-            
-            // If home section, reload roadmap progress
-            if (sectionName === 'home') {
-                setTimeout(() => {
-                    loadRoadmapProgress();
-                }, 100);
-            }
+
+            showSection(sectionName);
         });
     });
     
@@ -931,18 +949,21 @@ document.addEventListener('DOMContentLoaded', () => {
  * Navigate to a specific section
  */
 function navigateToSection(sectionName) {
+    if (!sectionName) return;
+
     // Save active section
     localStorage.setItem('activeSection', sectionName);
     
     // Update nav items
     navItems.forEach(nav => nav.classList.remove('active'));
-    
-    // Show corresponding section
-    contentSections.forEach(section => section.classList.remove('active'));
-    const targetSection = document.getElementById(`${sectionName}-section`);
-    if (targetSection) {
-        targetSection.classList.add('active');
+
+    // Highlight sidebar item when matching section exists in sidebar nav
+    const matchingNav = document.querySelector(`.sidebar .nav-item[data-section="${sectionName}"]`);
+    if (matchingNav) {
+        matchingNav.classList.add('active');
     }
+
+    showSection(sectionName);
 }
 
 /**
