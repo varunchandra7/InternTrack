@@ -49,6 +49,19 @@ function resetSignupForm() {
 }
 
 /**
+ * Real-time name input validation
+ */
+const nameInput = document.getElementById('signup-name');
+if (nameInput) {
+    nameInput.addEventListener('input', (e) => {
+        const charCount = e.target.value.length;
+        if (charCount > 30) {
+            showMessage('signup-message', 'Name exceeds maximum limit of 30 characters', 'error');
+        }
+    });
+}
+
+/**
  * Handle Sign Up form submission
  */
 document.getElementById('signupForm').addEventListener('submit', async (e) => {
