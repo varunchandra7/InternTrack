@@ -54,16 +54,40 @@ function resetSignupForm() {
 document.getElementById('signupForm').addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    const name = document.getElementById('signup-name').value.trim();
+    const nameRaw = document.getElementById('signup-name').value;
+    const name = nameRaw.trim();
     const email = document.getElementById('signup-email').value.trim();
+    const gender = document.getElementById('signup-gender').value;
     const password = document.getElementById('signup-password').value;
     const reenterPassword = document.getElementById('signup-reenter-password').value;
     const termsCheckbox = document.getElementById('terms-checkbox');
     const submitBtn = document.getElementById('signup-btn');
     
     // Basic validation
-    if (!name || !email || !password || !reenterPassword) {
+    if (!name || !email || !gender || !password || !reenterPassword) {
         showMessage('signup-message', 'Please fill in all fields', 'error');
+        resetSignupForm();
+        return;
+    }
+
+    // Check for spaces before the starting letter
+    if (nameRaw !== nameRaw.trimStart()) {
+        showMessage('signup-message', 'Name cannot start with spaces', 'error');
+        resetSignupForm();
+        return;
+    }
+
+    // Check for consecutive spaces (only one space allowed between names)
+    if (/\s{2,}/.test(name)) {
+        showMessage('signup-message', 'Only one space allowed between names', 'error');
+        resetSignupForm();
+        return;
+    }
+
+    // Validate name contains only letters and spaces
+    const namePattern = /^[A-Za-z\s]+$/;
+    if (!namePattern.test(name)) {
+        showMessage('signup-message', 'Full name should contain only letters and spaces', 'error');
         resetSignupForm();
         return;
     }
@@ -71,6 +95,14 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
     // Check if name is only whitespace
     if (name.replace(/\s/g, '') === '') {
         showMessage('signup-message', 'Name cannot contain only blank spaces', 'error');
+        resetSignupForm();
+        return;
+    }
+
+    // Validate Gmail address - must be in format: letters/numbers@gmail.com
+    const gmailPattern = /^[A-Za-z0-9]+@gmail\.com$/;
+    if (!gmailPattern.test(email)) {
+        showMessage('signup-message', 'Email must be in format: letters/numbers@gmail.com only', 'error');
         resetSignupForm();
         return;
     }
@@ -121,18 +153,22 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ name, email, password })
+            body: JSON.stringify({ name, email, gender, password })
         });
         
         const data = await response.json();
         
         if (data.success) {
+            // Store token and user data
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            
             // Add spinner to button
             submitBtn.innerHTML = '<span class="button-spinner"></span> Redirecting...';
             
-            // Redirect to OTP verification page
+            // Redirect to dashboard directly
             setTimeout(() => {
-                window.location.href = `verify-otp.html?email=${encodeURIComponent(email)}`;
+                window.location.href = 'dashboard.html';
             }, 800);
         } else {
             showMessage('signup-message', data.message || 'Signup failed', 'error');

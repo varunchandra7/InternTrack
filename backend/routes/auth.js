@@ -18,18 +18,18 @@ const generateToken = (userId) => {
 
 /**
  * @route   POST /api/auth/signup
- * @desc    Send OTP to email for registration
+ * @desc    Create user account directly (OTP skipped)
  * @access  Public
  */
 router.post('/signup', async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, gender, password } = req.body;
 
     // Validate input
-    if (!name || !email || !password) {
+    if (!name || !email || !gender || !password) {
       return res.status(400).json({
         success: false,
-        message: 'Please provide name, email, and password'
+        message: 'Please provide name, email, gender, and password'
       });
     }
 
@@ -59,27 +59,29 @@ router.post('/signup', async (req, res) => {
       });
     }
 
-    // Generate 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-    // Delete any existing OTP for this email
-    await OTP.deleteMany({ email });
-
-    // Save OTP and user data temporarily
-    await OTP.create({
+    // Create user account directly (OTP skipped for Render free tier)
+    const user = await User.create({
+      name,
       email,
-      otp,
-      userData: { name, password }
+      gender,
+      password,
+      isVerified: true
     });
 
-    // Send OTP email
-    await sendOTPEmail(email, otp, name);
+    // Generate token
+    const token = generateToken(user._id);
 
     // Send response
-    res.status(200).json({
+    res.status(201).json({
       success: true,
-      message: 'OTP sent to your email. Please verify to complete registration.',
-      email: email
+      message: 'Account created successfully!',
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role
+      }
     });
 
   } catch (error) {
@@ -123,6 +125,7 @@ router.post('/verify-otp', async (req, res) => {
     const user = await User.create({
       name: otpRecord.userData.name,
       email: email,
+      gender: otpRecord.userData.gender,
       password: otpRecord.userData.password,
       isVerified: true
     });
@@ -239,7 +242,7 @@ router.post('/login', async (req, res) => {
     if (!isPasswordCorrect) {
       return res.status(401).json({
         success: false,
-        message: 'Invalid email or password'
+        message: 'Invalid email or password' 
       });
     }
 
