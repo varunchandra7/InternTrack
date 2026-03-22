@@ -10,7 +10,73 @@ let currentRoadmap = null;
 // Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
   initializePage();
+  initializeMobileSidebar();
 });
+
+/**
+ * Initialize mobile sidebar toggle for roadmap page
+ */
+function initializeMobileSidebar() {
+  const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+  const sidebar = document.querySelector('.sidebar');
+  const mainArea = document.querySelector('.main-area');
+  const mobileSidebarBackdrop = document.getElementById('mobileSidebarBackdrop');
+
+  if (!mobileMenuToggle || !sidebar) return;
+
+  const closeMobileSidebar = () => {
+    mobileMenuToggle.classList.remove('active');
+    sidebar.classList.remove('active');
+    if (mainArea) {
+      mainArea.classList.remove('sidebar-open');
+    }
+    if (mobileSidebarBackdrop) {
+      mobileSidebarBackdrop.classList.remove('active');
+    }
+  };
+
+  mobileMenuToggle.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpening = !sidebar.classList.contains('active');
+
+    mobileMenuToggle.classList.toggle('active', isOpening);
+    sidebar.classList.toggle('active', isOpening);
+
+    if (mainArea) {
+      mainArea.classList.toggle('sidebar-open', isOpening);
+    }
+
+    if (mobileSidebarBackdrop) {
+      mobileSidebarBackdrop.classList.toggle('active', isOpening);
+    }
+  });
+
+  if (mobileSidebarBackdrop) {
+    mobileSidebarBackdrop.addEventListener('click', closeMobileSidebar);
+  }
+
+  document.querySelectorAll('.sidebar .nav-item').forEach((item) => {
+    item.addEventListener('click', () => {
+      if (window.innerWidth <= 768) {
+        closeMobileSidebar();
+      }
+    });
+  });
+
+  document.addEventListener('click', (e) => {
+    if (window.innerWidth > 768) return;
+
+    if (!e.target.closest('.sidebar') && !e.target.closest('.mobile-menu-toggle')) {
+      closeMobileSidebar();
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 768) {
+      closeMobileSidebar();
+    }
+  });
+}
 
 /**
  * Initialize the roadmap page
