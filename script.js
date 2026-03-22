@@ -57,14 +57,15 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
     const nameRaw = document.getElementById('signup-name').value;
     const name = nameRaw.trim();
     const email = document.getElementById('signup-email').value.trim();
-    const gender = document.getElementById('signup-gender').value;
+    const genderElement = document.getElementById('signup-gender');
+    const gender = genderElement ? genderElement.value : 'Not specified';
     const password = document.getElementById('signup-password').value;
     const reenterPassword = document.getElementById('signup-reenter-password').value;
     const termsCheckbox = document.getElementById('terms-checkbox');
     const submitBtn = document.getElementById('signup-btn');
     
     // Basic validation
-    if (!name || !email || !gender || !password || !reenterPassword) {
+    if (!name || !email || !password || !reenterPassword) {
         showMessage('signup-message', 'Please fill in all fields', 'error');
         resetSignupForm();
         return;
