@@ -829,6 +829,54 @@
             color: var(--text-primary);
         }
 
+        /* Hamburger Menu Toggle Button */
+        .menu-toggle {
+            display: none;
+            flex-direction: column;
+            cursor: pointer;
+            background: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            gap: 5px;
+            padding: 0;
+            position: fixed;
+            bottom: 20px;
+            left: 80px;
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px var(--shadow);
+        }
+
+        .menu-toggle:hover {
+            transform: scale(1.1);
+            border-color: var(--accent-color);
+        }
+
+        .menu-toggle span {
+            width: 20px;
+            height: 2px;
+            background: var(--text-primary);
+            border-radius: 2px;
+            transition: all 0.3s;
+            display: block;
+        }
+
+        .menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(10px, 10px);
+        }
+
+        .menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
         /* Responsive */
         @media (max-width: 1200px) {
             .home-layout {
@@ -841,9 +889,201 @@
             }
         }
 
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 250px;
+            }
+
+            .main-area {
+                margin-left: 250px;
+            }
+
+            .top-bar {
+                padding: 1rem 1.5rem;
+            }
+
+            .search-bar {
+                max-width: 300px;
+            }
+        }
+
         @media (max-width: 768px) {
+            .dashboard-container {
+                position: relative;
+            }
+
+            /* Hide sidebar by default on tablet */
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                transition: left 0.3s ease;
+                z-index: 999;
+                width: 280px;
+                height: 100vh;
+                overflow-y: auto;
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .main-area {
+                margin-left: 0;
+                width: 100%;
+                transition: margin-left 0.3s ease;
+            }
+
+            .main-area.sidebar-open {
+                margin-left: 280px;
+            }
+
+            .menu-toggle {
+                display: flex;
+                bottom: 20px;
+                left: 80px;
+            }
+
+            .top-bar {
+                padding: 1rem;
+                gap: 1rem;
+            }
+
+            .search-bar {
+                max-width: 200px;
+            }
+
             .home-sidebar {
                 grid-template-columns: 1fr;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .content-area {
+                padding-left: 1rem;
+                padding-right: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .sidebar {
+                width: 100%;
+                left: -100%;
+                box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.5);
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .main-area.sidebar-open {
+                margin-left: 0;
+            }
+
+            .menu-toggle {
+                display: flex;
+                bottom: 20px;
+                left: 20px;
+                width: 45px;
+                height: 45px;
+            }
+
+            .menu-toggle span {
+                width: 18px;
+            }
+
+            .top-bar {
+                padding: 0.75rem;
+                justify-content: space-between;
+                gap: 0.5rem;
+            }
+
+            .search-bar {
+                max-width: calc(100% - 60px);
+            }
+
+            .search-bar input {
+                padding: 0.5rem 0.75rem 0.5rem 2.3rem;
+                font-size: 0.875rem;
+            }
+
+            .search-bar i {
+                left: 0.75rem;
+            }
+
+            .user-name {
+                display: none;
+            }
+
+            .user-profile-btn {
+                padding: 0.5rem;
+            }
+
+            .content-area {
+                padding-left: 0.75rem;
+                padding-right: 0.75rem;
+            }
+
+            .home-layout {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .stat-card {
+                padding: 0.75rem;
+                font-size: 0.875rem;
+            }
+
+            .stat-value {
+                font-size: 1rem;
+            }
+
+            .card {
+                border-radius: 8px;
+            }
+
+            button {
+                min-height: 44px;
+                padding: 10px 15px;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .sidebar {
+                width: 100%;
+            }
+
+            .menu-toggle {
+                bottom: 18px;
+                left: 16px;
+                width: 42px;
+                height: 42px;
+            }
+
+            .menu-toggle span {
+                width: 16px;
+                height: 2px;
+            }
+
+            .top-bar {
+                padding: 0.5rem;
+                flex-wrap: wrap;
+            }
+
+            .search-bar {
+                max-width: 100%;
+                order: 3;
+                flex-basis: 100%;
+            }
+
+            h1 {
+                font-size: 18px;
+            }
+
+            .content-area {
+                padding-left: 0.5rem;
+                padding-right: 0.5rem;
             }
         }
 
@@ -2624,6 +2864,13 @@
         <!-- Theme Toggle -->
         <button class="theme-toggle" id="themeToggle">
             <i class="fas fa-moon" id="themeIcon"></i>
+        </button>
+
+        <!-- Mobile Menu Toggle -->
+        <button class="menu-toggle" id="menuToggle">
+            <span></span>
+            <span></span>
+            <span></span>
         </button>
     </div>
 

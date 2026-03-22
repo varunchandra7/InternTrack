@@ -5,9 +5,11 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const cron = require('node-cron');
 const { getContests } = require('./services/contestService');
+const { validateEnv } = require('./utils/validateEnv');
 
 // Load environment variables
 dotenv.config();
+validateEnv();
 
 // Import routes
 const authRoutes = require('./routes/auth');
@@ -19,7 +21,7 @@ const app = express();
 
 // Middleware
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || '*',
+  origin: process.env.FRONTEND_URL || 'http://localhost:5500',
   credentials: true,
   optionsSuccessStatus: 200
 };

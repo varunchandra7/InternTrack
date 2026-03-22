@@ -30,13 +30,22 @@
 3. **Add Environment Variables**
    Click "Environment" and add:
    ```
-   MONGODB_URI=mongodb://admin:Admin123@ac-uagoacv-shard-00-00.h108ohn.mongodb.net:27017,ac-uagoacv-shard-00-01.h108ohn.mongodb.net:27017,ac-uagoacv-shard-00-02.h108ohn.mongodb.net:27017/?ssl=true&authSource=admin&retryWrites=true&w=majority
-   JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
-   EMAIL_USER=kemavarunchandra.09@gmail.com
-   EMAIL_PASSWORD=mwhp ohzq fhtj hnng
+   MONGODB_URI=mongodb+srv://<username>:<password>@<cluster-url>/<database>?retryWrites=true&w=majority
+   JWT_SECRET=<long-random-secret>
    NODE_ENV=production
-   PORT=5000
+   FRONTEND_URL=https://your-vercel-app.vercel.app
+
+   EMAIL_HOST=smtp.gmail.com
+   EMAIL_PORT=587
+   EMAIL_USER=<your-email>
+   EMAIL_PASSWORD=<your-email-app-password>
+   EMAIL_FROM=<no-reply@yourdomain.com>
+   OTP_EXPIRY_MINUTES=10
+
+   GEMINI_API_KEY=<your-gemini-api-key>
    ```
+
+   Note: `PORT` is auto-provided by Render in production.
 
 4. **Deploy** - Click "Create Web Service"
    - Wait 3-5 minutes

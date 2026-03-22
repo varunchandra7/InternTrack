@@ -289,22 +289,173 @@ h1 {
     color: white;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 1024px) {
     .verification-container {
-        padding: 35px 28px;
+        padding: 32px 28px;
+        border-radius: 20px;
+    }
+
+    h1 {
+        font-size: 24px;
     }
 
     .otp-input {
-        width: 45px;
+        width: 50px;
+        height: 52px;
+        font-size: 22px;
+    }
+
+    button {
+        padding: 12px;
+        font-size: 14px;
+    }
+}
+
+@media (max-width: 768px) {
+    .verification-container {
+        padding: 30px 24px;
+        border-radius: 18px;
+    }
+
+    h1 {
+        font-size: 22px;
+        margin-bottom: 12px;
+    }
+
+    p {
+        font-size: 13px;
+        margin-bottom: 20px;
+    }
+
+    .otp-input {
+        width: 48px;
         height: 50px;
         font-size: 20px;
     }
 
     .otp-input-group {
         gap: 8px;
+        margin-bottom: 20px;
+    }
+
+    button {
+        padding: 11px;
+        font-size: 13px;
+        border-radius: 9px;
+    }
+
+    .timer-section {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 600px) {
+    .verification-container {
+        padding: 28px 22px;
+        border-radius: 16px;
     }
 
     h1 {
-        font-size: 22px;
+        font-size: 20px;
+        margin-bottom: 10px;
+    }
+
+    p {
+        font-size: 12px;
+        margin-bottom: 18px;
+        line-height: 1.5;
+    }
+
+    .otp-input {
+        width: 45px;
+        height: 48px;
+        font-size: 20px;
+    }
+
+    .otp-input-group {
+        gap: 7px;
+        margin-bottom: 18px;
+    }
+
+    button {
+        padding: 10px;
+        font-size: 13px;
+        border-radius: 8px;
+        min-height: 44px;
+        width: 100%;
+    }
+
+    .timer-section {
+        margin-top: 14px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .verification-container {
+        padding: 25px 20px;
+        border-radius: 15px;
+    }
+
+    h1 {
+        font-size: 18px;
+        margin-bottom: 9px;
+    }
+
+    p {
+        font-size: 11px;
+        margin-bottom: 16px;
+    }
+
+    .otp-input {
+        width: 42px;
+        height: 45px;
+        font-size: 18px;
+    }
+
+    .otp-input-group {
+        gap: 6px;
+        margin-bottom: 16px;
+    }
+
+    button {
+        padding: 9px;
+        font-size: 12px;
+        border-radius: 7px;
+    }
+
+    .timer-section {
+        margin-top: 12px;
+        font-size: 11px;
+    }
+}
+
+@media (max-width: 360px) {
+    .verification-container {
+        padding: 22px 16px;
+        border-radius: 13px;
+    }
+
+    h1 {
+        font-size: 16px;
+    }
+
+    p {
+        font-size: 10px;
+    }
+
+    .otp-input {
+        width: 38px;
+        height: 42px;
+        font-size: 16px;
+    }
+
+    .otp-input-group {
+        gap: 5px;
+    }
+
+    button {
+        padding: 8px;
+        font-size: 11px;
     }
 }
