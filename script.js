@@ -100,10 +100,10 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
         return;
     }
 
-    // Validate Gmail address - must be in format: letters/numbers@gmail.com
-    const gmailPattern = /^[A-Za-z0-9]+@gmail\.com$/;
+    // Validate Gmail address - must be in format: letters/numbers/dots@gmail.com
+    const gmailPattern = /^[A-Za-z0-9.]+@gmail\.com$/;
     if (!gmailPattern.test(email)) {
-        showMessage('signup-message', 'Email must be in format: letters/numbers@gmail.com only', 'error');
+        showMessage('signup-message', 'Email must be a valid Gmail address (e.g., user.name@gmail.com)', 'error');
         resetSignupForm();
         return;
     }
