@@ -1596,6 +1596,14 @@
             padding: 3px 4px;
             white-space: normal !important;
             word-break: break-word;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .event-type-icon {
+            font-size: 0.8rem;
+            flex-shrink: 0;
         }
 
         .fc-event {
@@ -1613,7 +1621,7 @@
             background: none !important;
         }
 
-        /* Event type indicators with colors */
+        /* Internship events */
         .event-internship {
             background-color: rgba(99, 102, 241, 0.15) !important;
             border-left: 4px solid #6366f1 !important;
@@ -1624,6 +1632,7 @@
             font-weight: 700;
         }
 
+        /* Hackathon events */
         .event-hackathon {
             background-color: rgba(236, 72, 153, 0.15) !important;
             border-left: 4px solid #ec4899 !important;
@@ -1634,6 +1643,73 @@
             font-weight: 700;
         }
 
+        /* CodeChef - Orange */
+        .event-codeforces {
+            background-color: rgba(31, 138, 203, 0.15) !important;
+            border-left: 4px solid #1F8ACB !important;
+        }
+
+        .event-codeforces .fc-event-title {
+            color: #1F8ACB;
+            font-weight: 700;
+        }
+
+        /* LeetCode - Yellow/Orange */
+        .event-leetcode {
+            background-color: rgba(255, 161, 22, 0.15) !important;
+            border-left: 4px solid #FFA116 !important;
+        }
+
+        .event-leetcode .fc-event-title {
+            color: #FFA116;
+            font-weight: 700;
+        }
+
+        /* CodeChef - Brown */
+        .event-codechef {
+            background-color: rgba(91, 70, 56, 0.15) !important;
+            border-left: 4px solid #5B4638 !important;
+        }
+
+        .event-codechef .fc-event-title {
+            color: #5B4638;
+            font-weight: 700;
+        }
+
+        /* AtCoder - Red/Orange */
+        .event-atcoder {
+            background-color: rgba(255, 107, 53, 0.15) !important;
+            border-left: 4px solid #FF6B35 !important;
+        }
+
+        .event-atcoder .fc-event-title {
+            color: #FF6B35;
+            font-weight: 700;
+        }
+
+        /* HackerRank - Green/Teal */
+        .event-hackerrank {
+            background-color: rgba(0, 200, 155, 0.15) !important;
+            border-left: 4px solid #00C89B !important;
+        }
+
+        .event-hackerrank .fc-event-title {
+            color: #00C89B;
+            font-weight: 700;
+        }
+
+        /* HackerEarth - Blue/Purple */
+        .event-hackerearth {
+            background-color: rgba(80, 55, 255, 0.15) !important;
+            border-left: 4px solid #5037FF !important;
+        }
+
+        .event-hackerearth .fc-event-title {
+            color: #5037FF;
+            font-weight: 700;
+        }
+
+        /* Contest (generic) */
         .event-contest {
             background-color: rgba(245, 158, 11, 0.15) !important;
             border-left: 4px solid #f59e0b !important;

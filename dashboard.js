@@ -288,6 +288,59 @@ function updateCalendarEvents() {
 let calendar;
 let currentEventData = null;
 
+/**
+ * Get logo and platform class for an event
+ */
+function getPlatformInfo(event) {
+    let icon = '';
+    let platformClass = '';
+
+    if (event.external && event.platform) {
+        const platform = event.platform.toLowerCase();
+        platformClass = `event-${platform}`;
+        
+        switch(platform) {
+            case 'codeforces':
+                icon = '⚡';
+                break;
+            case 'leetcode':
+                icon = '💻';
+                break;
+            case 'codechef':
+                icon = '👨‍🍳';
+                break;
+            case 'atcoder':
+                icon = '🎯';
+                break;
+            case 'hackerrank':
+                icon = '🏆';
+                break;
+            case 'hackerearth':
+                icon = '🌍';
+                break;
+            default:
+                icon = '📝';
+        }
+    } else {
+        platformClass = `event-${event.type}`;
+        switch(event.type) {
+            case 'internship':
+                icon = '💼';
+                break;
+            case 'hackathon':
+                icon = '🚀';
+                break;
+            case 'contest':
+                icon = '🏅';
+                break;
+            default:
+                icon = '📅';
+        }
+    }
+
+    return { icon, platformClass };
+}
+
 async function fetchEvents() {
     try {
         const response = await fetch(`${API_URL}/events`, {
@@ -315,19 +368,22 @@ async function fetchEvents() {
         allEvents = futureEvents;
         
         // Format events for FullCalendar - show only on start date
-        const calendarEvents = futureEvents.map(event => ({
-            id: event._id,
-            title: event.title,
-            start: event.startDate,
-            // No end date - show event only on start date
-            backgroundColor: event.color,
-            borderColor: event.color,
-            className: `event-${event.type}`,
-            extendedProps: {
-                ...event,
-                id: event._id
-            }
-        }));
+        const calendarEvents = futureEvents.map(event => {
+            const { icon, platformClass } = getPlatformInfo(event);
+            return {
+                id: event._id,
+                title: `${icon} ${event.title}`,
+                start: event.startDate,
+                // No end date - show event only on start date
+                backgroundColor: event.color,
+                borderColor: event.color,
+                className: platformClass,
+                extendedProps: {
+                    ...event,
+                    id: event._id
+                }
+            };
+        });
         
         if (calendar) {
             calendar.removeAllEvents();
@@ -389,7 +445,8 @@ function renderUpcomingEvents(events) {
         const eventDate = new Date(event.startDate);
         const daysUntil = Math.ceil((eventDate - today) / (1000 * 60 * 60 * 24));
         
-        // Determine icon based on event type
+        // Get platform info for styling and emoji
+        const { icon: emoji } = getPlatformInfo(event);
         let iconClass = 'fas fa-calendar';
         if (event.type === 'hackathon') iconClass = 'fas fa-code';
         else if (event.type === 'internship') iconClass = 'fas fa-briefcase';
@@ -407,7 +464,7 @@ function renderUpcomingEvents(events) {
         
         // Check if external contest
         const isExternal = event.external;
-        const platformBadge = isExternal ? `<span class="platform-badge platform-${event.platform}">${event.platform}</span>` : '';
+        const platformBadge = isExternal ? `<span class="platform-badge platform-${event.platform}">${emoji} ${event.platform}</span>` : `<span class="platform-badge" style="background: rgba(99, 102, 241, 0.2); color: #6366f1;">${emoji} ${event.type}</span>`;
         
         // Check if already in goals
         const eventId = event._id || event.id || event.title; // Use title as fallback for external contests
@@ -419,8 +476,8 @@ function renderUpcomingEvents(events) {
         return `
             <div class="upcoming-event-card" onclick="${isExternal ? `window.open('${event.link}', '_blank')` : `window.location.href='event-details.html?id=${event._id}'`}">
                 <div class="upcoming-event-header">
-                    <div class="event-icon">
-                        <i class="${iconClass}"></i>
+                    <div class="event-icon" style="font-size: 1.5rem;">
+                        ${emoji}
                     </div>
                     <div style="flex: 1;">
                         <h4 class="upcoming-event-title">${event.title}</h4>
