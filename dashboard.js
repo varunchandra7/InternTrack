@@ -267,19 +267,25 @@ function updateCalendarEvents() {
     calendar.removeAllEvents();
     
     // Add new events - show only on start date
-    const calendarEvents = allEvents.map(event => ({
-        id: event._id,
-        title: event.title,
-        start: event.startDate,
-        // No end date - show event only on start date
-        backgroundColor: event.color,
-        borderColor: event.color,
-        extendedProps: {
-            ...event,
+    const calendarEvents = allEvents.map(event => {
+        const { logo, platformClass, platformName } = getPlatformInfo(event);
+        return {
             id: event._id,
-            start: event.startDate
-        }
-    }));
+            title: platformName,
+            start: event.startDate,
+            // No end date - show event only on start date
+            backgroundColor: event.color,
+            borderColor: event.color,
+            className: platformClass,
+            extendedProps: {
+                ...event,
+                id: event._id,
+                start: event.startDate,
+                logo: logo,
+                originalTitle: event.title
+            }
+        };
+    });
     
     calendar.addEventSource(calendarEvents);
 }
@@ -293,11 +299,13 @@ let currentEventData = null;
  */
 function getPlatformInfo(event) {
     let logo = '';
+    let platformName = '';
     let platformClass = '';
 
     if (event.external && event.platform) {
         const platform = event.platform.toLowerCase();
         platformClass = `event-${platform}`;
+        platformName = event.platform;
         
         switch(platform) {
             case 'codeforces':
@@ -326,19 +334,23 @@ function getPlatformInfo(event) {
         switch(event.type) {
             case 'internship':
                 logo = '<span class="platform-logo-badge" style="background: #6366f1; color: white; font-weight: bold;">INT</span>';
+                platformName = 'Internship';
                 break;
             case 'hackathon':
                 logo = '<span class="platform-logo-badge" style="background: #ec4899; color: white; font-weight: bold;">HCK</span>';
+                platformName = 'Hackathon';
                 break;
             case 'contest':
                 logo = '<span class="platform-logo-badge" style="background: #f59e0b; color: white; font-weight: bold;">CST</span>';
+                platformName = 'Contest';
                 break;
             default:
                 logo = '<span class="platform-logo-badge" style="background: #666; color: white; font-weight: bold;">EVT</span>';
+                platformName = 'Event';
         }
     }
 
-    return { logo, platformClass };
+    return { logo, platformClass, platformName };
 }
 
 async function fetchEvents() {
@@ -447,7 +459,7 @@ function renderUpcomingEvents(events) {
         const daysUntil = Math.ceil((eventDate - today) / (1000 * 60 * 60 * 24));
         
         // Get platform info for styling and logo
-        const { logo } = getPlatformInfo(event);
+        const { logo, platformName } = getPlatformInfo(event);
         let iconClass = 'fas fa-calendar';
         if (event.type === 'hackathon') iconClass = 'fas fa-code';
         else if (event.type === 'internship') iconClass = 'fas fa-briefcase';
@@ -481,7 +493,7 @@ function renderUpcomingEvents(events) {
                         ${logo}
                     </div>
                     <div style="flex: 1;">
-                        <h4 class="upcoming-event-title">${event.title}</h4>
+                        <h4 class="upcoming-event-title">${platformName}</h4>
                         ${platformBadge}
                     </div>
                 </div>
