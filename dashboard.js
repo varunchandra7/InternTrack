@@ -292,7 +292,7 @@ let currentEventData = null;
  * Get logo and platform class for an event
  */
 function getPlatformInfo(event) {
-    let icon = '';
+    let logo = '';
     let platformClass = '';
 
     if (event.external && event.platform) {
@@ -301,44 +301,44 @@ function getPlatformInfo(event) {
         
         switch(platform) {
             case 'codeforces':
-                icon = '⚡';
+                logo = '<span class="platform-logo-badge" style="background: #1F8ACB; color: white; font-weight: bold;">CF</span>';
                 break;
             case 'leetcode':
-                icon = '💻';
+                logo = '<span class="platform-logo-badge" style="background: #FFA116; color: white; font-weight: bold;">LC</span>';
                 break;
             case 'codechef':
-                icon = '👨‍🍳';
+                logo = '<span class="platform-logo-badge" style="background: #5B4638; color: white; font-weight: bold;">CC</span>';
                 break;
             case 'atcoder':
-                icon = '🎯';
+                logo = '<span class="platform-logo-badge" style="background: #FF6B35; color: white; font-weight: bold;">AT</span>';
                 break;
             case 'hackerrank':
-                icon = '🏆';
+                logo = '<span class="platform-logo-badge" style="background: #00C89B; color: white; font-weight: bold;">HR</span>';
                 break;
             case 'hackerearth':
-                icon = '🌍';
+                logo = '<span class="platform-logo-badge" style="background: #5037FF; color: white; font-weight: bold;">HE</span>';
                 break;
             default:
-                icon = '📝';
+                logo = '<span class="platform-logo-badge" style="background: #666; color: white; font-weight: bold;">EXT</span>';
         }
     } else {
         platformClass = `event-${event.type}`;
         switch(event.type) {
             case 'internship':
-                icon = '💼';
+                logo = '<span class="platform-logo-badge" style="background: #6366f1; color: white; font-weight: bold;">INT</span>';
                 break;
             case 'hackathon':
-                icon = '🚀';
+                logo = '<span class="platform-logo-badge" style="background: #ec4899; color: white; font-weight: bold;">HCK</span>';
                 break;
             case 'contest':
-                icon = '🏅';
+                logo = '<span class="platform-logo-badge" style="background: #f59e0b; color: white; font-weight: bold;">CST</span>';
                 break;
             default:
-                icon = '📅';
+                logo = '<span class="platform-logo-badge" style="background: #666; color: white; font-weight: bold;">EVT</span>';
         }
     }
 
-    return { icon, platformClass };
+    return { logo, platformClass };
 }
 
 async function fetchEvents() {
@@ -369,10 +369,10 @@ async function fetchEvents() {
         
         // Format events for FullCalendar - show only on start date
         const calendarEvents = futureEvents.map(event => {
-            const { icon, platformClass } = getPlatformInfo(event);
+            const { logo, platformClass } = getPlatformInfo(event);
             return {
                 id: event._id,
-                title: `${icon} ${event.title}`,
+                title: event.title,
                 start: event.startDate,
                 // No end date - show event only on start date
                 backgroundColor: event.color,
@@ -380,7 +380,8 @@ async function fetchEvents() {
                 className: platformClass,
                 extendedProps: {
                     ...event,
-                    id: event._id
+                    id: event._id,
+                    logo: logo
                 }
             };
         });
@@ -445,8 +446,8 @@ function renderUpcomingEvents(events) {
         const eventDate = new Date(event.startDate);
         const daysUntil = Math.ceil((eventDate - today) / (1000 * 60 * 60 * 24));
         
-        // Get platform info for styling and emoji
-        const { icon: emoji } = getPlatformInfo(event);
+        // Get platform info for styling and logo
+        const { logo } = getPlatformInfo(event);
         let iconClass = 'fas fa-calendar';
         if (event.type === 'hackathon') iconClass = 'fas fa-code';
         else if (event.type === 'internship') iconClass = 'fas fa-briefcase';
@@ -464,7 +465,7 @@ function renderUpcomingEvents(events) {
         
         // Check if external contest
         const isExternal = event.external;
-        const platformBadge = isExternal ? `<span class="platform-badge platform-${event.platform}">${emoji} ${event.platform}</span>` : `<span class="platform-badge" style="background: rgba(99, 102, 241, 0.2); color: #6366f1;">${emoji} ${event.type}</span>`;
+        const platformBadge = isExternal ? `<span class="platform-badge platform-${event.platform}">${event.platform}</span>` : `<span class="platform-badge" style="background: rgba(99, 102, 241, 0.2); color: #6366f1;">${event.type}</span>`;
         
         // Check if already in goals
         const eventId = event._id || event.id || event.title; // Use title as fallback for external contests
@@ -476,8 +477,8 @@ function renderUpcomingEvents(events) {
         return `
             <div class="upcoming-event-card" onclick="${isExternal ? `window.open('${event.link}', '_blank')` : `window.location.href='event-details.html?id=${event._id}'`}">
                 <div class="upcoming-event-header">
-                    <div class="event-icon" style="font-size: 1.5rem;">
-                        ${emoji}
+                    <div class="event-icon">
+                        ${logo}
                     </div>
                     <div style="flex: 1;">
                         <h4 class="upcoming-event-title">${event.title}</h4>
@@ -544,8 +545,19 @@ function initializeCalendar() {
                     window.location.href = `event-details.html?id=${eventId}`;
                 }
             },
+            eventDidMount: function(info) {
+                // Add logo to event title
+                const logo = info.event.extendedProps.logo;
+                if (logo && info.el) {
+                    const titleEl = info.el.querySelector('.fc-event-title');
+                    if (titleEl) {
+                        titleEl.innerHTML = `${logo} ${titleEl.textContent}`;
+                    }
+                }
+            },
             eventClassNames: function(arg) {
-                return [`event-${arg.event.extendedProps.type}`];
+                const platform = arg.event.extendedProps.platform || arg.event.extendedProps.type;
+                return [`event-${platform}`];
             }
         });
         
