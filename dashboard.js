@@ -739,6 +739,7 @@ function renderSelectedEvents() {
                 <p>Go to Calendar to browse and select internships & hackathons</p>
             </div>
         `;
+        syncGoalCounters();
         return;
     }
     
@@ -835,6 +836,28 @@ function renderSelectedEvents() {
             </div>
         `;
     }).join('');
+
+    syncGoalCounters();
+}
+
+function syncGoalCounters() {
+    const totalEventsCount = document.getElementById('totalEventsCount');
+    const upcomingEventsCount = document.getElementById('upcomingEventsCount');
+
+    if (totalEventsCount) {
+        totalEventsCount.textContent = selectedEvents.length;
+    }
+
+    if (upcomingEventsCount) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const upcoming = selectedEvents.filter((event) => {
+            const eventDate = new Date(event.start || event.startDate);
+            eventDate.setHours(0, 0, 0, 0);
+            return eventDate >= today;
+        });
+        upcomingEventsCount.textContent = upcoming.length;
+    }
 }
 
 // Update calendar theme based on current theme
@@ -1036,16 +1059,9 @@ function loadProfileData() {
     if (profileAvatarLarge) profileAvatarLarge.textContent = (user.name || 'U').charAt(0).toUpperCase();
     
     // Update stats
-    const totalEventsCount = document.getElementById('totalEventsCount');
-    const upcomingEventsCount = document.getElementById('upcomingEventsCount');
     const memberSince = document.getElementById('memberSince');
-    
-    if (totalEventsCount) totalEventsCount.textContent = selectedEvents.length;
-    if (upcomingEventsCount) {
-        const today = new Date();
-        const upcoming = selectedEvents.filter(e => new Date(e.start || e.startDate) > today);
-        upcomingEventsCount.textContent = upcoming.length;
-    }
+
+    syncGoalCounters();
     if (memberSince) {
         const createdDate = user.createdAt ? new Date(user.createdAt).getFullYear() : new Date().getFullYear();
         memberSince.textContent = createdDate;
