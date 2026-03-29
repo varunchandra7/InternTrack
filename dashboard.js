@@ -4,6 +4,9 @@
  * Fixed: Events now show only on start date, not spanning multiple days
  */
 
+// Sidebar collapse state
+let sidebarCollapsed = localStorage.getItem('sidebarCollapsed') === 'true' || false;
+
 // Check authentication - check both localStorage (Remember Me) and sessionStorage
 const token = localStorage.getItem('token') || sessionStorage.getItem('token');
 const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
@@ -22,7 +25,53 @@ document.addEventListener('DOMContentLoaded', () => {
             el.style.display = '';
         });
     }
+
+    // Initialize sidebar toggle
+    initializeSidebarToggle();
 });
+
+/**
+ * Initialize sidebar toggle functionality
+ */
+function initializeSidebarToggle() {
+    const sidebar = document.getElementById('mainSidebar');
+    const mainArea = document.querySelector('.main-area');
+    const toggleBtn = document.getElementById('sidebarToggle');
+
+    if (!sidebar || !mainArea || !toggleBtn) return;
+
+    // Apply saved state on page load
+    if (sidebarCollapsed) {
+        sidebar.classList.add('collapsed');
+        mainArea.classList.add('sidebar-collapsed');
+        toggleBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+    }
+
+    // Toggle button click handler
+    toggleBtn.addEventListener('click', () => {
+        sidebarCollapsed = !sidebarCollapsed;
+        localStorage.setItem('sidebarCollapsed', sidebarCollapsed);
+
+        if (sidebarCollapsed) {
+            sidebar.classList.add('collapsed');
+            mainArea.classList.add('sidebar-collapsed');
+            toggleBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+            toggleBtn.title = 'Expand sidebar';
+        } else {
+            sidebar.classList.remove('collapsed');
+            mainArea.classList.remove('sidebar-collapsed');
+            toggleBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+            toggleBtn.title = 'Collapse sidebar';
+        }
+
+        // Update calendar size if visible
+        if (calendar) {
+            setTimeout(() => {
+                calendar.updateSize();
+            }, 300);
+        }
+    });
+}
 
 // Display user information
 document.addEventListener('DOMContentLoaded', () => {

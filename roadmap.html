@@ -115,6 +115,9 @@
         .sidebar-header {
             padding: 2rem 1.5rem;
             border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
         .sidebar-logo {
@@ -125,11 +128,81 @@
             font-weight: 700;
             color: var(--text-primary);
             text-decoration: none;
+            flex: 1;
         }
 
         .sidebar-logo i {
             color: var(--accent-color);
             font-size: 1.8rem;
+        }
+
+        .sidebar-toggle-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-toggle-btn:hover {
+            color: var(--accent-color);
+        }
+
+        /* Collapsed Sidebar State */
+        .sidebar.collapsed {
+            width: 70px;
+        }
+
+        .sidebar.collapsed .sidebar-header {
+            padding: 1.5rem 0.75rem;
+        }
+
+        .sidebar.collapsed .sidebar-logo span {
+            display: none;
+        }
+
+        .sidebar.collapsed .sidebar-logo {
+            justify-content: center;
+            gap: 0;
+        }
+
+        .sidebar.collapsed .nav-item span {
+            display: none;
+        }
+
+        .sidebar.collapsed .nav-item {
+            padding: 1rem 0.75rem;
+            justify-content: center;
+        }
+
+        .sidebar.collapsed .sidebar-footer {
+            padding: 1rem 0.75rem;
+        }
+
+        .sidebar.collapsed .logout-btn span {
+            display: none;
+        }
+
+        .sidebar.collapsed .logout-btn {
+            padding: 0.75rem;
+            justify-content: center;
+        }
+
+        /* Main area adjustment for collapsed sidebar */
+        .main-area.sidebar-collapsed {
+            margin-left: 70px;
+            width: calc(100% - 70px);
+        }
+
+        /* Smooth transition */
+        .sidebar,
+        .main-area {
+            transition: width 0.3s ease, margin-left 0.3s ease;
         }
 
         .sidebar-nav {
@@ -772,12 +845,15 @@
         <div class="mobile-sidebar-backdrop" id="mobileSidebarBackdrop"></div>
 
         <!-- Sidebar -->
-        <aside class="sidebar">
+        <aside class="sidebar" id="mainSidebar">
             <div class="sidebar-header">
                 <a href="dashboard.html" class="sidebar-logo">
                     <i class="fas fa-graduation-cap"></i>
                     <span>InternTrack</span>
                 </a>
+                <button class="sidebar-toggle-btn" id="sidebarToggle" title="Collapse sidebar">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
             </div>
 
             <nav class="sidebar-nav">
