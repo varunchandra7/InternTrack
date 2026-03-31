@@ -15,6 +15,17 @@ document.addEventListener('DOMContentLoaded', () => {
   initializeSidebarToggle();
   initializePage();
   initializeMobileSidebar();
+  
+  // Settings button in sidebar footer - redirect to dashboard settings
+  const settingsBtn = document.getElementById('settingsBtn');
+  if (settingsBtn) {
+    settingsBtn.addEventListener('click', () => {
+      // Store that we want to open settings
+      localStorage.setItem('activeSection', 'settings');
+      // Redirect to dashboard
+      window.location.href = 'dashboard.html';
+    });
+  }
 });
 
 /**

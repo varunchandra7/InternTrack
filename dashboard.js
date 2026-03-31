@@ -88,14 +88,31 @@ const logoutBtn = document.getElementById('logoutBtn');
 if (logoutBtn) {
     logoutBtn.addEventListener('click', (e) => {
         e.preventDefault();
-        // Clear both localStorage and sessionStorage
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        localStorage.removeItem('selectedEvents');
-        sessionStorage.removeItem('token');
-        sessionStorage.removeItem('user');
-        window.location.href = 'index.html';
+        showLogoutConfirmation();
     });
+}
+
+/**
+ * Show logout confirmation dialog
+ */
+function showLogoutConfirmation() {
+    const confirmed = confirm('Are you sure you want to logout?');
+    if (confirmed) {
+        performLogout();
+    }
+}
+
+/**
+ * Perform the actual logout
+ */
+function performLogout() {
+    // Clear both localStorage and sessionStorage
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    localStorage.removeItem('selectedEvents');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('user');
+    window.location.href = 'index.html';
 }
 
 // Navigation between sections - will be initialized in DOMContentLoaded
@@ -177,6 +194,22 @@ document.addEventListener('DOMContentLoaded', () => {
             showSection(sectionName);
         });
     });
+    
+    // Settings button in sidebar footer
+    const settingsBtn = document.getElementById('settingsBtn');
+    if (settingsBtn) {
+        settingsBtn.addEventListener('click', () => {
+            showSection('settings');
+        });
+    }
+    
+    // Logout button in sidebar footer
+    const logoutSidebarBtn = document.getElementById('logoutSidebarBtn');
+    if (logoutSidebarBtn) {
+        logoutSidebarBtn.addEventListener('click', () => {
+            showLogoutConfirmation();
+        });
+    }
     
     // Initialize calendar
     initializeCalendar();
