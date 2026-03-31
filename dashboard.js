@@ -541,14 +541,16 @@ function initializeCalendar() {
                 hour: 'numeric',
                 minute: '2-digit'
             },
-            slotLabelInterval: '00:30:00',
-            slotDuration: '00:30:00',
+            slotLabelInterval: '01:00:00',
+            slotDuration: '01:00:00',
             slotMinTime: '08:00:00',
-            slotMaxTime: '20:00:00',
-            businessHours: {
-                daysOfWeek: [1, 2, 3, 4, 5],
-                startTime: '09:00',
-                endTime: '17:00'
+            slotMaxTime: '19:00:00',
+            slotLabelSide: 'left',
+            nowIndicator: true,
+            eventTimeFormat: {
+                hour: 'numeric',
+                minute: '2-digit',
+                meridiem: 'short'
             },
             buttonText: {
                 today: 'Today',

@@ -1867,36 +1867,44 @@
             overflow-x: hidden;
         }
         
-        /* Professional Week View Styling */
+        /* Professional Week View Styling - Clean Card Layout */
         .fc-timegrid-slot {
-            height: 3em;
+            height: auto;
+        }
+        
+        .fc-timegrid-slot span {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            font-weight: 500;
         }
         
         .fc-timegrid {
             border: none;
-            border-radius: 8px;
-            overflow: hidden;
+            border-radius: 0;
+            overflow: visible;
         }
         
         .fc-col-header {
-            background: #F5F5F5;
-            border: 1px solid #E0E0E0;
+            background: #FFFFFF;
+            border: none;
         }
         
         .fc-col-header-cell {
-            background: #F5F5F5;
-            border-right: 1px solid #E0E0E0;
-            padding: 1rem 0.5rem;
-            font-weight: 600;
+            background: #FFFFFF;
+            border: none;
+            border-bottom: 2px solid #E0E0E0;
+            padding: 1.25rem 0.75rem;
+            font-weight: 700;
             color: var(--text-primary);
-            text-transform: uppercase;
-            font-size: 0.85rem;
+            text-transform: capitalize;
+            font-size: 0.95rem;
         }
         
         .fc-col-header-cell:last-child {
             border-right: none;
         }
         
+        /* Clean day number display */
         .fc-daygrid-day-number {
             padding: 0.75rem;
             font-weight: 600;
@@ -1904,50 +1912,53 @@
         }
         
         .fc-daygrid-day.fc-day-today {
-            background: rgba(124, 58, 237, 0.03);
+            background: transparent;
         }
         
         .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
             color: var(--accent-color);
-            background: rgba(124, 58, 237, 0.15);
+            background: rgba(124, 58, 237, 0.1);
             padding: 0.25rem 0.5rem;
             border-radius: 4px;
             display: inline-block;
         }
         
         .fc-daygrid-day-frame {
-            background: #FFFFFF;
+            background: transparent;
+            border: none;
         }
         
         .fc-daygrid-day-frame.fc-day-other {
-            background: #FAFAFA;
+            background: transparent;
         }
         
         .fc-daygrid {
-            border: 1px solid #E0E0E0;
-            border-radius: 8px;
-            overflow: hidden;
+            border: none;
+            border-radius: 0;
+            overflow: visible;
         }
         
+        /* Hide grid lines */
         .fc-timegrid-body {
-            background: #FFFFFF;
-            border-top: 1px solid #E0E0E0;
+            background: transparent;
+            border-top: none;
         }
         
         .fc-timegrid-col {
-            border-right: 1px solid #E0E0E0;
+            border-right: none;
         }
         
         .fc-timegrid-col:last-child {
             border-right: none;
         }
         
+        /* Hide individual time slot backgrounds */
         .fc-daygrid-body {
-            border-top: 1px solid #E0E0E0;
+            border-top: none;
         }
         
         .fc-daygrid-day {
-            border-bottom: 1px solid #E0E0E0;
+            border-bottom: none;
             border-right: 1px solid #E0E0E0;
         }
         
@@ -1956,11 +1967,57 @@
         }
         
         .fc-daygrid-day-bg {
-            background: #FFFFFF;
+            background: transparent;
         }
         
         .fc-daygrid-day-frame.fc-day-today .fc-daygrid-day-bg {
-            background: rgba(124, 58, 237, 0.03);
+            background: transparent;
+        }
+        
+        /* Event styling - make them look like cards */
+        .fc-event {
+            padding: 4px !important;
+            border-radius: 6px !important;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
+            overflow: visible !important;
+        }
+        
+        .fc-event:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15) !important;
+            transform: translateY(-1px);
+        }
+        
+        .fc-daygrid-event {
+            margin: 2px 3px !important;
+            border-radius: 6px !important;
+        }
+        
+        .fc-daygrid-event-dot {
+            display: none !important;
+        }
+        
+        .fc-event-title {
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 4px 6px !important;
+            white-space: normal !important;
+            word-break: break-word !important;
+        }
+        
+        /* Make timegrid events more compact */
+        .fc-timegrid-event {
+            margin: 1px 2px !important;
+            border-radius: 6px !important;
+        }
+        
+        /* Hide grid lines in timegrid */
+        .fc-timegrid-slot {
+            border-bottom: none !important;
+        }
+        
+        /* Clean column dividers */
+        .fc-daygrid-body {
+            border-top: 2px solid #E0E0E0;
         }
         
         /* Month and week view toggle buttons */
