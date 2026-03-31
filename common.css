@@ -2,19 +2,21 @@
 
 /* ===== CSS VARIABLES FOR THEME ===== */
 :root {
-    /* Light Theme Colors */
-    --bg-primary: #f8f9fa;
-    --bg-secondary: #ffffff;
-    --text-primary: #1a1a1a;
-    --text-secondary: #6c757d;
-    --border-color: #e0e0e0;
-    --shadow: rgba(0, 0, 0, 0.1);
-    --accent-color: #6366f1;
-    --accent-hover: #4f46e5;
+    /* Light Theme Colors - Updated to new purple palette */
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #FFFFFF;
+    --text-primary: #1F2937;
+    --text-secondary: #6B7280;
+    --border-color: #E5E7EB;
+    --shadow: rgba(0, 0, 0, 0.08);
+    --accent-color: #7C3AED;
+    --accent-hover: #6D28D9;
+    --accent-light: #C4B5FD;
+    --accent-bg: #F5F3FF;
     --success: #10b981;
     --error: #ef4444;
-    --input-bg: #ffffff;
-    --input-border: #d1d5db;
+    --input-bg: #FFFFFF;
+    --input-border: #D1D5DB;
 }
 
 [data-theme="dark"] {
@@ -25,8 +27,10 @@
     --text-secondary: #94a3b8;
     --border-color: #334155;
     --shadow: rgba(0, 0, 0, 0.3);
-    --accent-color: #818cf8;
-    --accent-hover: #6366f1;
+    --accent-color: #A78BFA;
+    --accent-hover: #7C3AED;
+    --accent-light: #8B5CF6;
+    --accent-bg: #5B21B6;
     --success: #34d399;
     --error: #f87171;
     --input-bg: #1e293b;
@@ -167,7 +171,7 @@ h2 {
 .input-group input:focus,
 .input-group select:focus {
     border-color: var(--accent-color);
-    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
 }
 
 .input-group input::placeholder {
@@ -213,7 +217,7 @@ h2 {
 .btn-primary:hover {
     background: var(--accent-hover);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
 }
 
 .btn-primary:disabled {

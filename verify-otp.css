@@ -12,7 +12,7 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%);
     position: relative;
     overflow: hidden;
     padding: 20px;
@@ -213,8 +213,8 @@ h1 {
 .btn-verify {
     width: 100%;
     padding: 14px;
-    background: white;
-    color: #667eea;
+    background: linear-gradient(135deg, #7C3AED, #A78BFA);
+    color: white;
     border: none;
     border-radius: 12px;
     font-size: 15px;
@@ -225,13 +225,13 @@ h1 {
     justify-content: center;
     gap: 10px;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
 }
 
 .btn-verify:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-    background: #f8f9ff;
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+    background: linear-gradient(135deg, #6D28D9, #9F7AEA);
 }
 
 .btn-verify:disabled {
