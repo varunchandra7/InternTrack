@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const Event = require('../models/Event');
 const { getContests } = require('../services/contestService');
+const mongoose = require('mongoose');
 
 /**
  * @route   GET /api/events
@@ -12,34 +13,36 @@ router.get('/', async (req, res) => {
     try {
         const { type, month, year, userId } = req.query;
         
-        if (!userId) {
-            return res.status(400).json({
-                success: false,
-                message: 'userId is required'
-            });
+        let dbEvents = [];
+        let query = {};
+        
+        // Only try to query database events if userId is valid
+        if (userId && mongoose.Types.ObjectId.isValid(userId)) {
+            query.userId = userId;
+            
+            // Filter by event type if provided
+            if (type && type !== 'all') {
+                query.type = type;
+            }
+            
+            // Filter by month and year if provided
+            if (month && year) {
+                const startOfMonth = new Date(year, month - 1, 1);
+                const endOfMonth = new Date(year, month, 0, 23, 59, 59);
+                query.startDate = {
+                    $gte: startOfMonth,
+                    $lte: endOfMonth
+                };
+            }
+            
+            try {
+                dbEvents = await Event.find(query).sort({ startDate: 1 });
+            } catch (error) {
+                console.log('Error fetching database events:', error.message);
+            }
         }
         
-        let query = { userId };
-        
-        // Filter by event type if provided
-        if (type && type !== 'all') {
-            query.type = type;
-        }
-        
-        // Filter by month and year if provided
-        if (month && year) {
-            const startOfMonth = new Date(year, month - 1, 1);
-            const endOfMonth = new Date(year, month, 0, 23, 59, 59);
-            query.startDate = {
-                $gte: startOfMonth,
-                $lte: endOfMonth
-            };
-        }
-        
-        // Get events from database (user's events only)
-        const dbEvents = await Event.find(query).sort({ startDate: 1 });
-        
-        // Get external contests
+        // Get external contests (always included)
         const externalContests = await getContests();
         
         // Filter external contests by type if specified
@@ -123,47 +126,38 @@ router.post('/', async (req, res) => {
             type,
             startDate,
             endDate,
-            deadline,
             description,
-            skills,
-            rounds,
             location,
-            eligibility,
-            prize,
-            registrationLink,
-            color
+            skills,
+            rounds
         } = req.body;
         
-        // Validation
-        if (!userId || !title || !company || !type || !startDate || !description) {
+        if (!userId || !title || !company || !type || !startDate) {
             return res.status(400).json({
                 success: false,
-                message: 'Please provide all required fields (userId, title, company, type, startDate, description)'
+                message: 'Missing required fields'
             });
         }
         
-        const event = await Event.create({
+        const event = new Event({
             userId,
             title,
             company,
             type,
             startDate,
             endDate,
-            deadline,
             description,
-            skills: skills || [],
-            rounds: rounds || [],
             location,
-            eligibility,
-            prize,
-            registrationLink,
-            color: color || getColorByType(type)
+            skills,
+            rounds
         });
+        
+        await event.save();
         
         res.status(201).json({
             success: true,
             message: 'Event created successfully',
-            data: event
+            event
         });
     } catch (error) {
         console.error('Error creating event:', error);
@@ -173,81 +167,5 @@ router.post('/', async (req, res) => {
         });
     }
 });
-
-/**
- * @route   PUT /api/events/:id
- * @desc    Update event
- * @access  Private (Admin only)
- */
-router.put('/:id', async (req, res) => {
-    try {
-        const event = await Event.findByIdAndUpdate(
-            req.params.id,
-            req.body,
-            { new: true, runValidators: true }
-        );
-        
-        if (!event) {
-            return res.status(404).json({
-                success: false,
-                message: 'Event not found'
-            });
-        }
-        
-        res.json({
-            success: true,
-            message: 'Event updated successfully',
-            data: event
-        });
-    } catch (error) {
-        console.error('Error updating event:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Server error while updating event'
-        });
-    }
-});
-
-/**
- * @route   DELETE /api/events/:id
- * @desc    Delete event
- * @access  Private (Admin only)
- */
-router.delete('/:id', async (req, res) => {
-    try {
-        const event = await Event.findByIdAndDelete(req.params.id);
-        
-        if (!event) {
-            return res.status(404).json({
-                success: false,
-                message: 'Event not found'
-            });
-        }
-        
-        res.json({
-            success: true,
-            message: 'Event deleted successfully'
-        });
-    } catch (error) {
-        console.error('Error deleting event:', error);
-        res.status(500).json({
-            success: false,
-            message: 'Server error while deleting event'
-        });
-    }
-});
-
-/**
- * Helper function to get color based on event type
- */
-function getColorByType(type) {
-    const colors = {
-        'internship': '#6366f1',
-        'hackathon': '#10b981',
-        'contest': '#f59e0b',
-        'deadline': '#ef4444'
-    };
-    return colors[type] || '#6366f1';
-}
 
 module.exports = router;
