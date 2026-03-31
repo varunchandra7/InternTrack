@@ -106,10 +106,14 @@ function showLogoutConfirmation() {
  * Perform the actual logout
  */
 function performLogout() {
+    // Clear user-specific data
+    localStorage.removeItem(getUserStorageKey('selectedEvents'));
+    localStorage.removeItem(getUserStorageKey('currentRoadmapCache'));
+    localStorage.removeItem(getUserStorageKey('pinnedUpcomingEventIds'));
+    
     // Clear both localStorage and sessionStorage
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-    localStorage.removeItem('selectedEvents');
     sessionStorage.removeItem('token');
     sessionStorage.removeItem('user');
     window.location.href = 'index.html';
@@ -229,8 +233,12 @@ document.addEventListener('DOMContentLoaded', () => {
 // API Base URL
 const API_URL = window.API_CONFIG?.BASE_URL || 'http://localhost:5000/api';
 
-// Sample selected events (stored in localStorage)
-let selectedEvents = JSON.parse(localStorage.getItem('selectedEvents') || '[]');
+// Get user ID for data isolation
+const currentUserId = user._id || user.id || 'unknown';
+const getUserStorageKey = (key) => `${key}_${currentUserId}`;
+
+// Sample selected events (stored in localStorage) - now user-specific
+let selectedEvents = JSON.parse(localStorage.getItem(getUserStorageKey('selectedEvents')) || '[]');
 
 // Store all events from backend
 let allEvents = [];
@@ -746,7 +754,7 @@ function setEventAsGoal() {
     }
     
     selectedEvents.push(currentEventData);
-    localStorage.setItem('selectedEvents', JSON.stringify(selectedEvents));
+    localStorage.setItem(getUserStorageKey('selectedEvents'), JSON.stringify(selectedEvents));
     renderSelectedEvents();
     
     closeEventModal();
@@ -781,7 +789,7 @@ function showEventModal(event) {
 // Add event to selected
 function addEvent(event) {
     selectedEvents.push(event);
-    localStorage.setItem('selectedEvents', JSON.stringify(selectedEvents));
+    localStorage.setItem(getUserStorageKey('selectedEvents'), JSON.stringify(selectedEvents));
     renderSelectedEvents();
     alert('Event added to your Home page!');
 }
@@ -789,7 +797,7 @@ function addEvent(event) {
 // Remove event from selected
 function removeEvent(eventId) {
     selectedEvents = selectedEvents.filter(e => e.id !== eventId);
-    localStorage.setItem('selectedEvents', JSON.stringify(selectedEvents));
+    localStorage.setItem(getUserStorageKey('selectedEvents'), JSON.stringify(selectedEvents));
     renderSelectedEvents();
     alert('Event removed from your Home page!');
 }
@@ -801,7 +809,7 @@ function removeEventFromHome(eventId) {
             const storedId = e.id || e._id || e.title;
             return storedId !== eventId;
         });
-        localStorage.setItem('selectedEvents', JSON.stringify(selectedEvents));
+        localStorage.setItem(getUserStorageKey('selectedEvents'), JSON.stringify(selectedEvents));
         renderSelectedEvents();
         renderUpcomingEvents(allEvents); // Update upcoming events to reflect the change
     }
@@ -1729,12 +1737,12 @@ async function loadRoadmapProgress() {
         const data = await response.json();
 
         if (response.ok && data.success && data.roadmap) {
-            localStorage.setItem('currentRoadmapCache', JSON.stringify(data.roadmap));
+            localStorage.setItem(getUserStorageKey('currentRoadmapCache'), JSON.stringify(data.roadmap));
             renderRoadmapHomeCard(data.roadmap);
             return;
         }
 
-        const cachedRoadmap = JSON.parse(localStorage.getItem('currentRoadmapCache') || 'null');
+        const cachedRoadmap = JSON.parse(localStorage.getItem(getUserStorageKey('currentRoadmapCache')) || 'null');
         if (cachedRoadmap) {
             renderRoadmapHomeCard(cachedRoadmap);
             return;
@@ -1743,7 +1751,7 @@ async function loadRoadmapProgress() {
         renderRoadmapEmptyHomeCard();
     } catch (error) {
         console.error('Error loading roadmap progress:', error);
-        const cachedRoadmap = JSON.parse(localStorage.getItem('currentRoadmapCache') || 'null');
+        const cachedRoadmap = JSON.parse(localStorage.getItem(getUserStorageKey('currentRoadmapCache')) || 'null');
         if (cachedRoadmap) {
             renderRoadmapHomeCard(cachedRoadmap);
             return;

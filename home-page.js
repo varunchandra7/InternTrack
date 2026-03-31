@@ -5,6 +5,11 @@
 let eventRefreshInterval;
 let currentUpcomingEventsById = {};
 
+// Get user ID for data isolation
+const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
+const currentUserIdHome = user._id || user.id || 'unknown';
+const getUserStorageKeyHome = (key) => `${key}_${currentUserIdHome}`;
+
 /**
  * Initialize home page with activity graphs and upcoming events
  */
@@ -144,7 +149,7 @@ async function loadUpcomingEvents() {
         const oneMonthLater = new Date(today);
         oneMonthLater.setMonth(today.getMonth() + 1);
         
-        const pinnedEventIds = JSON.parse(localStorage.getItem('pinnedUpcomingEventIds') || '[]');
+        const pinnedEventIds = JSON.parse(localStorage.getItem(getUserStorageKeyHome('pinnedUpcomingEventIds')) || '[]');
 
         // Filter events: start date is between today and 1 month from now
         const upcomingEvents = events
@@ -191,8 +196,8 @@ async function loadUpcomingEvents() {
                 year: 'numeric'
             });
 
-            const selectedEvents = JSON.parse(localStorage.getItem('selectedEvents') || '[]');
-            const pinnedIds = JSON.parse(localStorage.getItem('pinnedUpcomingEventIds') || '[]');
+            const selectedEvents = JSON.parse(localStorage.getItem(getUserStorageKeyHome('selectedEvents')) || '[]');
+            const pinnedIds = JSON.parse(localStorage.getItem(getUserStorageKeyHome('pinnedUpcomingEventIds')) || '[]');
             const isGoal = selectedEvents.some(item => getUpcomingEventId(item) === eventId);
             const isPinned = pinnedIds.includes(eventId);
             
@@ -231,7 +236,7 @@ function loadSelectedGoals() {
         if (!container) return;
         
         // Get selected events from localStorage
-        const selectedEventsJson = localStorage.getItem('selectedEvents') || '[]';
+        const selectedEventsJson = localStorage.getItem(getUserStorageKeyHome('selectedEvents')) || '[]';
         const selectedEvents = JSON.parse(selectedEventsJson);
         
         if (selectedEvents.length === 0) {
@@ -284,7 +289,7 @@ function toggleUpcomingGoal(eventId) {
     const event = currentUpcomingEventsById[eventId];
     if (!event) return;
 
-    const selectedEvents = JSON.parse(localStorage.getItem('selectedEvents') || '[]');
+    const selectedEvents = JSON.parse(localStorage.getItem(getUserStorageKeyHome('selectedEvents')) || '[]');
     const existingIndex = selectedEvents.findIndex(item => getUpcomingEventId(item) === eventId);
 
     if (existingIndex >= 0) {
@@ -297,13 +302,13 @@ function toggleUpcomingGoal(eventId) {
         });
     }
 
-    localStorage.setItem('selectedEvents', JSON.stringify(selectedEvents));
+    localStorage.setItem(getUserStorageKeyHome('selectedEvents'), JSON.stringify(selectedEvents));
     loadSelectedGoals();
     loadUpcomingEvents();
 }
 
 function toggleUpcomingPin(eventId) {
-    const pinnedIds = JSON.parse(localStorage.getItem('pinnedUpcomingEventIds') || '[]');
+    const pinnedIds = JSON.parse(localStorage.getItem(getUserStorageKeyHome('pinnedUpcomingEventIds')) || '[]');
     const existingIndex = pinnedIds.indexOf(eventId);
 
     if (existingIndex >= 0) {
@@ -312,7 +317,7 @@ function toggleUpcomingPin(eventId) {
         pinnedIds.push(eventId);
     }
 
-    localStorage.setItem('pinnedUpcomingEventIds', JSON.stringify(pinnedIds));
+    localStorage.setItem(getUserStorageKeyHome('pinnedUpcomingEventIds'), JSON.stringify(pinnedIds));
     loadUpcomingEvents();
 }
 
