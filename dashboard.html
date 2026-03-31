@@ -143,23 +143,6 @@
             font-size: 1.8rem;
         }
 
-        .sidebar-toggle-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0.5rem;
-            color: var(--text-secondary);
-            font-size: 1.2rem;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .sidebar-toggle-btn:hover {
-            color: var(--accent-color);
-        }
-
         /* Collapsed Sidebar State */
         .sidebar.collapsed {
             width: 70px;
@@ -927,26 +910,26 @@
         /* Home Page Layout */
         .welcome-header {
             padding: 2rem 2rem 1rem 2rem;
-            background: linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%);
-            color: white;
-            border-radius: 12px;
+            color: #1F2937;
+            border-radius: 0;
             margin: 0;
+            background: transparent;
         }
         
         .welcome-title {
             font-size: 2rem;
             font-weight: 700;
             margin: 0 0 0.5rem 0;
-            color: white;
+            color: #1F2937;
         }
         
         .welcome-title span {
-            color: #C4B5FD;
+            color: var(--accent-color);
         }
         
         .welcome-subtitle {
             font-size: 1rem;
-            color: rgba(255, 255, 255, 0.9);
+            color: var(--text-secondary);
             margin: 0;
         }
         
@@ -1193,7 +1176,7 @@
         /* Footer */
         .dashboard-footer {
             margin-top: auto;
-            padding: 2rem 2rem 1rem 2rem;
+            padding: 1.5rem 2rem;
             border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
@@ -1206,6 +1189,7 @@
             font-size: 0.85rem;
             color: var(--text-secondary);
             margin: 0;
+            white-space: nowrap;
         }
         
         .footer-links {
@@ -3281,9 +3265,6 @@
                     <i class="fas fa-graduation-cap"></i>
                     <span>InternTrack</span>
                 </a>
-                <button class="sidebar-toggle-btn" id="sidebarToggle" title="Collapse sidebar">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
             </div>
 
             <nav class="sidebar-nav">
