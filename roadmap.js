@@ -187,6 +187,7 @@ async function loadExistingRoadmap() {
     
     if (data.success && data.roadmap) {
       currentRoadmap = data.roadmap;
+      localStorage.setItem('currentRoadmapCache', JSON.stringify(data.roadmap));
       displayRoadmap(data.roadmap);
       updateProgressDisplay(data.roadmap.progress);
       
@@ -252,6 +253,7 @@ async function handleGenerateRoadmap(event) {
     
     if (data.success) {
       currentRoadmap = data.roadmap;
+      localStorage.setItem('currentRoadmapCache', JSON.stringify(data.roadmap));
       displayRoadmap(data.roadmap);
       updateProgressDisplay(data.roadmap.progress);
       

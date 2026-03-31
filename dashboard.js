@@ -873,7 +873,10 @@ function renderMobileGoalsOptions(events) {
 
 // Render selected events on Home page
 function renderSelectedEvents() {
-    const container = document.getElementById('selectedEvents');
+    const container = document.getElementById('selectedEvents') || document.getElementById('goalsList');
+    if (!container) {
+        return;
+    }
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
@@ -1621,13 +1624,25 @@ async function loadRoadmapProgress() {
         const data = await response.json();
 
         if (response.ok && data.success && data.roadmap) {
+            localStorage.setItem('currentRoadmapCache', JSON.stringify(data.roadmap));
             renderRoadmapHomeCard(data.roadmap);
+            return;
+        }
+
+        const cachedRoadmap = JSON.parse(localStorage.getItem('currentRoadmapCache') || 'null');
+        if (cachedRoadmap) {
+            renderRoadmapHomeCard(cachedRoadmap);
             return;
         }
 
         renderRoadmapEmptyHomeCard();
     } catch (error) {
         console.error('Error loading roadmap progress:', error);
+        const cachedRoadmap = JSON.parse(localStorage.getItem('currentRoadmapCache') || 'null');
+        if (cachedRoadmap) {
+            renderRoadmapHomeCard(cachedRoadmap);
+            return;
+        }
         renderRoadmapEmptyHomeCard();
     }
 }
