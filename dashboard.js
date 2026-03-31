@@ -186,6 +186,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Load roadmap progress for home page
     loadRoadmapProgress();
+    
+    // Auto-refresh roadmap every 2 seconds to catch updates
+    setInterval(() => {
+        loadRoadmapProgress();
+    }, 2000);
 });
 
 // API Base URL

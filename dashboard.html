@@ -1176,13 +1176,14 @@
         /* Footer */
         .dashboard-footer {
             margin-top: auto;
-            padding: 1.5rem 2rem;
+            padding: 1rem 2rem;
             border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 2rem;
             background: var(--bg-secondary);
+            flex-wrap: wrap;
         }
         
         .footer-copyright {
@@ -3294,9 +3295,6 @@
                         <i class="fas fa-sign-out-alt"></i>
                     </button>
                 </div>
-                <button class="theme-toggle-btn" id="themeToggle" title="Toggle dark mode">
-                    <i class="fas fa-moon"></i>
-                </button>
             </div>
         </aside>
 
@@ -3941,11 +3939,6 @@
                 </div>
             </section>
         </div>
-
-        <!-- Theme Toggle -->
-        <button class="theme-toggle" id="themeToggle">
-            <i class="fas fa-moon" id="themeIcon"></i>
-        </button>
 
         </div>
     </div>

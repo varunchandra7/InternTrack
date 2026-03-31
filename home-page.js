@@ -2,6 +2,8 @@
  * Home Page Functions
  */
 
+let eventRefreshInterval;
+
 /**
  * Initialize home page with activity graphs and upcoming events
  */
@@ -14,6 +16,12 @@ function initializeHomePage() {
     
     // Load selected goals
     loadSelectedGoals();
+    
+    // Refresh events every 2 seconds
+    clearInterval(eventRefreshInterval);
+    eventRefreshInterval = setInterval(() => {
+        loadUpcomingEvents();
+    }, 2000);
 }
 
 /**
@@ -97,7 +105,7 @@ function loadActivityGraphs() {
 }
 
 /**
- * Load upcoming events for the next month
+ * Load upcoming events for the next month from calendar
  */
 async function loadUpcomingEvents() {
     try {
@@ -105,13 +113,28 @@ async function loadUpcomingEvents() {
         if (!container) return;
         
         const userId = user._id || user.id;
-        const response = await fetch(`/api/events?userId=${userId}`);
         
-        if (!response.ok) {
-            throw new Error('Failed to fetch events');
+        // Try to fetch from API with proper error handling
+        let events = [];
+        try {
+            const response = await fetch(`/api/events?userId=${userId}`);
+            if (response.ok) {
+                events = await response.json();
+            }
+        } catch (e) {
+            console.log('API fetch failed, trying alternative method');
         }
         
-        const events = await response.json();
+        // If no events from API or API failed, get from localStorage or other sources
+        if (!events || events.length === 0) {
+            // Try to get from calendar data if available
+            if (window.calendarEvents && Array.isArray(window.calendarEvents)) {
+                events = window.calendarEvents;
+            } else {
+                events = [];
+            }
+        }
+        
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         
@@ -122,6 +145,7 @@ async function loadUpcomingEvents() {
         // Filter events: start date is between today and 1 month from now
         const upcomingEvents = events
             .filter(event => {
+                if (!event.startDate) return false;
                 const eventStartDate = new Date(event.startDate);
                 eventStartDate.setHours(0, 0, 0, 0);
                 return eventStartDate >= today && eventStartDate <= oneMonthLater;
@@ -186,7 +210,7 @@ function loadSelectedGoals() {
             container.innerHTML = `
                 <div class="empty-state-small">
                     <i class="fas fa-bullseye"></i>
-                    <p>No goals selected yet. <a href="#" onclick="showSection('calendar')">Browse Goals</a></p>
+                    <p>No goals selected yet. <a href="#" onclick="showSection('calendar'); return false;">Browse Goals</a></p>
                 </div>
             `;
             return;
@@ -267,3 +291,19 @@ function showSection(sectionName) {
         }
     });
 }
+
+/**
+ * Refresh upcoming events (to be called after creating events)
+ */
+function refreshUpcomingEvents() {
+    loadUpcomingEvents();
+}
+
+/**
+ * Trigger refresh when visibility changes (page comes back into focus)
+ */
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+        loadUpcomingEvents();
+    }
+});
