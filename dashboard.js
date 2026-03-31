@@ -218,6 +218,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initialize calendar
     initializeCalendar();
     
+    // Initialize home page (upcoming events, goals, activity graphs)
+    if (typeof initializeHomePage === 'function') {
+        initializeHomePage();
+    }
+    
     // Render selected events on home page
     renderSelectedEvents();
     

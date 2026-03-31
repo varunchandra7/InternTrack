@@ -30,6 +30,11 @@ function initializeHomePage() {
     }, 30000);
 }
 
+// Initialize home page when DOM loads
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(initializeHomePage, 100); // Small delay to ensure dashboard.js has loaded
+});
+
 /**
  * Load and render activity graphs (Weekly and Monthly)
  */
