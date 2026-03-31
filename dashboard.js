@@ -526,6 +526,7 @@ function initializeCalendar() {
     try {
         calendar = new FullCalendar.Calendar(calendarEl, {
             initialView: 'dayGridMonth',
+            initialDate: new Date(),
             headerToolbar: {
                 left: 'prev,next today',
                 center: 'title',
@@ -599,10 +600,14 @@ function initializeCalendar() {
             eventClassNames: function(arg) {
                 const platform = arg.event.extendedProps.platform || arg.event.extendedProps.type;
                 return [`event-${platform}`];
+            },
+            datesSet: function(info) {
+                updateCalendarSectionTitle(info.view.currentStart);
             }
         });
         
         calendar.render();
+        updateCalendarSectionTitle(new Date());
         
         // Fetch and load events
         fetchEvents();
@@ -616,6 +621,17 @@ function initializeCalendar() {
     } catch (error) {
         console.error('Error initializing calendar:', error);
     }
+}
+
+function updateCalendarSectionTitle(dateValue) {
+    const titleEl = document.getElementById('calendarSectionTitle');
+    if (!titleEl) return;
+
+    const date = dateValue instanceof Date ? dateValue : new Date(dateValue);
+    titleEl.textContent = date.toLocaleDateString('en-US', {
+        month: 'long',
+        year: 'numeric'
+    });
 }
 
 // Handle date click
