@@ -248,15 +248,18 @@ let allEvents = [];
  */
 async function fetchEvents(type = 'all') {
     try {
-        const url = type === 'all' 
-            ? `${API_URL}/events` 
-            : `${API_URL}/events?type=${type}`;
+        const userId = user._id || user.id;
+        let url = `${API_URL}/events?userId=${userId}`;
+        if (type !== 'all') {
+            url += `&type=${type}`;
+        }
             
         const response = await fetch(url);
         const result = await response.json();
         
         if (result.success) {
             allEvents = result.data;
+            window.dashboardEvents = result.data; // Also store in window for home page
             updateCalendarEvents();
         } else {
             console.error('Failed to fetch events:', result.message);

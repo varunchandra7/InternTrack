@@ -145,19 +145,19 @@ async function loadUpcomingEvents() {
         const today = new Date();
         today.setHours(0, 0, 0, 0);
         
-        // Calculate date 6 months from now (expanded from 1 month to show more opportunities)
-        const sixMonthsLater = new Date(today);
-        sixMonthsLater.setMonth(today.getMonth() + 6);
+        // Calculate date 1 month from now
+        const oneMonthLater = new Date(today);
+        oneMonthLater.setMonth(today.getMonth() + 1);
         
         const pinnedEventIds = JSON.parse(localStorage.getItem(getUserStorageKeyHome('pinnedUpcomingEventIds')) || '[]');
 
-        // Filter events: start date is between today and 6 months from now
+        // Filter events: start date is between today and 1 month from now
         const upcomingEvents = events
             .filter(event => {
                 if (!event.startDate) return false;
                 const eventStartDate = new Date(event.startDate);
                 eventStartDate.setHours(0, 0, 0, 0);
-                return eventStartDate >= today && eventStartDate <= sixMonthsLater;
+                return eventStartDate >= today && eventStartDate <= oneMonthLater;
             })
             .sort((a, b) => {
                 const aId = getUpcomingEventId(a);
