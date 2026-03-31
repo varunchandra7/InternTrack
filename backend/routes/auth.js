@@ -566,49 +566,5 @@ router.post('/resend-forgot-otp', async (req, res) => {
     });
   }
 });
-    const { email } = req.body;
-
-    if (!email) {
-      return res.status(400).json({
-        success: false,
-        message: 'Please provide email'
-      });
-    }
-
-    // Find existing OTP record
-    const otpRecord = await OTP.findOne({ email });
-
-    if (!otpRecord) {
-      return res.status(400).json({
-        success: false,
-        message: 'No pending password reset found for this email'
-      });
-    }
-
-    // Generate new OTP
-    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
-
-    // Update OTP
-    otpRecord.otp = newOtp;
-    otpRecord.createdAt = Date.now();
-    await otpRecord.save();
-
-    // Send Password Reset OTP email
-    await sendPasswordResetEmail(email, newOtp, otpRecord.userData.name);
-
-    res.status(200).json({
-      success: true,
-      message: 'New password reset OTP sent to your email'
-    });
-
-  } catch (error) {
-    console.error('Resend Forgot OTP Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to resend OTP',
-      error: error.message
-    });
-  }
-});
 
 module.exports = router;
