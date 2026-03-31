@@ -5,14 +5,21 @@ const { getContests } = require('../services/contestService');
 
 /**
  * @route   GET /api/events
- * @desc    Get all events (database + external contests)
+ * @desc    Get all events for current user (database + external contests)
  * @access  Public
  */
 router.get('/', async (req, res) => {
     try {
-        const { type, month, year } = req.query;
+        const { type, month, year, userId } = req.query;
         
-        let query = {};
+        if (!userId) {
+            return res.status(400).json({
+                success: false,
+                message: 'userId is required'
+            });
+        }
+        
+        let query = { userId };
         
         // Filter by event type if provided
         if (type && type !== 'all') {
@@ -29,7 +36,7 @@ router.get('/', async (req, res) => {
             };
         }
         
-        // Get events from database
+        // Get events from database (user's events only)
         const dbEvents = await Event.find(query).sort({ startDate: 1 });
         
         // Get external contests
@@ -104,12 +111,13 @@ router.get('/:id', async (req, res) => {
 
 /**
  * @route   POST /api/events
- * @desc    Create new event
- * @access  Private (Admin only - will add auth middleware later)
+ * @desc    Create new event for user
+ * @access  Private (User/Admin)
  */
 router.post('/', async (req, res) => {
     try {
         const {
+            userId,
             title,
             company,
             type,
@@ -127,14 +135,15 @@ router.post('/', async (req, res) => {
         } = req.body;
         
         // Validation
-        if (!title || !company || !type || !startDate || !description) {
+        if (!userId || !title || !company || !type || !startDate || !description) {
             return res.status(400).json({
                 success: false,
-                message: 'Please provide all required fields'
+                message: 'Please provide all required fields (userId, title, company, type, startDate, description)'
             });
         }
         
         const event = await Event.create({
+            userId,
             title,
             company,
             type,

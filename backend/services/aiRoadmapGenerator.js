@@ -97,16 +97,26 @@ Rules:
       isCompleted: false
     }));
 
-    // If AI didn't generate enough tasks, fill remaining with fallback
+    // If AI didn't generate enough tasks, cycle through subjects with deeper concepts
     while (formattedTasks.length < totalDays) {
       const currentDay = formattedTasks.length + 1;
       const subjectIndex = (currentDay - 1) % subjects.length;
+      const subject = subjects[subjectIndex];
+      
+      // Create a deeper learning task (follow-up to previous learning)
+      const cycleNum = Math.ceil(currentDay / subjects.length);
       
       formattedTasks.push({
         day: currentDay,
-        subject: subjects[subjectIndex],
-        topic: `${subjectNames[subjects[subjectIndex]]} - Practice & Review`,
-        subtopics: ['Practice problems', 'Concept revision', 'Mock tests'],
+        subject: subject,
+        topic: `${subject} - In-Depth Learning (Part ${cycleNum})`,
+        subtopics: [
+          'Complex problem solving',
+          'Real-world applications',
+          'Performance optimization',
+          'Edge case handling',
+          'Industry patterns'
+        ],
         estimatedTime: '2-3 hours',
         isCompleted: false
       });
@@ -222,50 +232,39 @@ function generateFallbackRoadmap(subjects, totalDays) {
     const allTopics = basicTopics[subject] || [];
     const allocatedDays = daysPerSubject + (subjectIndex < extraDays ? 1 : 0);
     
-    if (allocatedDays >= allTopics.length) {
-      // We have more days than topics - use all topics
-      allTopics.forEach((topicObj, idx) => {
-        if (dayCounter <= totalDays) {
-          tasks.push({
-            day: dayCounter++,
-            subject: subject,
-            topic: topicObj.topic,
-            subtopics: topicObj.subtopics,
-            estimatedTime: topicObj.time,
-            isCompleted: false
-          });
-        }
-      });
-    } else {
-      // We have fewer days than topics - select evenly distributed topics
-      const step = allTopics.length / allocatedDays;
-      for (let i = 0; i < allocatedDays && dayCounter <= totalDays; i++) {
-        const topicIndex = Math.floor(i * step);
-        const topicObj = allTopics[topicIndex];
-        tasks.push({
-          day: dayCounter++,
-          subject: subject,
-          topic: topicObj.topic,
-          subtopics: topicObj.subtopics,
-          estimatedTime: topicObj.time,
-          isCompleted: false
-        });
+    // Strategy: Cycle through topics and distribute across days
+    for (let dayIdx = 0; dayIdx < allocatedDays && dayCounter <= totalDays; dayIdx++) {
+      // Cycle through available topics
+      const topicIndex = dayIdx % allTopics.length;
+      const topicObj = allTopics[topicIndex];
+      
+      // If we're beyond the number of topics, add more detail to existing topics
+      let finalTopic = topicObj.topic;
+      let finalSubtopics = topicObj.subtopics;
+      
+      if (dayIdx >= allTopics.length) {
+        // Cycle through topics again with depth indicator
+        const cycleNum = Math.floor(dayIdx / allTopics.length);
+        finalTopic = `${topicObj.topic} - Advanced Concepts (Part ${cycleNum})`;
+        finalSubtopics = [
+          `Deep dive into ${topicObj.topic}`,
+          'Complex problem solving',
+          'Edge case handling',
+          'Performance optimization',
+          'Real-world applications'
+        ];
       }
+      
+      tasks.push({
+        day: dayCounter++,
+        subject: subject,
+        topic: finalTopic,
+        subtopics: finalSubtopics,
+        estimatedTime: topicObj.time,
+        isCompleted: false
+      });
     }
   });
-
-  // Fill any remaining days with revision
-  while (dayCounter <= totalDays) {
-    const subject = subjects[(dayCounter - 1) % subjects.length];
-    tasks.push({
-      day: dayCounter++,
-      subject: subject,
-      topic: 'Revision & Practice',
-      subtopics: ['Review previous topics', 'Solve practice problems', 'Mock interviews', 'Concept consolidation', 'Doubt clearing'],
-      estimatedTime: '2-3 hours',
-      isCompleted: false
-    });
-  }
 
   console.log(`✅ Generated ${tasks.length} fallback tasks for ${subjects.join(', ')}`);
   return tasks;

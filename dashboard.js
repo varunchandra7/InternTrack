@@ -355,7 +355,13 @@ function getPlatformInfo(event) {
 
 async function fetchEvents() {
     try {
-        const response = await fetch(`${API_URL}/events`, {
+        const userId = user._id || user.id;
+        if (!userId) {
+            console.error('User ID not found');
+            return;
+        }
+        
+        const response = await fetch(`${API_URL}/events?userId=${userId}`, {
             headers: {
                 'Authorization': `Bearer ${localStorage.getItem('token') || sessionStorage.getItem('token')}`
             }
