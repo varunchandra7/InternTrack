@@ -1115,19 +1115,17 @@ function filterCalendarEvents() {
     
     // Filter events based on current filter
     let eventsToShow = allEvents;
-    if (currentFilter !== 'all') {
-        eventsToShow = allEvents.filter(event => event.type === currentFilter);
+    if (currentFilter === 'hackathon') {
+        eventsToShow = allEvents.filter(event => event.type === 'hackathon');
+    } else if (currentFilter === 'internship') {
+        eventsToShow = allEvents.filter(event => event.type === 'internship');
+    } else if (currentFilter === 'event') {
+        eventsToShow = allEvents.filter(event => event.type === 'contest' || event.type === 'deadline');
     }
     
-    // Apply search filter (only search internships and hackathons)
+    // Apply search filter across all currently visible event categories
     if (currentSearchQuery) {
         eventsToShow = eventsToShow.filter(event => {
-            // Only search through internships and hackathons
-            if (event.type !== 'internship' && event.type !== 'hackathon') {
-                // If it's a contest and there's a search query, don't show it
-                return false;
-            }
-            
             // Search in title, company, description, and skills
             const searchableText = [
                 event.title,

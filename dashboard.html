@@ -2827,6 +2827,48 @@
             flex-wrap: wrap;
         }
 
+        .calendar-controls {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+
+        .calendar-search {
+            position: relative;
+            min-width: 260px;
+            flex: 1;
+            max-width: 420px;
+        }
+
+        .calendar-search i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        #calendarSearchInput {
+            width: 100%;
+            height: 42px;
+            padding: 0 12px 0 36px;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-size: 0.92rem;
+        }
+
+        #calendarSearchInput:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+        }
+
         .filter-btn {
             padding: 0.75rem 1.5rem;
             background: var(--bg-secondary);
@@ -3487,6 +3529,18 @@
                     <div class="calendar-main">
                         <div style="width: 100%; margin-bottom: 1.5rem;">
                             <h1 class="section-title" id="calendarSectionTitle" style="margin-bottom: 0.5rem;">Loading...</h1>
+                            <div class="calendar-controls">
+                                <div class="calendar-search">
+                                    <i class="fas fa-search"></i>
+                                    <input type="text" id="calendarSearchInput" placeholder="Search events, companies, skills...">
+                                </div>
+                                <div class="filter-buttons">
+                                    <button class="filter-btn active" data-filter="all"><i class="fas fa-layer-group"></i> All</button>
+                                    <button class="filter-btn" data-filter="hackathon"><i class="fas fa-code"></i> Hackathons</button>
+                                    <button class="filter-btn" data-filter="internship"><i class="fas fa-briefcase"></i> Internships</button>
+                                    <button class="filter-btn" data-filter="event"><i class="fas fa-calendar-check"></i> Events</button>
+                                </div>
+                            </div>
                         </div>
                         <div id="calendar" style="width: 100%; flex: 1;"></div>
                     </div>
