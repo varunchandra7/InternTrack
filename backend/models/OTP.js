@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 /**
- * OTP Schema - Stores temporary OTPs for email verification
+ * OTP Schema - Stores temporary OTPs for email verification and password reset
  */
 const otpSchema = new mongoose.Schema({
   email: {
@@ -14,9 +14,15 @@ const otpSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  purpose: {
+    type: String,
+    enum: ['signup', 'password-reset'],
+    required: true
+  },
   userData: {
     name: String,
-    password: String
+    password: String,
+    gender: String
   },
   createdAt: {
     type: Date,

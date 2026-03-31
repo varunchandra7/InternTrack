@@ -33,6 +33,13 @@ document.getElementById('forgotPasswordForm').addEventListener('submit', async (
         return;
     }
 
+    // Validate email format
+    const emailPattern = /^[A-Za-z0-9.]+@gmail\.com$/;
+    if (!emailPattern.test(email)) {
+        showMessage('Please enter a valid Gmail address', 'error');
+        return;
+    }
+
     submitBtn.disabled = true;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending OTP...';
 

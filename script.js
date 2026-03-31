@@ -166,10 +166,10 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
     
     // Disable button and show loading
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Creating Account...';
+    submitBtn.textContent = 'Sending OTP...';
     
     try {
-        const response = await fetch(`${API_URL}/auth/signup`, {
+        const response = await fetch(`${API_URL}/auth/request-signup-otp`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -180,19 +180,15 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
         const data = await response.json();
         
         if (data.success) {
-            // Store token and user data
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-            
             // Add spinner to button
             submitBtn.innerHTML = '<span class="button-spinner"></span> Redirecting...';
             
-            // Redirect to dashboard directly
+            // Redirect to OTP verification page
             setTimeout(() => {
-                window.location.href = 'dashboard.html';
+                window.location.href = `signup-otp.html?email=${encodeURIComponent(email)}`;
             }, 800);
         } else {
-            showMessage('signup-message', data.message || 'Signup failed', 'error');
+            showMessage('signup-message', data.message || 'Failed to send OTP', 'error');
         }
     } catch (error) {
         console.error('Signup Error:', error);

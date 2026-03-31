@@ -1,9 +1,16 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
-const OTP = require('../models/OTP');
 const jwt = require('jsonwebtoken');
-const { sendOTPEmail, sendPasswordResetEmail } = require('../utils/emailService');
+const {
+  createSignupOTP,
+  resendSignupOTP,
+  verifySignupOTP,
+  createPasswordResetOTP,
+  resendPasswordResetOTP,
+  verifyPasswordResetOTP,
+  deleteOTP
+} = require('../services/otpService');
 
 /**
  * Generate JWT Token
@@ -17,11 +24,20 @@ const generateToken = (userId) => {
 };
 
 /**
- * @route   POST /api/auth/signup
- * @desc    Create user account directly (OTP skipped)
+ * Validate Gmail address
+ * @param {string} email - Email to validate
+ * @returns {boolean}
+ */
+const isValidGmailEmail = (email) => {
+  return email && email.toLowerCase().endsWith('@gmail.com');
+};
+
+/**
+ * @route   POST /api/auth/request-signup-otp
+ * @desc    Request OTP for signup process
  * @access  Public
  */
-router.post('/signup', async (req, res) => {
+router.post('/request-signup-otp', async (req, res) => {
   try {
     const { name, email, gender, password } = req.body;
 
@@ -33,8 +49,13 @@ router.post('/signup', async (req, res) => {
       });
     }
 
-    // Set default gender if not provided or invalid
-    let userGender = gender && ['Male', 'Female', 'Other'].includes(gender) ? gender : 'Other';
+    // Validate Gmail email
+    if (!isValidGmailEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Only Gmail accounts (@gmail.com) are allowed'
+      });
+    }
 
     // Validate password
     if (password.length <= 6) {
@@ -53,6 +74,9 @@ router.post('/signup', async (req, res) => {
       });
     }
 
+    // Set default gender if not provided or invalid
+    let userGender = gender && ['Male', 'Female', 'Other'].includes(gender) ? gender : 'Other';
+
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -62,14 +86,72 @@ router.post('/signup', async (req, res) => {
       });
     }
 
-    // Create user account directly (OTP skipped for Render free tier)
+    // Create and send signup OTP
+    await createSignupOTP(email, name, password, userGender);
+
+    res.status(200).json({
+      success: true,
+      message: 'OTP sent to your email. Please verify to complete signup.'
+    });
+
+  } catch (error) {
+    console.error('Request Signup OTP Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error during signup request',
+      error: error.message
+    });
+  }
+});
+
+/**
+ * @route   POST /api/auth/signup
+ * @desc    Create user account directly (kept for backward compatibility)
+ * @access  Public
+ */
+router.post('/signup', async (req, res) => {
+  // Redirect users to use request-signup-otp + verify-signup-otp flow
+  return res.status(400).json({
+    success: false,
+    message: 'Please use the OTP verification flow: /request-signup-otp then /verify-signup-otp'
+  });
+});
+
+/**
+ * @route   POST /api/auth/verify-signup-otp
+ * @desc    Verify OTP and create user account
+ * @access  Public
+ */
+router.post('/verify-signup-otp', async (req, res) => {
+  try {
+    const { email, otp } = req.body;
+
+    // Validate input
+    if (!email || !otp) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide email and OTP'
+      });
+    }
+
+    // Verify OTP
+    const verifyResult = await verifySignupOTP(email, otp);
+
+    if (!verifyResult.success) {
+      return res.status(400).json(verifyResult);
+    }
+
+    // Create user account
     const user = await User.create({
-      name,
-      email,
-      gender: userGender,
-      password,
+      name: verifyResult.userData.name,
+      email: email,
+      gender: verifyResult.userData.gender,
+      password: verifyResult.userData.password,
       isVerified: true
     });
+
+    // Delete OTP record
+    await deleteOTP(email, 'signup');
 
     // Generate token
     const token = generateToken(user._id);
@@ -88,10 +170,10 @@ router.post('/signup', async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Signup Error:', error);
+    console.error('Signup OTP Verification Error:', error);
     res.status(500).json({
       success: false,
-      message: 'Server error during signup',
+      message: 'Server error during verification',
       error: error.message
     });
   }
@@ -99,7 +181,7 @@ router.post('/signup', async (req, res) => {
 
 /**
  * @route   POST /api/auth/verify-otp
- * @desc    Verify OTP and create user account
+ * @desc    Verify OTP and create user account (kept for backward compatibility)
  * @access  Public
  */
 router.post('/verify-otp', async (req, res) => {
@@ -114,27 +196,24 @@ router.post('/verify-otp', async (req, res) => {
       });
     }
 
-    // Find OTP record
-    const otpRecord = await OTP.findOne({ email, otp });
+    // Verify OTP
+    const verifyResult = await verifySignupOTP(email, otp);
 
-    if (!otpRecord) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid or expired OTP'
-      });
+    if (!verifyResult.success) {
+      return res.status(400).json(verifyResult);
     }
 
     // Create user account
     const user = await User.create({
-      name: otpRecord.userData.name,
+      name: verifyResult.userData.name,
       email: email,
-      gender: otpRecord.userData.gender,
-      password: otpRecord.userData.password,
+      gender: verifyResult.userData.gender,
+      password: verifyResult.userData.password,
       isVerified: true
     });
 
     // Delete OTP record
-    await OTP.deleteOne({ _id: otpRecord._id });
+    await deleteOTP(email, 'signup');
 
     // Generate token
     const token = generateToken(user._id);
@@ -163,8 +242,43 @@ router.post('/verify-otp', async (req, res) => {
 });
 
 /**
+ * @route   POST /api/auth/resend-signup-otp
+ * @desc    Resend OTP for signup
+ * @access  Public
+ */
+router.post('/resend-signup-otp', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide email'
+      });
+    }
+
+    // Resend signup OTP
+    const resendResult = await resendSignupOTP(email);
+
+    if (!resendResult.success) {
+      return res.status(400).json(resendResult);
+    }
+
+    res.status(200).json(resendResult);
+
+  } catch (error) {
+    console.error('Resend Signup OTP Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to resend OTP',
+      error: error.message
+    });
+  }
+});
+
+/**
  * @route   POST /api/auth/resend-otp
- * @desc    Resend OTP to email
+ * @desc    Resend OTP to email (kept for backward compatibility)
  * @access  Public
  */
 router.post('/resend-otp', async (req, res) => {
@@ -178,31 +292,14 @@ router.post('/resend-otp', async (req, res) => {
       });
     }
 
-    // Find existing OTP record
-    const otpRecord = await OTP.findOne({ email });
+    // Try to resend signup OTP
+    const resendResult = await resendSignupOTP(email);
 
-    if (!otpRecord) {
-      return res.status(400).json({
-        success: false,
-        message: 'No pending verification found for this email'
-      });
+    if (!resendResult.success) {
+      return res.status(400).json(resendResult);
     }
 
-    // Generate new OTP
-    const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
-
-    // Update OTP
-    otpRecord.otp = newOtp;
-    otpRecord.createdAt = Date.now();
-    await otpRecord.save();
-
-    // Send OTP email
-    await sendOTPEmail(email, newOtp, otpRecord.userData.name);
-
-    res.status(200).json({
-      success: true,
-      message: 'New OTP sent to your email'
-    });
+    res.status(200).json(resendResult);
 
   } catch (error) {
     console.error('Resend OTP Error:', error);
@@ -291,6 +388,14 @@ router.post('/forgot-password', async (req, res) => {
       });
     }
 
+    // Validate Gmail email
+    if (!isValidGmailEmail(email)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Only Gmail accounts (@gmail.com) are allowed'
+      });
+    }
+
     // Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
@@ -300,27 +405,8 @@ router.post('/forgot-password', async (req, res) => {
       });
     }
 
-    // Generate 6-digit OTP
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-
-    // Delete any existing OTP for this email
-    await OTP.deleteMany({ email });
-
-    // Create new OTP record
-    const otpRecord = new OTP({
-      email,
-      otp,
-      userData: {
-        name: user.name,
-        email: user.email,
-        resetPassword: true // Flag to indicate this is for password reset
-      }
-    });
-
-    await otpRecord.save();
-
-    // Send Password Reset OTP email
-    await sendPasswordResetEmail(email, otp, user.name);
+    // Create and send password reset OTP
+    await createPasswordResetOTP(email, user.name);
 
     res.status(200).json({
       success: true,
@@ -354,38 +440,14 @@ router.post('/verify-reset-otp', async (req, res) => {
       });
     }
 
-    // Find OTP record
-    const otpRecord = await OTP.findOne({ email });
-
-    if (!otpRecord) {
-      return res.status(400).json({
-        success: false,
-        message: 'OTP expired or not found. Please request a new one.'
-      });
-    }
-
     // Verify OTP
-    if (otpRecord.otp !== otp) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid OTP'
-      });
+    const verifyResult = await verifyPasswordResetOTP(email, otp);
+
+    if (!verifyResult.success) {
+      return res.status(400).json(verifyResult);
     }
 
-    // Check if OTP is expired (10 minutes)
-    const otpAge = Date.now() - otpRecord.createdAt;
-    if (otpAge > 10 * 60 * 1000) {
-      await OTP.deleteOne({ email });
-      return res.status(400).json({
-        success: false,
-        message: 'OTP has expired. Please request a new one.'
-      });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: 'OTP verified successfully'
-    });
+    res.status(200).json(verifyResult);
 
   } catch (error) {
     console.error('Verify Reset OTP Error:', error);
@@ -431,32 +493,11 @@ router.post('/reset-password', async (req, res) => {
       });
     }
 
-    // Find OTP record
-    const otpRecord = await OTP.findOne({ email });
+    // Verify OTP first
+    const verifyResult = await verifyPasswordResetOTP(email, otp);
 
-    if (!otpRecord) {
-      return res.status(400).json({
-        success: false,
-        message: 'OTP expired or not found. Please request a new one.'
-      });
-    }
-
-    // Verify OTP
-    if (otpRecord.otp !== otp) {
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid OTP'
-      });
-    }
-
-    // Check if OTP is expired (10 minutes)
-    const otpAge = Date.now() - otpRecord.createdAt;
-    if (otpAge > 10 * 60 * 1000) {
-      await OTP.deleteOne({ email });
-      return res.status(400).json({
-        success: false,
-        message: 'OTP has expired. Please request a new one.'
-      });
+    if (!verifyResult.success) {
+      return res.status(400).json(verifyResult);
     }
 
     // Find user and update password
@@ -474,7 +515,7 @@ router.post('/reset-password', async (req, res) => {
     await user.save();
 
     // Delete OTP record
-    await OTP.deleteOne({ email });
+    await deleteOTP(email, 'password-reset');
 
     res.status(200).json({
       success: true,
@@ -498,6 +539,33 @@ router.post('/reset-password', async (req, res) => {
  */
 router.post('/resend-forgot-otp', async (req, res) => {
   try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide email'
+      });
+    }
+
+    // Resend password reset OTP
+    const resendResult = await resendPasswordResetOTP(email);
+
+    if (!resendResult.success) {
+      return res.status(400).json(resendResult);
+    }
+
+    res.status(200).json(resendResult);
+
+  } catch (error) {
+    console.error('Resend Forgot OTP Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to resend OTP',
+      error: error.message
+    });
+  }
+});
     const { email } = req.body;
 
     if (!email) {
