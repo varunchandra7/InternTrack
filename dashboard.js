@@ -385,6 +385,7 @@ async function fetchEvents() {
         });
         
         allEvents = futureEvents;
+        window.dashboardEvents = futureEvents;
         
         // Format events for FullCalendar - show only on start date
         const calendarEvents = futureEvents.map(event => {
@@ -1618,21 +1619,49 @@ async function loadRoadmapProgress() {
         
         const response = await fetch(`${API_URL}/roadmap/${userId}`);
         const data = await response.json();
-        
-        if (data.success && data.roadmap) {
-            // Display progress chart
-            displayProgressChart(data.roadmap.progress);
-            
-            // Display progress tracks by subject
-            displayProgressTracks(data.roadmap);
-        } else {
-            // Show empty state for progress sections
-            showEmptyProgressState();
+
+        if (response.ok && data.success && data.roadmap) {
+            renderRoadmapHomeCard(data.roadmap);
+            return;
         }
+
+        renderRoadmapEmptyHomeCard();
     } catch (error) {
         console.error('Error loading roadmap progress:', error);
-        showEmptyProgressState();
+        renderRoadmapEmptyHomeCard();
     }
+}
+
+/**
+ * Render roadmap data in the home card
+ */
+function renderRoadmapHomeCard(roadmap) {
+    const roadmapInfo = document.getElementById('roadmapInfo');
+    if (!roadmapInfo) return;
+
+    const progress = roadmap.progress || { completedTasks: 0, totalTasks: 0, percentage: 0 };
+    const subjects = Array.isArray(roadmap.subjects) ? roadmap.subjects.join(', ') : '-';
+
+    roadmapInfo.innerHTML = `
+        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+            <p style="margin:0; color: var(--text-primary); font-weight:600;">Subjects: ${subjects}</p>
+            <p style="margin:0; color: var(--text-secondary);">Progress: ${progress.completedTasks || 0}/${progress.totalTasks || 0} tasks completed (${progress.percentage || 0}%)</p>
+            <div style="height:10px; background: var(--border-color); border-radius:999px; overflow:hidden;">
+                <div style="height:100%; width:${Math.max(0, Math.min(100, progress.percentage || 0))}%; background: var(--accent-color);"></div>
+            </div>
+            <a href="roadmap.html" style="width:max-content; color: var(--accent-color); text-decoration:none; font-weight:600;">Open roadmap</a>
+        </div>
+    `;
+}
+
+/**
+ * Render empty roadmap state in the home card
+ */
+function renderRoadmapEmptyHomeCard() {
+    const roadmapInfo = document.getElementById('roadmapInfo');
+    if (!roadmapInfo) return;
+
+    roadmapInfo.innerHTML = '<p class="no-roadmap">No active roadmap. <a href="roadmap.html">Create one now</a></p>';
 }
 
 /**

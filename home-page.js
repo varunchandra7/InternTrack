@@ -17,11 +17,11 @@ function initializeHomePage() {
     // Load selected goals
     loadSelectedGoals();
     
-    // Refresh events every 2 seconds
+    // Keep card fresh without spamming API
     clearInterval(eventRefreshInterval);
     eventRefreshInterval = setInterval(() => {
         loadUpcomingEvents();
-    }, 2000);
+    }, 30000);
 }
 
 /**
@@ -113,23 +113,24 @@ async function loadUpcomingEvents() {
         if (!container) return;
         
         const userId = user._id || user.id;
+        const apiBase = window.API_CONFIG?.BASE_URL || 'http://localhost:5000/api';
         
         // Try to fetch from API with proper error handling
         let events = [];
         try {
-            const response = await fetch(`/api/events?userId=${userId}`);
+            const response = await fetch(`${apiBase}/events?userId=${userId}`);
             if (response.ok) {
-                events = await response.json();
+                const payload = await response.json();
+                events = Array.isArray(payload?.data) ? payload.data : (Array.isArray(payload) ? payload : []);
             }
         } catch (e) {
             console.log('API fetch failed, trying alternative method');
         }
         
-        // If no events from API or API failed, get from localStorage or other sources
+        // If no events from API, use events already loaded into dashboard calendar state
         if (!events || events.length === 0) {
-            // Try to get from calendar data if available
-            if (window.calendarEvents && Array.isArray(window.calendarEvents)) {
-                events = window.calendarEvents;
+            if (Array.isArray(window.dashboardEvents)) {
+                events = window.dashboardEvents;
             } else {
                 events = [];
             }
