@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="common.css?v=20260322-6">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -253,6 +254,58 @@
         .sidebar-footer {
             padding: 1.5rem;
             border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .footer-items {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            width: 100%;
+        }
+        
+        .sidebar-footer-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.75rem;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .sidebar-footer-btn:hover {
+            background: var(--accent-bg);
+            color: var(--accent-color);
+        }
+        
+        .theme-toggle-btn {
+            background: none;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            padding: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .theme-toggle-btn:hover {
+            background: var(--accent-bg);
+            color: var(--accent-color);
+            border-color: var(--accent-color);
         }
 
         .user-profile {
@@ -872,9 +925,34 @@
         }
 
         /* Home Page Layout */
+        .welcome-header {
+            padding: 2rem 2rem 1rem 2rem;
+            background: linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%);
+            color: white;
+            border-radius: 12px;
+            margin: 0;
+        }
+        
+        .welcome-title {
+            font-size: 2rem;
+            font-weight: 700;
+            margin: 0 0 0.5rem 0;
+            color: white;
+        }
+        
+        .welcome-title span {
+            color: #C4B5FD;
+        }
+        
+        .welcome-subtitle {
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin: 0;
+        }
+        
         .home-layout {
             display: grid;
-            grid-template-columns: 1fr 350px;
+            grid-template-columns: 1fr 380px;
             gap: 2rem;
             padding: 1.5rem 2rem;
         }
@@ -890,18 +968,211 @@
             flex-direction: column;
             gap: 1.5rem;
         }
-
-        .events-widget {
-            background: var(--bg-secondary);
-            border-radius: 16px;
-            padding: 2rem;
-            border: 1px solid var(--border-color);
+        
+        /* Roadmap Dashboard */
+        .roadmap-dashboard {
+            padding: 1.5rem;
+            background: var(--accent-bg);
+            border-radius: 8px;
+            min-height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-
-        .widget-title {
-            font-size: 1.5rem;
+        
+        .roadmap-info {
+            text-align: center;
+        }
+        
+        .no-roadmap {
+            color: var(--text-secondary);
+            margin: 0;
+        }
+        
+        .no-roadmap a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        
+        .no-roadmap a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Activity Graphs */
+        .activity-graphs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+        
+        .activity-graph {
+            background: var(--accent-bg);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+        
+        .activity-graph h4 {
+            font-size: 0.95rem;
+            font-weight: 600;
             color: var(--text-primary);
-            margin-bottom: 1.5rem;
+            margin: 0 0 1rem 0;
+        }
+        
+        .activity-graph canvas {
+            width: 100% !important;
+            height: auto !important;
+        }
+        
+        /* Goals List */
+        .goals-list {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .goal-item {
+            background: var(--accent-bg);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            transition: all 0.2s;
+        }
+        
+        .goal-item:hover {
+            border-color: var(--accent-color);
+            transform: translateX(4px);
+        }
+        
+        .goal-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid var(--accent-color);
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: transparent;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+        
+        .goal-checkbox.checked {
+            background: var(--accent-color);
+            color: white;
+        }
+        
+        .goal-info {
+            flex: 1;
+        }
+        
+        .goal-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 0.25rem 0;
+        }
+        
+        .goal-date {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+        
+        .empty-state-small {
+            text-align: center;
+            padding: 2rem 1rem;
+            color: var(--text-secondary);
+        }
+        
+        .empty-state-small i {
+            font-size: 32px;
+            margin-bottom: 1rem;
+            opacity: 0.5;
+            display: block;
+        }
+        
+        .empty-state-small p {
+            margin: 0;
+            font-size: 0.95rem;
+        }
+        
+        .empty-state-small a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        /* Upcoming Events */
+        .upcoming-events {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .upcoming-events::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .upcoming-events::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .upcoming-events::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 3px;
+            opacity: 0.5;
+        }
+        
+        .event-item-home {
+            background: var(--accent-bg);
+            border-left: 4px solid var(--accent-color);
+            border-radius: 6px;
+            padding: 1rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        
+        .event-item-home:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            transform: translateX(4px);
+        }
+        
+        .event-header-home {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .event-platform-badge-home {
+            display: inline-block;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .event-title-home {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0 0 0.5rem 0;
+            font-size: 0.95rem;
+        }
+        
+        .event-date-home {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
         }
 
         /* Dashboard Cards (Right Sidebar) */
@@ -917,6 +1188,41 @@
             font-weight: 600;
             color: var(--text-primary);
             margin-bottom: 1.5rem;
+        }
+        
+        /* Footer */
+        .dashboard-footer {
+            margin-top: auto;
+            padding: 2rem 2rem 1rem 2rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+            background: var(--bg-secondary);
+        }
+        
+        .footer-copyright {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            justify-content: flex-end;
+        }
+        
+        .footer-link {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .footer-link:hover {
+            color: var(--accent-color);
         }
 
         /* Progress Chart */
@@ -2981,19 +3287,36 @@
             </div>
 
             <nav class="sidebar-nav">
-                <div class="nav-item active" data-section="home">
+                <div class="nav-item active" data-section="home" title="Home">
                     <i class="fas fa-home"></i>
-                    <span>Home</span>
                 </div>
-                <a href="roadmap.html" class="nav-item">
+                <a href="roadmap.html" class="nav-item" title="My Roadmap">
                     <i class="fas fa-route"></i>
-                    <span>My Roadmap</span>
                 </a>
-                <div class="nav-item" data-section="calendar">
+                <div class="nav-item" data-section="calendar" title="Calendar">
                     <i class="fas fa-calendar-alt"></i>
-                    <span>Calendar</span>
+                </div>
+                <div class="nav-item" title="Network">
+                    <i class="fas fa-network-wired"></i>
                 </div>
             </nav>
+            
+            <div class="sidebar-footer">
+                <div class="footer-items">
+                    <button class="sidebar-footer-btn" id="settingsBtn" title="Settings">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <button class="sidebar-footer-btn" id="helpBtn" title="Help">
+                        <i class="fas fa-question-circle"></i>
+                    </button>
+                    <button class="sidebar-footer-btn" id="logoutSidebarBtn" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+                <button class="theme-toggle-btn" id="themeToggle" title="Toggle dark mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
         </aside>
 
         <!-- Main Area -->
@@ -3037,56 +3360,66 @@
 
             <!-- Home Section -->
             <section class="content-section active" id="home-section">
+                <!-- Welcome Header -->
+                <div class="welcome-header">
+                    <div>
+                        <h1 class="welcome-title">Welcome Back, <span id="welcomeUsername">User</span>!</h1>
+                        <p class="welcome-subtitle">Here's your learning progress today</p>
+                    </div>
+                </div>
+
                 <div class="home-layout">
                     <!-- Main Content Area -->
                     <div class="home-main">
-                        <!-- Events Section -->
-                        <div class="events-widget">
-                            <h2 class="widget-title">📅 Upcoming Events</h2>
-                            <div class="selected-events-grid" id="selectedEvents">
-                                <!-- Empty State -->
-                                <div class="empty-state">
-                                    <i class="fas fa-calendar-check"></i>
-                                    <h3>No Events Selected Yet</h3>
-                                    <p>Go to Calendar to browse and select internships & hackathons</p>
+                        <!-- Roadmap Dashboard Card -->
+                        <div class="dashboard-card">
+                            <h3 class="card-title">📚 Current Roadmap</h3>
+                            <div class="roadmap-dashboard">
+                                <div class="roadmap-info" id="roadmapInfo">
+                                    <p class="no-roadmap">No active roadmap. <a href="roadmap.html">Create one now</a></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Activity Graphs Section -->
+                        <div class="dashboard-card">
+                            <h3 class="card-title">📊 Your Activity</h3>
+                            <div class="activity-graphs">
+                                <!-- Graph 1: Weekly Activity -->
+                                <div class="activity-graph">
+                                    <h4>Weekly Activity</h4>
+                                    <canvas id="weeklyActivityChart" style="max-height: 200px;"></canvas>
+                                </div>
+                                <!-- Graph 2: Monthly Streak -->
+                                <div class="activity-graph">
+                                    <h4>Monthly Streak</h4>
+                                    <canvas id="monthlyStreakChart" style="max-height: 200px;"></canvas>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Selected Goals -->
+                        <div class="dashboard-card">
+                            <h3 class="card-title">🎯 Your Goals</h3>
+                            <div class="goals-list" id="goalsList">
+                                <div class="empty-state-small">
+                                    <i class="fas fa-bullseye"></i>
+                                    <p>No goals selected yet. <a href="calendar.html">Browse events</a></p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Right Sidebar Dashboard -->
+                    <!-- Right Sidebar: Upcoming Events -->
                     <div class="home-sidebar">
-                        <!-- Overall Progress Chart -->
-                        <div class="dashboard-card">
-                            <h3 class="card-title">Overall Progress</h3>
-                            <div class="progress-chart-container">
-                                <canvas id="progressChart" width="200" height="200"></canvas>
-                                <div class="chart-center-text">
-                                    <span class="chart-percentage" id="overallPercentage">0%</span>
-                                    <span class="chart-label">Complete</span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Track Progress by Subject -->
                         <div class="dashboard-card">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                                <h3 class="card-title" style="margin: 0;">📊 Track Progress</h3>
-                                <a href="roadmap.html" style="font-size: 0.875rem; color: var(--accent-color); text-decoration: none; display: flex; align-items: center; gap: 0.25rem;">
-                                    View All
-                                    <i class="fas fa-arrow-right"></i>
-                                </a>
+                                <h3 class="card-title" style="margin: 0;">📅 Upcoming Events (1 Month)</h3>
                             </div>
-                            <div class="progress-tracks" id="progressTracks">
-                                <!-- Progress tracks will be dynamically loaded here -->
-                                <div class="no-roadmap-state">
-                                    <i class="fas fa-map-marked-alt"></i>
-                                    <h3>No Active Roadmap</h3>
-                                    <p>Create a learning roadmap to start tracking your progress</p>
-                                    <a href="roadmap.html" class="create-roadmap-btn">
-                                        <i class="fas fa-plus"></i>
-                                        Create Roadmap
-                                    </a>
+                            <div class="upcoming-events" id="upcomingEventsList">
+                                <div class="empty-state-small">
+                                    <i class="fas fa-calendar-check"></i>
+                                    <p>No events in the next month</p>
                                 </div>
                             </div>
                         </div>
@@ -3640,7 +3973,18 @@
     <script src="config.js?v=20260322-6"></script>
     <script src="theme.js?v=20260322-6"></script>
     <script src="dashboard.js?v=20260322-6"></script>
+    <script src="home-page.js"></script>
     <script src="mini-calendar.js"></script>
+    
+    <!-- Footer -->
+    <footer class="dashboard-footer">
+        <p class="footer-copyright">&copy; 2026 InternTrack. All rights reserved.</p>
+        <div class="footer-links">
+            <a href="privacy-policy.html" class="footer-link">Privacy Policy</a>
+            <a href="terms-and-conditions.html" class="footer-link">Terms & Conditions</a>
+            <a href="#" class="footer-link">Contact Us</a>
+        </div>
+    </footer>
 </body>
 </html>
 

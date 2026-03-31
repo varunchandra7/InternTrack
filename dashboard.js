@@ -90,11 +90,20 @@ document.addEventListener('DOMContentLoaded', () => {
         userNameTop.textContent = userName;
     }
     
+    // Update welcome header
+    const welcomeUsername = document.getElementById('welcomeUsername');
+    if (welcomeUsername) {
+        welcomeUsername.textContent = userName.split(' ')[0];
+    }
+    
     // Update dropdown header
     const dropdownUserName = document.getElementById('dropdownUserName');
     const dropdownUserEmail = document.getElementById('dropdownUserEmail');
     if (dropdownUserName) dropdownUserName.textContent = userName;
     if (dropdownUserEmail) dropdownUserEmail.textContent = userEmail;
+    
+    // Initialize home page
+    initializeHomePage();
 });
 
 // User profile dropdown toggle
