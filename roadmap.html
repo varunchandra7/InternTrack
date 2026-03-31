@@ -101,7 +101,7 @@
 
         /* Sidebar */
         .sidebar {
-            width: 280px;
+            width: 70px;
             background: var(--bg-secondary);
             border-right: 1px solid var(--border-color);
             display: flex;
@@ -113,90 +113,31 @@
         }
 
         .sidebar-header {
-            padding: 2rem 1.5rem;
+            padding: 1.5rem 0.75rem;
             border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: center;
         }
 
         .sidebar-logo {
             display: flex;
             align-items: center;
-            gap: 0.75rem;
+            justify-content: center;
+            gap: 0;
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--text-primary);
             text-decoration: none;
-            flex: 1;
+        }
+
+        .sidebar-logo span {
+            display: none;
         }
 
         .sidebar-logo i {
             color: var(--accent-color);
             font-size: 1.8rem;
-        }
-
-        .sidebar-toggle-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 0.5rem;
-            color: var(--text-secondary);
-            font-size: 1.2rem;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .sidebar-toggle-btn:hover {
-            color: var(--accent-color);
-        }
-
-        /* Collapsed Sidebar State */
-        .sidebar.collapsed {
-            width: 70px;
-        }
-
-        .sidebar.collapsed .sidebar-header {
-            padding: 1.5rem 0.75rem;
-        }
-
-        .sidebar.collapsed .sidebar-logo span {
-            display: none;
-        }
-
-        .sidebar.collapsed .sidebar-logo {
-            justify-content: center;
-            gap: 0;
-        }
-
-        .sidebar.collapsed .nav-item span {
-            display: none;
-        }
-
-        .sidebar.collapsed .nav-item {
-            padding: 1rem 0.75rem;
-            justify-content: center;
-        }
-
-        .sidebar.collapsed .sidebar-footer {
-            padding: 1rem 0.75rem;
-        }
-
-        .sidebar.collapsed .logout-btn span {
-            display: none;
-        }
-
-        .sidebar.collapsed .logout-btn {
-            padding: 0.75rem;
-            justify-content: center;
-        }
-
-        /* Main area adjustment for collapsed sidebar */
-        .main-area.sidebar-collapsed {
-            margin-left: 70px;
-            width: calc(100% - 70px);
         }
 
         /* Smooth transition */
@@ -207,74 +148,88 @@
 
         .sidebar-nav {
             flex: 1;
-            padding: 1.5rem 0;
+            padding: 0.5rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
         }
 
         .nav-item {
-            padding: 1rem 1.5rem;
+            padding: 1rem 0.75rem;
             display: flex;
             align-items: center;
-            gap: 1rem;
+            justify-content: center;
+            gap: 0;
             color: var(--text-secondary);
             text-decoration: none;
             transition: all 0.3s;
             cursor: pointer;
-            border-left: 3px solid transparent;
+            border-left: none;
+            font-size: 1.3rem;
+        }
+
+        .nav-item span {
+            display: none;
         }
 
         .nav-item:hover {
-            background: var(--bg-primary);
+            background: transparent;
             color: var(--accent-color);
         }
 
         .nav-item.active {
-            background: var(--bg-primary);
+            background: transparent;
             color: var(--accent-color);
-            border-left-color: var(--accent-color);
+            border-left-color: transparent;
         }
 
         .nav-item i {
-            font-size: 1.2rem;
-            width: 24px;
+            font-size: 1.3rem;
+            width: auto;
             text-align: center;
         }
 
-        .nav-item span {
-            font-weight: 500;
-            font-size: 1rem;
-        }
-
         .sidebar-footer {
-            padding: 1.5rem;
+            padding: 0.5rem 0;
             border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            align-items: center;
         }
-
-        .logout-btn {
+        
+        .footer-items {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
             width: 100%;
-            padding: 0.75rem;
-            background: var(--bg-primary);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            color: var(--text-secondary);
+        }
+        
+        .sidebar-footer-btn {
+            background: none;
+            border: none;
             cursor: pointer;
-            transition: all 0.3s;
+            padding: 1rem 0.75rem;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            border-radius: 0;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 0.5rem;
         }
-
-        .logout-btn:hover {
-            background: #fee;
-            color: #dc2626;
-            border-color: #dc2626;
+        
+        .sidebar-footer-btn:hover {
+            background: transparent;
+            color: var(--accent-color);
         }
 
         /* Main Content */
         .main-area {
             flex: 1;
-            margin-left: 280px;
+            margin-left: 70px;
             padding: 2rem;
+            width: calc(100% - 70px);
         }
 
         .page-header {
@@ -851,31 +806,32 @@
                     <i class="fas fa-graduation-cap"></i>
                     <span>InternTrack</span>
                 </a>
-                <button class="sidebar-toggle-btn" id="sidebarToggle" title="Collapse sidebar">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
             </div>
 
             <nav class="sidebar-nav">
-                <a href="dashboard.html" class="nav-item" onclick="localStorage.setItem('activeSection', 'home')">
+                <a href="dashboard.html" class="nav-item" title="Dashboard" onclick="localStorage.setItem('activeSection', 'home')">
                     <i class="fas fa-home"></i>
-                    <span>Dashboard</span>
                 </a>
-                <a href="roadmap.html" class="nav-item active">
+                <a href="roadmap.html" class="nav-item active" title="My Roadmap">
                     <i class="fas fa-route"></i>
-                    <span>My Roadmap</span>
                 </a>
-                <a href="dashboard.html" class="nav-item" onclick="localStorage.setItem('activeSection', 'calendar')">
+                <a href="dashboard.html" class="nav-item" title="Calendar" onclick="localStorage.setItem('activeSection', 'calendar')">
                     <i class="fas fa-calendar-alt"></i>
-                    <span>Calendar</span>
                 </a>
             </nav>
 
             <div class="sidebar-footer">
-                <button class="logout-btn" onclick="handleLogout()">
-                    <i class="fas fa-sign-out-alt"></i>
-                    <span>Logout</span>
-                </button>
+                <div class="footer-items">
+                    <button class="sidebar-footer-btn" id="settingsBtn" title="Settings">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <button class="sidebar-footer-btn" id="helpBtn" title="Help">
+                        <i class="fas fa-question-circle"></i>
+                    </button>
+                    <button class="sidebar-footer-btn" onclick="handleLogout()" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
             </div>
         </aside>
 
