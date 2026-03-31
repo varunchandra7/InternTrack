@@ -1656,15 +1656,18 @@ function renderRoadmapHomeCard(roadmap) {
 
     const progress = roadmap.progress || { completedTasks: 0, totalTasks: 0, percentage: 0 };
     const subjects = Array.isArray(roadmap.subjects) ? roadmap.subjects.join(', ') : '-';
+    const percentage = Math.max(0, Math.min(100, Number(progress.percentage || 0)));
 
     roadmapInfo.innerHTML = `
-        <div style="display:flex; flex-direction:column; gap:0.75rem;">
-            <p style="margin:0; color: var(--text-primary); font-weight:600;">Subjects: ${subjects}</p>
-            <p style="margin:0; color: var(--text-secondary);">Progress: ${progress.completedTasks || 0}/${progress.totalTasks || 0} tasks completed (${progress.percentage || 0}%)</p>
-            <div style="height:10px; background: var(--border-color); border-radius:999px; overflow:hidden;">
-                <div style="height:100%; width:${Math.max(0, Math.min(100, progress.percentage || 0))}%; background: var(--accent-color);"></div>
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:1.5rem; flex-wrap:wrap;">
+            <div style="display:flex; align-items:center; justify-content:center; width:120px; height:120px; border-radius:50%; background:conic-gradient(var(--accent-color) ${percentage}%, var(--border-color) ${percentage}% 100%); position:relative; flex-shrink:0;">
+                <div style="width:86px; height:86px; border-radius:50%; background:var(--bg-secondary); display:flex; align-items:center; justify-content:center; color:var(--text-primary); font-weight:700; font-size:1.1rem;">${percentage}%</div>
             </div>
-            <a href="roadmap.html" style="width:max-content; color: var(--accent-color); text-decoration:none; font-weight:600;">Open roadmap</a>
+            <div style="display:flex; flex-direction:column; gap:0.5rem; min-width:220px;">
+                <p style="margin:0; color: var(--text-primary); font-weight:600;">Subjects: ${subjects}</p>
+                <p style="margin:0; color: var(--text-secondary);">${progress.completedTasks || 0}/${progress.totalTasks || 0} tasks completed</p>
+                <a href="roadmap.html" style="width:max-content; color: var(--accent-color); text-decoration:none; font-weight:600;">Open roadmap</a>
+            </div>
         </div>
     `;
 }
