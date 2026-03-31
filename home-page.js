@@ -3,6 +3,7 @@
  */
 
 let eventRefreshInterval;
+let currentUpcomingEventsById = {};
 
 /**
  * Initialize home page with activity graphs and upcoming events
@@ -143,6 +144,8 @@ async function loadUpcomingEvents() {
         const oneMonthLater = new Date(today);
         oneMonthLater.setMonth(today.getMonth() + 1);
         
+        const pinnedEventIds = JSON.parse(localStorage.getItem('pinnedUpcomingEventIds') || '[]');
+
         // Filter events: start date is between today and 1 month from now
         const upcomingEvents = events
             .filter(event => {
@@ -151,8 +154,22 @@ async function loadUpcomingEvents() {
                 eventStartDate.setHours(0, 0, 0, 0);
                 return eventStartDate >= today && eventStartDate <= oneMonthLater;
             })
-            .sort((a, b) => new Date(a.startDate) - new Date(b.startDate))
+            .sort((a, b) => {
+                const aId = getUpcomingEventId(a);
+                const bId = getUpcomingEventId(b);
+                const aPinned = pinnedEventIds.includes(aId) ? 1 : 0;
+                const bPinned = pinnedEventIds.includes(bId) ? 1 : 0;
+                if (aPinned !== bPinned) {
+                    return bPinned - aPinned;
+                }
+                return new Date(a.startDate) - new Date(b.startDate);
+            })
             .slice(0, 10); // Limit to 10 events
+
+        currentUpcomingEventsById = {};
+        upcomingEvents.forEach(event => {
+            currentUpcomingEventsById[getUpcomingEventId(event)] = event;
+        });
         
         if (upcomingEvents.length === 0) {
             container.innerHTML = `
@@ -165,19 +182,25 @@ async function loadUpcomingEvents() {
         }
         
         container.innerHTML = upcomingEvents.map(event => {
+            const eventId = getUpcomingEventId(event);
+            const safeEventId = eventId.replace(/'/g, "\\'");
             const eventDate = new Date(event.startDate);
             const dateStr = eventDate.toLocaleDateString('en-US', { 
                 month: 'short', 
                 day: 'numeric',
                 year: 'numeric'
             });
+
+            const selectedEvents = JSON.parse(localStorage.getItem('selectedEvents') || '[]');
+            const pinnedIds = JSON.parse(localStorage.getItem('pinnedUpcomingEventIds') || '[]');
+            const isGoal = selectedEvents.some(item => getUpcomingEventId(item) === eventId);
+            const isPinned = pinnedIds.includes(eventId);
             
             // Get platform info
-            const { platformName } = getPlatformInfo(event);
             const platformClass = `platform-${event.platform || event.type}`;
             
             return `
-                <div class="event-item-home" onclick="window.location.href='event-details.html?id=${event._id}'">
+                <div class="event-item-home" onclick="openUpcomingEvent('${safeEventId}')">
                     <div class="event-header-home">
                         <span class="event-platform-badge-home ${platformClass}">${event.platform || event.type}</span>
                     </div>
@@ -185,6 +208,10 @@ async function loadUpcomingEvents() {
                     <div class="event-date-home">
                         <i class="fas fa-calendar"></i>
                         ${dateStr}
+                    </div>
+                    <div class="event-actions-home">
+                        <button class="event-action-btn ${isGoal ? 'active' : ''}" onclick="event.stopPropagation(); toggleUpcomingGoal('${safeEventId}')">${isGoal ? 'Goal Added' : 'Add as Goal'}</button>
+                        <button class="event-action-btn ${isPinned ? 'active' : ''}" onclick="event.stopPropagation(); toggleUpcomingPin('${safeEventId}')">${isPinned ? 'Pinned' : 'Pin to Top'}</button>
                     </div>
                 </div>
             `;
@@ -247,6 +274,66 @@ function loadSelectedGoals() {
  */
 function toggleGoal(element, goalId) {
     element.classList.toggle('checked');
+}
+
+function getUpcomingEventId(event) {
+    return String(event._id || event.id || `${event.title || 'event'}-${event.startDate || event.start || ''}`);
+}
+
+function toggleUpcomingGoal(eventId) {
+    const event = currentUpcomingEventsById[eventId];
+    if (!event) return;
+
+    const selectedEvents = JSON.parse(localStorage.getItem('selectedEvents') || '[]');
+    const existingIndex = selectedEvents.findIndex(item => getUpcomingEventId(item) === eventId);
+
+    if (existingIndex >= 0) {
+        selectedEvents.splice(existingIndex, 1);
+    } else {
+        selectedEvents.push({
+            ...event,
+            id: event.id || event._id || eventId,
+            startDate: event.startDate || event.start
+        });
+    }
+
+    localStorage.setItem('selectedEvents', JSON.stringify(selectedEvents));
+    loadSelectedGoals();
+    loadUpcomingEvents();
+}
+
+function toggleUpcomingPin(eventId) {
+    const pinnedIds = JSON.parse(localStorage.getItem('pinnedUpcomingEventIds') || '[]');
+    const existingIndex = pinnedIds.indexOf(eventId);
+
+    if (existingIndex >= 0) {
+        pinnedIds.splice(existingIndex, 1);
+    } else {
+        pinnedIds.push(eventId);
+    }
+
+    localStorage.setItem('pinnedUpcomingEventIds', JSON.stringify(pinnedIds));
+    loadUpcomingEvents();
+}
+
+function openUpcomingEvent(eventId) {
+    const event = currentUpcomingEventsById[eventId];
+    if (!event) return;
+
+    const contestUrl = event.registrationLink || event.url || event.link;
+    if (event.external && contestUrl) {
+        window.open(contestUrl, '_blank');
+        return;
+    }
+
+    if (event._id) {
+        window.location.href = `event-details.html?id=${event._id}`;
+        return;
+    }
+
+    if (contestUrl) {
+        window.open(contestUrl, '_blank');
+    }
 }
 
 /**

@@ -1171,6 +1171,36 @@
             gap: 0.5rem;
         }
 
+        .event-actions-home {
+            margin-top: 0.75rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .event-action-btn {
+            border: 1px solid var(--border-color);
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border-radius: 999px;
+            padding: 0.3rem 0.7rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .event-action-btn:hover {
+            border-color: var(--accent-color);
+            color: var(--accent-color);
+        }
+
+        .event-action-btn.active {
+            border-color: var(--accent-color);
+            background: var(--accent-color);
+            color: #fff;
+        }
+
         /* Dashboard Cards (Right Sidebar) */
         .dashboard-card {
             background: var(--bg-secondary);
@@ -1190,6 +1220,8 @@
         .dashboard-footer {
             margin-top: auto;
             padding: 1rem 2rem;
+            margin-left: 70px;
+            width: calc(100% - 70px);
             border-top: 1px solid var(--border-color);
             display: flex;
             justify-content: space-between;
@@ -1221,6 +1253,14 @@
         
         .footer-link:hover {
             color: var(--accent-color);
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-footer {
+                margin-left: 0;
+                width: 100%;
+                padding: 1rem;
+            }
         }
 
         /* Progress Chart */
