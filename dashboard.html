@@ -1376,15 +1376,7 @@
         }
 
         .calendar-sidebar {
-            width: 320px;
-            background: #FAFAFA;
-            border-right: 1px solid #E0E0E0;
-            padding: 1.5rem;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            height: 100%;
-            box-sizing: border-box;
+            display: none;
         }
 
         .sidebar-title {
@@ -1766,6 +1758,7 @@
             justify-content: flex-start;
             padding: 1.5rem 2rem;
             padding-right: 2rem;
+            width: 100%;
         }
         
         /* Mini Calendar Styles */
@@ -1872,6 +1865,134 @@
             flex: 1;
             overflow-y: auto;
             overflow-x: hidden;
+        }
+        
+        /* Professional Week View Styling */
+        .fc-timegrid-slot {
+            height: 3em;
+        }
+        
+        .fc-timegrid {
+            border: none;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .fc-col-header {
+            background: #F5F5F5;
+            border: 1px solid #E0E0E0;
+        }
+        
+        .fc-col-header-cell {
+            background: #F5F5F5;
+            border-right: 1px solid #E0E0E0;
+            padding: 1rem 0.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+        
+        .fc-col-header-cell:last-child {
+            border-right: none;
+        }
+        
+        .fc-daygrid-day-number {
+            padding: 0.75rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .fc-daygrid-day.fc-day-today {
+            background: rgba(124, 58, 237, 0.03);
+        }
+        
+        .fc-daygrid-day.fc-day-today .fc-daygrid-day-number {
+            color: var(--accent-color);
+            background: rgba(124, 58, 237, 0.15);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            display: inline-block;
+        }
+        
+        .fc-daygrid-day-frame {
+            background: #FFFFFF;
+        }
+        
+        .fc-daygrid-day-frame.fc-day-other {
+            background: #FAFAFA;
+        }
+        
+        .fc-daygrid {
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .fc-timegrid-body {
+            background: #FFFFFF;
+            border-top: 1px solid #E0E0E0;
+        }
+        
+        .fc-timegrid-col {
+            border-right: 1px solid #E0E0E0;
+        }
+        
+        .fc-timegrid-col:last-child {
+            border-right: none;
+        }
+        
+        .fc-daygrid-body {
+            border-top: 1px solid #E0E0E0;
+        }
+        
+        .fc-daygrid-day {
+            border-bottom: 1px solid #E0E0E0;
+            border-right: 1px solid #E0E0E0;
+        }
+        
+        .fc-daygrid-day:last-child {
+            border-right: none;
+        }
+        
+        .fc-daygrid-day-bg {
+            background: #FFFFFF;
+        }
+        
+        .fc-daygrid-day-frame.fc-day-today .fc-daygrid-day-bg {
+            background: rgba(124, 58, 237, 0.03);
+        }
+        
+        /* Month and week view toggle buttons */
+        .fc-button-group {
+            gap: 0.25rem;
+        }
+        
+        .fc-button {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color) !important;
+            color: var(--text-primary);
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .fc-button:hover {
+            background: var(--accent-bg);
+            border-color: var(--accent-color) !important;
+        }
+        
+        .fc-button.fc-button-active {
+            background: var(--accent-color) !important;
+            border-color: var(--accent-color) !important;
+            color: white !important;
+        }
+        
+        .fc-button-primary:not(:disabled) .fc-icon {
+            fill: var(--text-primary);
+        }
+        
+        .fc-button.fc-button-active .fc-icon {
+            fill: white !important;
         }
 
         .mobile-goals-section {

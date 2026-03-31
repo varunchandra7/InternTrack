@@ -531,15 +531,38 @@ function initializeCalendar() {
             },
             events: [],
             height: 'auto',
+            contentHeight: 'auto',
             editable: false,
             selectable: true,
             dayMaxEvents: true,
             firstDay: 0, // Sunday
+            slotLabelFormat: {
+                meridiem: 'short',
+                hour: 'numeric',
+                minute: '2-digit'
+            },
+            slotLabelInterval: '00:30:00',
+            slotDuration: '00:30:00',
+            slotMinTime: '08:00:00',
+            slotMaxTime: '20:00:00',
+            businessHours: {
+                daysOfWeek: [1, 2, 3, 4, 5],
+                startTime: '09:00',
+                endTime: '17:00'
+            },
             buttonText: {
                 today: 'Today',
                 month: 'Month',
                 week: 'Week',
                 list: 'List'
+            },
+            views: {
+                timeGridWeek: {
+                    titleFormat: { year: 'numeric', month: 'long', day: 'numeric' }
+                },
+                dayGridMonth: {
+                    titleFormat: { year: 'numeric', month: 'long' }
+                }
             },
             dateClick: function(info) {
                 handleDateClick(info);
