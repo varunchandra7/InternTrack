@@ -108,8 +108,8 @@
         /* Sidebar */
         .sidebar {
             width: 280px;
-            background: linear-gradient(135deg, #F5F3FF 0%, #FFFFFF 100%);
-            border-right: 2px solid #E9D5FF;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
             display: flex;
             flex-direction: column;
             position: fixed;
@@ -120,7 +120,7 @@
 
         .sidebar-header {
             padding: 2rem 1.5rem;
-            border-bottom: 2px solid #E9D5FF;
+            border-bottom: 1px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -252,7 +252,7 @@
 
         .sidebar-footer {
             padding: 1.5rem;
-            border-top: 2px solid #E9D5FF;
+            border-top: 1px solid var(--border-color);
         }
 
         .user-profile {
@@ -261,8 +261,8 @@
             gap: 0.75rem;
             padding: 0.75rem;
             border-radius: 10px;
-            background: linear-gradient(135deg, #7C3AED, #A78BFA);
-            color: white;
+            background: var(--accent-bg);
+            color: var(--text-primary);
         }
 
         .user-avatar {
@@ -279,13 +279,13 @@
 
         .user-info h4 {
             font-size: 0.9rem;
-            color: white;
+            color: var(--text-primary);
             margin-bottom: 0.2rem;
         }
 
         .user-info p {
             font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.8);
+            color: var(--text-secondary);
         }
 
         /* Main Content Area */
@@ -1363,7 +1363,7 @@
 
         /* Calendar Section */
         #calendar-section {
-            padding: 1.5rem 2rem;
+            padding: 0;
             height: calc(100vh - 80px);
             overflow: hidden;
         }
@@ -1371,19 +1371,20 @@
         .calendar-layout {
             display: flex;
             height: 100%;
-            gap: 2rem;
-            flex-direction: row-reverse;
+            gap: 0;
+            flex-direction: row;
         }
 
         .calendar-sidebar {
             width: 320px;
-            background: var(--bg-secondary);
-            border-left: 1px solid var(--border-color);
+            background: #FAFAFA;
+            border-right: 1px solid #E0E0E0;
             padding: 1.5rem;
-            overflow: hidden;
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
             height: 100%;
+            box-sizing: border-box;
         }
 
         .sidebar-title {
@@ -1635,102 +1636,102 @@
             background: none !important;
         }
 
-        /* Internship events */
+        /* Internship events - Light Blue */
         .event-internship {
-            background-color: rgba(124, 58, 237, 0.15) !important;
-            border-left: 4px solid #7C3AED !important;
+            background-color: #E3F2FD !important;
+            border-left: 4px solid #1976D2 !important;
         }
 
         .event-internship .fc-event-title {
-            color: #6D28D9;
+            color: #1565C0;
             font-weight: 700;
         }
 
-        /* Hackathon events */
+        /* Hackathon events - Light Green */
         .event-hackathon {
-            background-color: rgba(236, 72, 153, 0.15) !important;
-            border-left: 4px solid #ec4899 !important;
+            background-color: #E8F5E9 !important;
+            border-left: 4px solid #388E3C !important;
         }
 
         .event-hackathon .fc-event-title {
-            color: #be185d;
+            color: #2E7D32;
             font-weight: 700;
         }
 
-        /* CodeChef - Orange */
+        /* CodeForces - Cyan */
         .event-codeforces {
-            background-color: rgba(31, 138, 203, 0.15) !important;
-            border-left: 4px solid #1F8ACB !important;
+            background-color: #B2EBF2 !important;
+            border-left: 4px solid #00838F !important;
         }
 
         .event-codeforces .fc-event-title {
-            color: #1F8ACB;
+            color: #00838F;
             font-weight: 700;
         }
 
         /* LeetCode - Yellow/Orange */
         .event-leetcode {
-            background-color: rgba(255, 161, 22, 0.15) !important;
-            border-left: 4px solid #FFA116 !important;
+            background-color: #FFF9C4 !important;
+            border-left: 4px solid #F57F17 !important;
         }
 
         .event-leetcode .fc-event-title {
-            color: #FFA116;
+            color: #F57F17;
             font-weight: 700;
         }
 
-        /* CodeChef - Brown */
+        /* CodeChef - Light Pink */
         .event-codechef {
-            background-color: rgba(91, 70, 56, 0.15) !important;
-            border-left: 4px solid #5B4638 !important;
+            background-color: #FCE4EC !important;
+            border-left: 4px solid #C2185B !important;
         }
 
         .event-codechef .fc-event-title {
-            color: #5B4638;
+            color: #C2185B;
             font-weight: 700;
         }
 
-        /* AtCoder - Red/Orange */
+        /* AtCoder - Light Purple */
         .event-atcoder {
-            background-color: rgba(255, 107, 53, 0.15) !important;
-            border-left: 4px solid #FF6B35 !important;
+            background-color: #F3E5F5 !important;
+            border-left: 4px solid #7B1FA2 !important;
         }
 
         .event-atcoder .fc-event-title {
-            color: #FF6B35;
+            color: #7B1FA2;
             font-weight: 700;
         }
 
-        /* HackerRank - Green/Teal */
+        /* HackerRank - Light Teal */
         .event-hackerrank {
-            background-color: rgba(0, 200, 155, 0.15) !important;
-            border-left: 4px solid #00C89B !important;
+            background-color: #E0F2F1 !important;
+            border-left: 4px solid #00695C !important;
         }
 
         .event-hackerrank .fc-event-title {
-            color: #00C89B;
+            color: #00695C;
             font-weight: 700;
         }
 
-        /* HackerEarth - Blue/Purple */
+        /* HackerEarth - Light Indigo */
         .event-hackerearth {
-            background-color: rgba(80, 55, 255, 0.15) !important;
-            border-left: 4px solid #5037FF !important;
+            background-color: #E8EAF6 !important;
+            border-left: 4px solid #3F51B5 !important;
         }
 
         .event-hackerearth .fc-event-title {
-            color: #5037FF;
+            color: #3F51B5;
             font-weight: 700;
         }
 
-        /* Contest (generic) */
+        /* Contest - Light Amber */
         .event-contest {
-            background-color: rgba(245, 158, 11, 0.15) !important;
-            border-left: 4px solid #f59e0b !important;
+            background-color: #FFF3E0 !important;
+            border-left: 4px solid #E65100 !important;
         }
 
         .event-contest .fc-event-title {
-            color: #d97706;
+            color: #E65100;
             font-weight: 700;
         }
 
@@ -1757,14 +1758,120 @@
 
         .calendar-main {
             flex: 1;
-            background: var(--bg-primary);
+            background: #FFFFFF;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             align-items: flex-start;
-            justify-content: center;
-            padding: 0;
-            padding-right: 1rem;
+            justify-content: flex-start;
+            padding: 1.5rem 2rem;
+            padding-right: 2rem;
+        }
+        
+        /* Mini Calendar Styles */
+        .mini-calendar {
+            background: #FFFFFF;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .mini-calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .mini-calendar-header button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            padding: 0.25rem 0.5rem;
+        }
+        
+        .mini-calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+        
+        .day-label {
+            font-weight: 600;
+            color: var(--text-secondary);
+            padding: 0.5rem 0;
+            font-size: 0.8rem;
+        }
+        
+        .mini-calendar-day {
+            padding: 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            color: var(--text-primary);
+            transition: all 0.2s;
+        }
+        
+        .mini-calendar-day:hover {
+            background: #F0F0F0;
+        }
+        
+        .mini-calendar-day.other-month {
+            color: #BDBDBD;
+        }
+        
+        .mini-calendar-day.today {
+            background: #7C3AED;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .mini-calendar-day.selected {
+            background: #E8EAED;
+        }
+        
+        /* Time Grid Container */
+        .calendar-time-grid {
+            flex: 1;
+            background: #FFFFFF;
+            border: 1px solid #E0E0E0;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+        }
+        
+        .calendar-time-header {
+            display: flex;
+            background: #F5F5F5;
+            border-bottom: 1px solid #E0E0E0;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .time-header-slot {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            border-right: 1px solid #E0E0E0;
+        }
+        
+        .time-header-slot:last-child {
+            border-right: none;
+        }
+        
+        .calendar-time-body {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
         }
 
         .mobile-goals-section {
@@ -2811,58 +2918,36 @@
 
             <!-- Calendar Section -->
             <section class="content-section" id="calendar-section">
-                <div style="margin-bottom: 1.5rem;">
-                    <h1 class="section-title" style="margin-bottom: 1rem;">Event Calendar</h1>
-                    
-                    <!-- Search Bar -->
-                    <div class="search-bar" style="margin-bottom: 1rem; max-width: 100%;">
-                        <i class="fas fa-search"></i>
-                        <input 
-                            type="text" 
-                            id="calendarSearchInput" 
-                            placeholder="Search internships and hackathons..." 
-                            autocomplete="off"
-                        >
-                    </div>
-                    
-                    <div class="filter-buttons">
-                        <button class="filter-btn active" data-filter="all">
-                            <i class="fas fa-calendar-alt"></i> All Events
-                        </button>
-                        <button class="filter-btn" data-filter="hackathon">
-                            <i class="fas fa-code"></i> Hackathons
-                        </button>
-                        <button class="filter-btn" data-filter="internship">
-                            <i class="fas fa-briefcase"></i> Internships
-                        </button>
-                        <button class="filter-btn" data-filter="contest">
-                            <i class="fas fa-trophy"></i> Contests
-                        </button>
-                    </div>
-                </div>
                 <div class="calendar-layout">
-                    <!-- Sidebar for upcoming events -->
+                    <!-- Sidebar with Mini Calendar -->
                     <div class="calendar-sidebar">
-                        <h2 class="sidebar-title">Upcoming Events</h2>
-                        <div id="upcomingEventsList" class="upcoming-events-list">
-                            <div class="empty-state-small">
-                                <i class="fas fa-calendar-check"></i>
-                                <p>No upcoming events</p>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- Main calendar area -->
-                    <div class="calendar-main">
-                        <div id="calendar"></div>
-                        <div class="mobile-goals-section" id="mobileGoalsSection">
-                            <h3 class="mobile-goals-title">Add to Goals</h3>
-                            <div class="mobile-goals-list" id="mobileGoalsList">
-                                <div class="empty-state-small">
-                                    <p>No upcoming events available</p>
+                        <!-- Mini Calendar -->
+                        <div class="mini-calendar">
+                            <div class="mini-calendar-header">
+                                <div id="miniCalendarMonth">September 2024</div>
+                                <div>
+                                    <button id="prevMonth" title="Previous month">←</button>
+                                    <button id="nextMonth" title="Next month">→</button>
                                 </div>
                             </div>
+                            <div class="mini-calendar-grid" id="miniCalendarGrid">
+                            </div>
                         </div>
+                        
+                        <!-- Time Zone Info -->
+                        <div style="background: #F5F5F5; border-radius: 8px; padding: 1rem; margin-top: 1.5rem; text-align: center;">
+                            <div style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Local Time</div>
+                            <div style="font-size: 1.5rem; font-weight: 600; color: var(--text-primary);" id="localTime">--:--</div>
+                            <div style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem;" id="localDate">---</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Main Calendar Area -->
+                    <div class="calendar-main">
+                        <div style="width: 100%; margin-bottom: 1.5rem;">
+                            <h1 class="section-title" style="margin-bottom: 0.5rem;">September 2024</h1>
+                        </div>
+                        <div id="calendar" style="width: 100%; flex: 1;"></div>
                     </div>
                 </div>
             </section>
@@ -3377,6 +3462,7 @@
     <script src="config.js?v=20260322-6"></script>
     <script src="theme.js?v=20260322-6"></script>
     <script src="dashboard.js?v=20260322-6"></script>
+    <script src="mini-calendar.js"></script>
 </body>
 </html>
 

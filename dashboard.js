@@ -409,10 +409,6 @@ async function fetchEvents() {
             calendar.addEventSource(calendarEvents);
         }
         
-        // Render upcoming events in sidebar
-        renderUpcomingEvents(futureEvents);
-        renderMobileGoalsOptions(futureEvents);
-        
         // Apply current filter if not 'all'
         if (currentFilter !== 'all') {
             setTimeout(() => filterCalendarEvents(), 100);
