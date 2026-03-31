@@ -1079,6 +1079,7 @@ observer.observe(document.documentElement, {
 let currentFilter = 'all';
 let unfilteredEvents = [];
 let currentSearchQuery = '';
+let lastAutoNavigatedMatchId = '';
 
 document.addEventListener('DOMContentLoaded', () => {
     const filterButtons = document.querySelectorAll('.filter-btn');
@@ -1102,10 +1103,100 @@ document.addEventListener('DOMContentLoaded', () => {
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             currentSearchQuery = e.target.value.toLowerCase().trim();
+
+            // Search should work globally across calendar categories
+            currentFilter = 'all';
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            const allBtn = document.querySelector('.filter-btn[data-filter="all"]');
+            if (allBtn) allBtn.classList.add('active');
+
             filterCalendarEvents();
+
+            // Auto-jump to the best matching event while typing
+            if (currentSearchQuery.length >= 2) {
+                const bestMatch = findBestCalendarMatch(currentSearchQuery);
+                if (bestMatch) {
+                    const matchId = bestMatch._id || bestMatch.id || `${bestMatch.title}-${bestMatch.startDate}`;
+                    if (matchId !== lastAutoNavigatedMatchId) {
+                        navigateToCalendarMatch(bestMatch);
+                        lastAutoNavigatedMatchId = matchId;
+                    }
+                }
+            } else {
+                lastAutoNavigatedMatchId = '';
+            }
+        });
+
+        // Press Enter to open the best matched event directly
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter') return;
+            e.preventDefault();
+
+            const query = (e.target.value || '').toLowerCase().trim();
+            if (!query) return;
+
+            const bestMatch = findBestCalendarMatch(query);
+            if (!bestMatch) return;
+
+            if (bestMatch.external && bestMatch.link) {
+                window.open(bestMatch.link, '_blank');
+                return;
+            }
+
+            const eventId = bestMatch._id || bestMatch.id;
+            if (eventId) {
+                window.location.href = `event-details.html?id=${eventId}`;
+            }
         });
     }
 });
+
+function findBestCalendarMatch(query) {
+    if (!query || !Array.isArray(allEvents) || allEvents.length === 0) return null;
+
+    const scoreEvent = (event) => {
+        const title = String(event.title || '').toLowerCase();
+        const company = String(event.company || '').toLowerCase();
+        const description = String(event.description || '').toLowerCase();
+        const skills = (event.skills || []).join(' ').toLowerCase();
+        const text = `${title} ${company} ${description} ${skills}`;
+
+        if (title === query) return 100;
+        if (company === query) return 95;
+        if (title.startsWith(query)) return 90;
+        if (company.startsWith(query)) return 85;
+        if (title.includes(query)) return 80;
+        if (company.includes(query)) return 75;
+        if (description.includes(query)) return 60;
+        if (skills.includes(query)) return 55;
+        if (text.includes(query)) return 40;
+        return 0;
+    };
+
+    let best = null;
+    let bestScore = 0;
+    allEvents.forEach((event) => {
+        const score = scoreEvent(event);
+        if (score > bestScore) {
+            bestScore = score;
+            best = event;
+        }
+    });
+
+    return bestScore > 0 ? best : null;
+}
+
+function navigateToCalendarMatch(event) {
+    if (!event || !calendar) return;
+
+    // Ensure calendar section is visible before navigating
+    showSection('calendar');
+
+    const targetDate = event.startDate || event.start;
+    if (!targetDate) return;
+
+    calendar.gotoDate(targetDate);
+}
 
 function filterCalendarEvents() {
     if (!calendar) return;
