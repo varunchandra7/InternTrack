@@ -375,6 +375,12 @@ function createSubjectSection(subject, topics) {
  */
 function createTopicItems(topicName, tasks, subject) {
   return tasks.map(task => {
+    const difficulty = getTaskDifficulty(task.topic, subject);
+    const difficultyStyle = difficulty === 'Hard'
+      ? 'background: rgba(239, 68, 68, 0.12); color: #dc2626;'
+      : difficulty === 'Medium'
+        ? 'background: rgba(245, 158, 11, 0.14); color: #d97706;'
+        : 'background: rgba(16, 185, 129, 0.12); color: #059669;';
     const hasSubtopics = task.subtopics && task.subtopics.length > 0;
     const subtopicsHTML = hasSubtopics 
       ? `<div class="subtopics-list" style="display: none; margin-top: 0.5rem; padding-left: 1.5rem; font-size: 0.8125rem; color: var(--text-secondary);">
@@ -403,6 +409,7 @@ function createTopicItems(topicName, tasks, subject) {
           <div class="topic-header-text">
             <div style="display: flex; align-items: center; gap: 0.5rem; flex: 1;">
               <span class="topic-name">${task.topic}</span>
+              <span style="padding: 0.2rem 0.55rem; border-radius: 999px; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.03em; ${difficultyStyle}">Difficulty: ${difficulty}</span>
               ${hasSubtopics ? `
                 <button onclick="toggleSubtopics(this, event)" style="background: none; border: none; color: var(--accent-color); cursor: pointer; padding: 0.25rem 0.5rem; font-size: 0.75rem; display: flex; align-items: center; gap: 0.25rem; border-radius: 4px; transition: all 0.2s;" title="View subtopics">
                   <i class="fas fa-chevron-down" style="font-size: 0.625rem; transition: transform 0.2s;"></i>
@@ -417,6 +424,30 @@ function createTopicItems(topicName, tasks, subject) {
       </div>
     `;
   }).join('');
+}
+
+function getTaskDifficulty(topic, subject) {
+  const normalizedTopic = String(topic || '').toLowerCase();
+  const normalizedSubject = String(subject || '').toLowerCase();
+
+  if (normalizedSubject === 'dsa') {
+    if (/recursion|backtracking|tree|binary search tree|heap|hashing/.test(normalizedTopic)) return 'Medium';
+    if (/graph|dynamic programming|dp|advanced|segment tree|trie/.test(normalizedTopic)) return 'Hard';
+    return 'Easy';
+  }
+
+  if (normalizedSubject === 'os' || normalizedSubject === 'dbms' || normalizedSubject === 'cn') {
+    if (/deadlock|synchronization|indexing|transactions|routing|congestion|security/.test(normalizedTopic)) return 'Hard';
+    if (/process|thread|memory|normalization|joins|tcp|udp|http/.test(normalizedTopic)) return 'Medium';
+    return 'Easy';
+  }
+
+  if (normalizedSubject === 'sd') {
+    if (/scalability|distributed|load balancer|sharding|consistency|fault/.test(normalizedTopic)) return 'Hard';
+    return 'Medium';
+  }
+
+  return 'Easy';
 }
 
 /**
