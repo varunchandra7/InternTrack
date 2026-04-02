@@ -106,9 +106,8 @@ function showLogoutConfirmation() {
  * Perform the actual logout
  */
 function performLogout() {
-    // Clear user-specific data
+    // Clear user-specific data (but NOT roadmap - user should manually reset if needed)
     localStorage.removeItem(getUserStorageKey('selectedEvents'));
-    localStorage.removeItem(getUserStorageKey('currentRoadmapCache'));
     localStorage.removeItem(getUserStorageKey('pinnedUpcomingEventIds'));
     
     // Clear both localStorage and sessionStorage
@@ -164,6 +163,13 @@ function showSection(sectionName) {
         setTimeout(() => {
             // Initialize FAQ items on help section load
             initializeFAQ();
+        }, 50);
+    }
+
+    if (sectionName === 'profile') {
+        setTimeout(() => {
+            // Load profile data when profile section is shown
+            loadProfileData();
         }, 50);
     }
 
