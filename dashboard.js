@@ -153,6 +153,13 @@ function showSection(sectionName) {
         }, 150);
     }
 
+    if (sectionName === 'settings') {
+        setTimeout(() => {
+            // Initialize dark mode toggle state
+            initializeDarkModeToggle();
+        }, 50);
+    }
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -246,6 +253,11 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(() => {
         loadRoadmapProgress();
     }, 2000);
+    
+    // Initialize dark mode toggle on page load
+    setTimeout(() => {
+        initializeDarkModeToggle();
+    }, 300);
 });
 
 // API Base URL
@@ -1502,24 +1514,36 @@ function toggleSetting(element, settingName) {
  */
 function toggleDarkModeFromSettings() {
     const toggle = document.getElementById('darkModeToggle');
-    const themeToggle = document.getElementById('themeToggle');
     
-    // Toggle the actual theme
-    if (themeToggle) {
-        themeToggle.click();
+    // Call the toggleTheme function from theme.js
+    if (typeof toggleTheme === 'function') {
+        toggleTheme();
     }
     
-    // Update toggle state
-    setTimeout(() => {
-        const isDarkMode = document.body.classList.contains('dark-mode');
-        if (toggle) {
-            if (isDarkMode) {
-                toggle.classList.add('active');
-            } else {
-                toggle.classList.remove('active');
-            }
+    // Update toggle state to match new theme
+    if (toggle) {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        if (currentTheme === 'dark') {
+            toggle.classList.add('active');
+        } else {
+            toggle.classList.remove('active');
         }
-    }, 100);
+    }
+}
+
+/**
+ * Initialize dark mode toggle state on page load
+ */
+function initializeDarkModeToggle() {
+    const toggle = document.getElementById('darkModeToggle');
+    if (toggle) {
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        if (currentTheme === 'dark') {
+            toggle.classList.add('active');
+        } else {
+            toggle.classList.remove('active');
+        }
+    }
 }
 
 /**
