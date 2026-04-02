@@ -3462,6 +3462,167 @@
             left: 20px;
         }
 
+        /* Credits Section Styles */
+        .credits-container {
+            width: 100%;
+            margin: 0;
+        }
+
+        .credits-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .credit-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .credit-card h3 {
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .credit-details {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .credit-details p {
+            margin: 0.5rem 0;
+        }
+
+        .credits-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .credits-table thead {
+            background: linear-gradient(135deg, var(--accent-color), #a78bfa);
+            color: white;
+        }
+
+        .credits-table th {
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .credits-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .credits-table tbody tr:hover {
+            background: var(--bg-secondary);
+        }
+
+        .credits-table a {
+            color: var(--accent-color);
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+
+        .credits-table a:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        .contributor-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .contributor-item {
+            padding: 1rem;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .contributor-item h4 {
+            margin: 0 0 0.5rem 0;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .resources-list {
+            list-style: none;
+            padding: 0;
+            margin: 1rem 0 0 0;
+        }
+
+        .resources-list li {
+            padding: 0.75rem 0;
+            padding-left: 1.5rem;
+            position: relative;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .resources-list li:last-child {
+            border-bottom: none;
+        }
+
+        .resources-list li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--accent-color);
+            font-weight: bold;
+        }
+
+        .resources-list a {
+            color: var(--accent-color);
+            text-decoration: none;
+            transition: opacity 0.3s;
+        }
+
+        .resources-list a:hover {
+            opacity: 0.8;
+            text-decoration: underline;
+        }
+
+        .compliance-item {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .compliance-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .compliance-item h4 {
+            color: var(--text-primary);
+            margin: 0 0 0.5rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .compliance-item p {
+            margin: 0;
+            color: var(--text-secondary);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .main-area {
@@ -3525,6 +3686,9 @@
                     </button>
                     <button class="sidebar-footer-btn" id="helpBtn" title="Help">
                         <i class="fas fa-question-circle"></i>
+                    </button>
+                    <button class="sidebar-footer-btn" id="creditsBtn" title="Credits & Copyright">
+                        <i class="fas fa-scroll"></i>
                     </button>
                     <button class="sidebar-footer-btn" id="logoutSidebarBtn" title="Logout">
                         <i class="fas fa-sign-out-alt"></i>
@@ -4340,6 +4504,267 @@
                                 <div class="faq-item">
                                     <h4 onclick="toggleFAQ(this)">Is there a way to reset my account?</h4>
                                     <p>Yes, you can delete your account in the Settings section under "Danger Zone". This will permanently delete all your data. After deletion, you can create a new account.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Citations, Credits and Copyright Section -->
+            <section class="content-section" id="credits-section">
+                <div class="credits-container">
+                    <div class="section-header">
+                        <h1 class="section-title" style="margin-bottom: 0;">Citations, Credits & Copyright</h1>
+                    </div>
+                    <p class="section-subtitle">Transparency and acknowledgment of the incredible tools, frameworks, and people that made InternTrack possible.</p>
+
+                    <div class="credits-content">
+                        <!-- Copyright Notice -->
+                        <div class="credit-card">
+                            <h3><i class="fas fa-copyright"></i> Copyright & License</h3>
+                            <div class="credit-details">
+                                <p><strong>Project Name:</strong> InternTrack</p>
+                                <p><strong>Copyright © 2025-2026</strong></p>
+                                <p><strong>Copyright Holders:</strong> InternTrack Team</p>
+                                <p><strong>Contributors:</strong> Rishith Gajjelli, Varun Chandra</p>
+                                
+                                <div style="margin-top: 1rem; padding: 1rem; background: var(--bg-primary); border-radius: 8px; border-left: 4px solid var(--accent-color);">
+                                    <p style="margin: 0; color: var(--text-secondary);">
+                                        <strong style="color: var(--text-primary);">License:</strong> MIT License (Massachusetts Institute of Technology)<br>
+                                        <small style="color: var(--text-secondary);">This project is free and open source. You are permitted to use, modify, and distribute this software under the terms of the MIT License.</small>
+                                    </p>
+                                </div>
+                                
+                                <p style="margin-top: 1rem; color: var(--text-secondary); font-size: 0.9rem;">
+                                    <i class="fas fa-info-circle"></i> For full license text, visit: 
+                                    <a href="https://opensource.org/licenses/MIT" target="_blank" style="color: var(--accent-color); text-decoration: none;">https://opensource.org/licenses/MIT</a>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Backend Technologies -->
+                        <div class="credit-card">
+                            <h3><i class="fas fa-server"></i> Backend Technologies</h3>
+                            <div class="credit-details">
+                                <table class="credits-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Technology</th>
+                                            <th>Version</th>
+                                            <th>Purpose</th>
+                                            <th>License</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>Node.js</strong></td>
+                                            <td>Latest LTS</td>
+                                            <td>JavaScript Runtime Environment</td>
+                                            <td><a href="https://github.com/nodejs/node/blob/master/LICENSE" target="_blank">MIT</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Express.js</strong></td>
+                                            <td>^4.18.2</td>
+                                            <td>Web Application Framework</td>
+                                            <td><a href="https://github.com/expressjs/express/blob/master/LICENSE" target="_blank">MIT</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>MongoDB</strong></td>
+                                            <td>Latest</td>
+                                            <td>NoSQL Database</td>
+                                            <td><a href="https://www.mongodb.com/community/license" target="_blank">SSPL/Community</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Mongoose</strong></td>
+                                            <td>^8.0.0</td>
+                                            <td>MongoDB Object Data Modeling</td>
+                                            <td><a href="https://github.com/Automattic/mongoose/blob/master/LICENSE.md" target="_blank">Apache 2.0</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>JWT (jsonwebtoken)</strong></td>
+                                            <td>^9.0.2</td>
+                                            <td>Authentication & Authorization</td>
+                                            <td><a href="https://github.com/auth0/node-jsonwebtoken/blob/master/LICENSE" target="_blank">MIT</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>bcryptjs</strong></td>
+                                            <td>^2.4.3</td>
+                                            <td>Password Hashing & Security</td>
+                                            <td><a href="https://github.com/dcodeIO/bcrypt.js/blob/master/LICENSE" target="_blank">MIT</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Nodemailer</strong></td>
+                                            <td>^7.0.12</td>
+                                            <td>Email Service Integration</td>
+                                            <td><a href="https://github.com/nodemailer/nodemailer/blob/master/LICENSE" target="_blank">MIT</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>CORS</strong></td>
+                                            <td>^2.8.5</td>
+                                            <td>Cross-Origin Resource Sharing</td>
+                                            <td><a href="https://github.com/expressjs/cors/blob/master/LICENSE" target="_blank">MIT</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Axios</strong></td>
+                                            <td>^1.13.2</td>
+                                            <td>HTTP Client</td>
+                                            <td><a href="https://github.com/axios/axios/blob/master/LICENSE" target="_blank">MIT</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>node-cron</strong></td>
+                                            <td>^4.2.1</td>
+                                            <td>Task Scheduling</td>
+                                            <td><a href="https://github.com/kelektiv/node-cron/blob/master/LICENSE" target="_blank">MIT</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>dotenv</strong></td>
+                                            <td>^16.3.1</td>
+                                            <td>Environment Variable Management</td>
+                                            <td><a href="https://github.com/motdotla/dotenv/blob/master/LICENSE" target="_blank">BSD 2-Clause</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Google Generative AI</strong></td>
+                                            <td>^0.21.0</td>
+                                            <td>AI-Powered Roadmap Generation (Gemini API)</td>
+                                            <td><a href="https://developers.google.com/terms" target="_blank">Google APIs</a></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Frontend Technologies -->
+                        <div class="credit-card">
+                            <h3><i class="fas fa-palette"></i> Frontend Technologies</h3>
+                            <div class="credit-details">
+                                <table class="credits-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Technology</th>
+                                            <th>Version</th>
+                                            <th>Purpose</th>
+                                            <th>License</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><strong>FullCalendar</strong></td>
+                                            <td>6.1.10</td>
+                                            <td>Interactive event calendar UI</td>
+                                            <td><a href="https://fullcalendar.io/license" target="_blank">MIT/Commercial</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Chart.js</strong></td>
+                                            <td>3.9.1</td>
+                                            <td>Data visualization & graphing</td>
+                                            <td><a href="https://github.com/chartjs/Chart.js/blob/master/LICENSE.md" target="_blank">MIT</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Font Awesome</strong></td>
+                                            <td>6.4.2</td>
+                                            <td>Icon library & visual elements</td>
+                                            <td><a href="https://fontawesome.com/license" target="_blank">Free (CC)</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>jsDelivr CDN</strong></td>
+                                            <td>Latest</td>
+                                            <td>Content Delivery Network for libraries</td>
+                                            <td><a href="https://www.jsdelivr.com/" target="_blank">MIT</a></td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>HTML5 & CSS3</strong></td>
+                                            <td>Latest Standards</td>
+                                            <td>Markup & Styling</td>
+                                            <td>Open Web Standards (W3C)</td>
+                                        </tr>
+                                        <tr>
+                                            <td><strong>Vanilla JavaScript</strong></td>
+                                            <td>ES6+</td>
+                                            <td>Core interactivity & logic</td>
+                                            <td>ECMA Standards</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Key Contributors & Acknowledgments -->
+                        <div class="credit-card">
+                            <h3><i class="fas fa-star"></i> Project Contributors</h3>
+                            <div class="credit-details">
+                                <div class="contributor-list">
+                                    <div class="contributor-item">
+                                        <h4><i class="fas fa-user-circle"></i> Rishith Gajjelli</h4>
+                                        <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">Lead Developer</p>
+                                    </div>
+                                    <div class="contributor-item">
+                                        <h4><i class="fas fa-user-circle"></i> Varun Chandra</h4>
+                                        <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">Full-Stack Developer</p>
+                                    </div>
+                                </div>
+                                
+                                <div style="margin-top: 1.5rem; padding: 1rem; background: var(--bg-primary); border-radius: 8px;">
+                                    <p style="margin: 0; color: var(--text-secondary);">
+                                        <i class="fas fa-lightbulb" style="color: var(--accent-color);"></i> 
+                                        <strong style="color: var(--text-primary);"> Special Thanks</strong><br>
+                                        To all open-source developers and communities whose tools and libraries made this project possible. The MERN stack, combined with best-in-class UI libraries, enabled rapid development without compromising quality.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Related Projects & Resources -->
+                        <div class="credit-card">
+                            <h3><i class="fas fa-link"></i> Resources & References</h3>
+                            <div class="credit-details">
+                                <ul class="resources-list">
+                                    <li><strong>GitHub Repository:</strong> <a href="https://github.com/varunchandra7/InternTrack" target="_blank">https://github.com/varunchandra7/InternTrack</a></li>
+                                    <li><strong>Official Documentation:</strong> Available in project README</li>
+                                    <li><strong>Deployment:</strong> Render (Backend), Vercel (Frontend)</li>
+                                    <li><strong>Database:</strong> MongoDB Atlas (Cloud)</li>
+                                    <li><strong>Email Service:</strong> Nodemailer with SMTP</li>
+                                    <li><strong>AI Integration:</strong> Google Generative AI (Gemini)</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <!-- Data Privacy & Attribution -->
+                        <div class="credit-card">
+                            <h3><i class="fas fa-shield-alt"></i> Usage Attribution</h3>
+                            <div class="credit-details">
+                                <p>If you use InternTrack or reference this project, we appreciate attribution. You can cite it as:</p>
+                                <div style="background: var(--bg-primary); padding: 1rem; border-radius: 8px; margin-top: 1rem; font-family: monospace; font-size: 0.85rem; overflow-x: auto;">
+                                    <pre style="margin: 0; color: var(--text-secondary);">InternTrack v1.0 (2025-2026)
+Created by: Rishith Gajjelli, Varun Chandra
+Repository: https://github.com/varunchandra7/InternTrack
+License: MIT</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Compliance & Legal -->
+                        <div class="credit-card">
+                            <h3><i class="fas fa-gavel"></i> Legal Compliance</h3>
+                            <div class="credit-details">
+                                <div class="compliance-item">
+                                    <h4>Third-Party Licenses</h4>
+                                    <p>All third-party libraries and frameworks used in InternTrack are included with proper credits and license compliance. Each dependency maintains its original license as specified by the respective authors and organizations.</p>
+                                </div>
+                                
+                                <div class="compliance-item">
+                                    <h4>Attribution Requirements</h4>
+                                    <p>Users must retain copyright notices, license file, and all attribution to original authors when distributing derivative works.</p>
+                                </div>
+                                
+                                <div class="compliance-item">
+                                    <h4>No Warranty</h4>
+                                    <p>This software is provided "AS IS" without warranty of any kind. The authors are not liable for any damages or issues arising from use of this software.</p>
+                                </div>
+
+                                <div class="compliance-item">
+                                    <h4>Open Source Commitments</h4>
+                                    <p>InternTrack is committed to maintaining open-source principles, transparency, and community-driven development. We welcome contributions, feedback, and improvements from developers worldwide.</p>
                                 </div>
                             </div>
                         </div>

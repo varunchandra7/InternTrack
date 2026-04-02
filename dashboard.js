@@ -234,6 +234,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
+    // Credits button in sidebar footer
+    const creditsBtn = document.getElementById('creditsBtn');
+    if (creditsBtn) {
+        creditsBtn.addEventListener('click', () => {
+            showSection('credits');
+        });
+    }
+    
     // Logout button in sidebar footer
     const logoutSidebarBtn = document.getElementById('logoutSidebarBtn');
     if (logoutSidebarBtn) {
