@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar - InternTrack</title>
+    <link rel="stylesheet" href="common.css?v=20260322-6">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #ffffff;
+        }
+
+        .calendar-page {
+            display: flex;
+            min-height: 100vh;
+            background: #ffffff;
+            width: 100%;
+            overflow-x: hidden;
+            flex-direction: column;
+        }
+
+        .mobile-header {
+            display: none;
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.75rem 1rem;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            width: 100%;
+        }
+
+        .mobile-header-left {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .mobile-header-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .mobile-header-logo i {
+            font-size: 1.2rem;
+            color: var(--accent-color);
+        }
+
+        .mobile-menu-toggle {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+        }
+
+        .mobile-menu-toggle span {
+            width: 20px;
+            height: 2px;
+            background: var(--text-primary);
+            display: block;
+            transition: all 0.3s ease;
+        }
+
+        .mobile-menu-toggle.active span:nth-child(1) {
+            transform: rotate(45deg) translate(8px, 8px);
+        }
+
+        .mobile-menu-toggle.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .mobile-menu-toggle.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        .mobile-sidebar-backdrop {
+            display: none;
+            position: fixed;
+            inset: 55px 0 0 0;
+            background: rgba(0, 0, 0, 0.45);
+            z-index: 998;
+        }
+
+        .mobile-sidebar-backdrop.active {
+            display: block;
+        }
+
+        .sidebar {
+            width: 70px;
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100vh;
+            left: 0;
+            top: 0;
+        }
+
+        .sidebar-header {
+            padding: 1.5rem 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-decoration: none;
+        }
+
+        .sidebar-logo span {
+            display: none;
+        }
+
+        .sidebar-logo i {
+            color: var(--accent-color);
+            font-size: 1.8rem;
+        }
+
+        .sidebar-nav {
+            flex: 1;
+            padding: 0.5rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+        }
+
+        .nav-item {
+            padding: 1rem 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: all 0.3s;
+            cursor: pointer;
+            border-left: none;
+            font-size: 1.3rem;
+        }
+
+        .nav-item:hover {
+            background: transparent;
+            color: var(--accent-color);
+        }
+
+        .nav-item.active {
+            background: transparent;
+            color: var(--accent-color);
+            border-left-color: transparent;
+        }
+
+        .sidebar-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .footer-items {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            width: 100%;
+        }
+
+        .sidebar-footer-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.75rem;
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-footer-btn:hover {
+            background: var(--accent-bg);
+            color: var(--accent-color);
+        }
+
+        .main-area {
+            flex: 1;
+            margin-left: 70px;
+            display: flex;
+            flex-direction: column;
+            width: calc(100% - 70px);
+            overflow-x: hidden;
+            background: #ffffff;
+        }
+
+        .top-bar {
+            background: var(--bg-secondary);
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .user-profile-container {
+            position: relative;
+        }
+
+        .user-profile-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.5rem 1rem;
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .user-profile-btn:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+
+        .user-avatar-top {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--accent-color), var(--accent-hover));
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .user-name {
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .dropdown-icon {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            transition: transform 0.3s;
+        }
+
+        .user-profile-btn.active .dropdown-icon {
+            transform: rotate(180deg);
+        }
+
+        .user-dropdown {
+            position: absolute;
+            top: calc(100% + 0.5rem);
+            right: 0;
+            min-width: 240px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .user-dropdown.active {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-header {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .dropdown-header h4 {
+            font-size: 1rem;
+            color: var(--text-primary);
+            margin-bottom: 0.3rem;
+        }
+
+        .dropdown-header p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .dropdown-menu {
+            padding: 0.5rem;
+        }
+
+        .dropdown-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem 1rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background: var(--bg-primary);
+            color: var(--accent-color);
+        }
+
+        .dropdown-item.logout {
+            color: #ef4444;
+            border-top: 1px solid var(--border-color);
+            margin-top: 0.5rem;
+        }
+
+        .dropdown-item.logout:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        .calendar-content {
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            height: calc(100vh - 84px);
+            background: #ffffff;
+        }
+
+        .filter-bar {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+            padding: 0.9rem 1rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 14px;
+            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+            background: #ffffff;
+        }
+
+        .search-wrap {
+            position: relative;
+            min-width: 280px;
+            max-width: 460px;
+            flex: 1;
+        }
+
+        .search-wrap i {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+
+        .search-wrap input {
+            width: 100%;
+            height: 42px;
+            border-radius: 999px;
+            border: 1px solid #dbe1ea;
+            padding: 0 14px 0 36px;
+            background: #ffffff;
+            color: #0f172a;
+            font-size: 0.92rem;
+        }
+
+        .search-wrap input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+        }
+
+        .filter-group {
+            display: flex;
+            align-items: center;
+            gap: 0.55rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-pill {
+            position: relative;
+        }
+
+        .filter-pill input {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .filter-pill label {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            height: 34px;
+            border-radius: 999px;
+            border: 1px solid #dbe1ea;
+            padding: 0 0.85rem;
+            font-size: 0.84rem;
+            font-weight: 600;
+            color: #334155;
+            background: #ffffff;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-pill input:checked + label {
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+            color: #1f2937;
+        }
+
+        .pill-all input:checked + label {
+            background: rgba(124, 58, 237, 0.1);
+        }
+
+        .pill-internship input:checked + label {
+            background: #93c5fd;
+        }
+
+        .pill-hackathon input:checked + label {
+            background: #c4b5fd;
+        }
+
+        .pill-fest input:checked + label {
+            background: #86efac;
+        }
+
+        .pill-workshop input:checked + label {
+            background: #fdba74;
+        }
+
+        .pill-exam input:checked + label {
+            background: #fde68a;
+        }
+
+        .calendar-layout {
+            flex: 1;
+            min-height: 0;
+            display: grid;
+            grid-template-columns: 220px 1fr;
+            gap: 1rem;
+        }
+
+        .left-panel {
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-height: 0;
+        }
+
+        .mini-calendar-box {
+            padding: 1rem;
+            border-bottom: 1px solid #eef2f7;
+        }
+
+        .mini-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.85rem;
+        }
+
+        .mini-header h3 {
+            font-size: 0.95rem;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        .mini-nav {
+            display: flex;
+            gap: 0.35rem;
+        }
+
+        .mini-nav button {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            border: 1px solid #dbe1ea;
+            background: #ffffff;
+            color: #475569;
+            cursor: pointer;
+        }
+
+        .mini-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+
+        .mini-day-name {
+            text-align: center;
+            font-size: 0.68rem;
+            color: #64748b;
+            font-weight: 700;
+            padding: 4px 0;
+        }
+
+        .mini-day {
+            position: relative;
+            height: 28px;
+            border-radius: 8px;
+            text-align: center;
+            line-height: 28px;
+            font-size: 0.78rem;
+            color: #334155;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .mini-day:hover {
+            background: #f8fafc;
+            border-color: #e2e8f0;
+        }
+
+        .mini-day.today {
+            background: #7c3aed;
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        .mini-day.other-month {
+            color: #94a3b8;
+        }
+
+        .mini-day.selected {
+            border-color: #7c3aed;
+            background: rgba(124, 58, 237, 0.1);
+        }
+
+        .mini-dot {
+            position: absolute;
+            bottom: 3px;
+            left: 50%;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            transform: translateX(-50%);
+            background: #7c3aed;
+        }
+
+        .upcoming-box {
+            padding: 1rem;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+            overflow-y: auto;
+        }
+
+        .upcoming-box h3 {
+            font-size: 0.95rem;
+            color: #0f172a;
+            font-weight: 700;
+            position: sticky;
+            top: 0;
+            background: #fff;
+            padding-bottom: 0.4rem;
+        }
+
+        .upcoming-item {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 0.65rem 0.7rem;
+            background: #fff;
+        }
+
+        .upcoming-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.35rem;
+            vertical-align: middle;
+        }
+
+        .upcoming-title {
+            font-size: 0.82rem;
+            color: #0f172a;
+            font-weight: 600;
+            line-height: 1.4;
+            margin-bottom: 0.2rem;
+        }
+
+        .upcoming-date {
+            font-size: 0.74rem;
+            color: #64748b;
+        }
+
+        .calendar-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            box-shadow: 0 2px 10px rgba(15, 23, 42, 0.05);
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        .calendar-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.9rem 1rem;
+            border-bottom: 1px solid #eef2f7;
+            flex-wrap: wrap;
+        }
+
+        .view-switch {
+            display: inline-flex;
+            border: 1px solid #dbe1ea;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .view-btn {
+            height: 34px;
+            min-width: 68px;
+            border: none;
+            background: #ffffff;
+            color: #475569;
+            font-size: 0.84rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-right: 1px solid #dbe1ea;
+        }
+
+        .view-btn:last-child {
+            border-right: none;
+        }
+
+        .view-btn.active {
+            background: #7c3aed;
+            color: #ffffff;
+        }
+
+        .nav-controls {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
+        }
+
+        .nav-controls button {
+            height: 34px;
+            min-width: 34px;
+            border: 1px solid #dbe1ea;
+            border-radius: 10px;
+            background: #ffffff;
+            color: #475569;
+            font-size: 0.84rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0 0.7rem;
+        }
+
+        .calendar-title {
+            font-size: 1rem;
+            color: #0f172a;
+            font-weight: 700;
+        }
+
+        #mainCalendar {
+            flex: 1;
+            min-height: 0;
+            padding: 0.75rem;
+        }
+
+        .fc .fc-scrollgrid,
+        .fc-theme-standard td,
+        .fc-theme-standard th {
+            border-color: #e5e7eb;
+        }
+
+        .fc .fc-timegrid-axis,
+        .fc .fc-col-header-cell {
+            background: #ffffff;
+        }
+
+        .fc .fc-timegrid-slot {
+            height: 3rem;
+        }
+
+        .fc .fc-timegrid-axis-cushion,
+        .fc .fc-timegrid-slot-label-cushion {
+            color: #64748b;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        .fc .fc-col-header-cell-cushion {
+            color: #334155;
+            font-size: 0.78rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            text-transform: uppercase;
+            padding: 0.6rem 0.3rem;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.22rem;
+        }
+
+        .fc .fc-day-today {
+            background: rgba(124, 58, 237, 0.08) !important;
+        }
+
+        .fc-event {
+            border: none !important;
+            border-radius: 12px !important;
+            padding: 0 !important;
+            box-shadow: 0 2px 8px rgba(15, 23, 42, 0.15);
+        }
+
+        .event-card-inner {
+            border-radius: 12px;
+            padding: 0.35rem 0.45rem;
+            border-left: 4px solid transparent;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .event-line-1 {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            font-size: 0.73rem;
+            font-weight: 700;
+            margin-bottom: 0.15rem;
+            text-transform: capitalize;
+        }
+
+        .event-line-2 {
+            font-size: 0.77rem;
+            font-weight: 700;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .event-internship .event-card-inner {
+            background: #93c5fd;
+            border-left-color: #60a5fa;
+            color: #1e3a5f;
+        }
+
+        .event-hackathon .event-card-inner {
+            background: #c4b5fd;
+            border-left-color: #a78bfa;
+            color: #3b1f6e;
+        }
+
+        .event-fest .event-card-inner {
+            background: #86efac;
+            border-left-color: #4ade80;
+            color: #14532d;
+        }
+
+        .event-workshop .event-card-inner {
+            background: #fdba74;
+            border-left-color: #fb923c;
+            color: #7c2d12;
+        }
+
+        .event-exam .event-card-inner {
+            background: #fde68a;
+            border-left-color: #fcd34d;
+            color: #713f12;
+        }
+
+        .no-results {
+            position: absolute;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.95rem;
+            color: #64748b;
+            background: rgba(255, 255, 255, 0.92);
+            z-index: 5;
+        }
+
+        .calendar-stage {
+            position: relative;
+            flex: 1;
+            min-height: 0;
+            display: flex;
+        }
+
+        .event-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(2, 6, 23, 0.35);
+            display: none;
+            align-items: center;
+            justify-content: flex-end;
+            z-index: 2000;
+        }
+
+        .event-modal-overlay.show {
+            display: flex;
+            animation: fadeIn 0.25s ease;
+        }
+
+        .event-modal {
+            width: min(520px, 100%);
+            height: 100%;
+            background: #ffffff;
+            border-radius: 20px 0 0 20px;
+            box-shadow: -12px 0 30px rgba(15, 23, 42, 0.2);
+            padding: 1.4rem;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 0.9rem;
+            right: 0.9rem;
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            border: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: #475569;
+            cursor: pointer;
+        }
+
+        .modal-title {
+            font-size: 1.45rem;
+            color: #0f172a;
+            font-weight: 800;
+            margin-bottom: 0.7rem;
+            padding-right: 2.2rem;
+        }
+
+        .type-badge {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 0.3rem 0.7rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: capitalize;
+            margin-bottom: 1rem;
+        }
+
+        .badge-internship { background: #93c5fd; color: #1e3a5f; }
+        .badge-hackathon { background: #c4b5fd; color: #3b1f6e; }
+        .badge-fest { background: #86efac; color: #14532d; }
+        .badge-workshop { background: #fdba74; color: #7c2d12; }
+        .badge-exam { background: #fde68a; color: #713f12; }
+
+        .modal-row {
+            margin-bottom: 0.7rem;
+            color: #334155;
+            font-size: 0.92rem;
+            line-height: 1.5;
+        }
+
+        .modal-row strong {
+            color: #0f172a;
+        }
+
+        .deadline-soon {
+            color: #dc2626;
+            font-weight: 700;
+        }
+
+        .skills-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            margin-top: 0.3rem;
+        }
+
+        .skill-chip {
+            background: var(--accent-bg);
+            color: var(--accent-color);
+            border: 1px solid rgba(124, 58, 237, 0.2);
+            border-radius: 999px;
+            padding: 0.23rem 0.55rem;
+            font-size: 0.74rem;
+            font-weight: 600;
+        }
+
+        .modal-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 0.65rem;
+            margin-top: 1rem;
+        }
+
+        .btn-register,
+        .btn-details {
+            height: 42px;
+            border-radius: 10px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.88rem;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        .btn-register {
+            background: #5b21b6;
+            color: #ffffff;
+            border: none;
+        }
+
+        .btn-details {
+            background: #ffffff;
+            color: #5b21b6;
+            border: 1px solid #7c3aed;
+        }
+
+        .dashboard-footer {
+            margin-top: auto;
+            padding: 1rem 2rem;
+            margin-left: 70px;
+            width: calc(100% - 70px);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 2rem;
+            background: var(--bg-secondary);
+            flex-wrap: wrap;
+        }
+
+        .footer-copyright {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin: 0;
+            white-space: nowrap;
+        }
+
+        .footer-links {
+            display: flex;
+            gap: 2rem;
+            justify-content: flex-end;
+        }
+
+        .footer-link {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .footer-link:hover {
+            color: var(--accent-color);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @media (max-width: 1100px) {
+            .calendar-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .left-panel {
+                max-height: 320px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .calendar-page {
+                padding-top: 55px;
+            }
+
+            .mobile-header {
+                display: flex !important;
+            }
+
+            .sidebar {
+                position: fixed;
+                left: -280px;
+                transition: left 0.3s ease;
+                z-index: 999;
+                width: 280px;
+                height: calc(100vh - 55px);
+                overflow-y: auto;
+                top: 55px;
+            }
+
+            .sidebar.active {
+                left: 0;
+            }
+
+            .main-area {
+                margin-left: 0 !important;
+                width: 100%;
+            }
+
+            .top-bar {
+                padding: 1rem;
+            }
+
+            .calendar-content {
+                padding: 0.9rem;
+                height: calc(100vh - 55px - 84px);
+            }
+
+            .dashboard-footer {
+                margin-left: 0;
+                width: 100%;
+                padding: 1rem;
+            }
+
+            .event-modal {
+                border-radius: 20px 20px 0 0;
+                width: 100%;
+                height: min(78vh, 700px);
+                margin-top: auto;
+            }
+
+            .event-modal-overlay {
+                align-items: flex-end;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calendar-page">
+        <header class="mobile-header">
+            <div class="mobile-header-left">
+                <a href="dashboard.html" class="mobile-header-logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>InternTrack</span>
+                </a>
+            </div>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle navigation menu" type="button">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </header>
+
+        <div class="mobile-sidebar-backdrop" id="mobileSidebarBackdrop"></div>
+
+        <aside class="sidebar" id="mainSidebar">
+            <div class="sidebar-header">
+                <a href="dashboard.html" class="sidebar-logo">
+                    <i class="fas fa-graduation-cap"></i>
+                    <span>InternTrack</span>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="dashboard.html" class="nav-item" title="Home" onclick="localStorage.setItem('activeSection', 'home')">
+                    <i class="fas fa-home"></i>
+                </a>
+                <a href="roadmap.html" class="nav-item" title="My Roadmap">
+                    <i class="fas fa-route"></i>
+                </a>
+                <a href="calendar.html" class="nav-item active" title="Calendar">
+                    <i class="fas fa-calendar-alt"></i>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="footer-items">
+                    <button class="sidebar-footer-btn" id="settingsBtn" title="Settings">
+                        <i class="fas fa-cog"></i>
+                    </button>
+                    <button class="sidebar-footer-btn" id="helpBtn" title="Help">
+                        <i class="fas fa-question-circle"></i>
+                    </button>
+                    <button class="sidebar-footer-btn" id="logoutSidebarBtn" title="Logout">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-area">
+            <div class="top-bar">
+                <div class="user-profile-container">
+                    <div class="user-profile-btn" id="userProfileBtn">
+                        <div class="user-avatar-top" id="userAvatarTop">U</div>
+                        <span class="user-name" id="userNameTop">User</span>
+                        <i class="fas fa-chevron-down dropdown-icon"></i>
+                    </div>
+
+                    <div class="user-dropdown" id="userDropdown">
+                        <div class="dropdown-header">
+                            <h4 id="dropdownUserName">User Name</h4>
+                            <p id="dropdownUserEmail">user@example.com</p>
+                        </div>
+                        <div class="dropdown-menu">
+                            <a href="dashboard.html" class="dropdown-item" onclick="localStorage.setItem('activeSection', 'profile')">
+                                <i class="fas fa-user"></i>
+                                <span>My Profile</span>
+                            </a>
+                            <a href="dashboard.html" class="dropdown-item" onclick="localStorage.setItem('activeSection', 'settings')">
+                                <i class="fas fa-cog"></i>
+                                <span>Settings</span>
+                            </a>
+                            <a href="dashboard.html" class="dropdown-item" onclick="localStorage.setItem('activeSection', 'notifications')">
+                                <i class="fas fa-bell"></i>
+                                <span>Notifications</span>
+                            </a>
+                            <a href="#" class="dropdown-item logout" id="logoutBtn">
+                                <i class="fas fa-sign-out-alt"></i>
+                                <span>Logout</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <section class="calendar-content">
+                <div class="filter-bar">
+                    <div class="search-wrap">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Search events, hackathons, internships..." aria-label="Search events">
+                    </div>
+                    <div class="filter-group" id="filterGroup">
+                        <div class="filter-pill pill-all">
+                            <input type="checkbox" id="filter-all" checked>
+                            <label for="filter-all">All</label>
+                        </div>
+                        <div class="filter-pill pill-internship">
+                            <input type="checkbox" id="filter-internship" checked>
+                            <label for="filter-internship">Internships</label>
+                        </div>
+                        <div class="filter-pill pill-hackathon">
+                            <input type="checkbox" id="filter-hackathon" checked>
+                            <label for="filter-hackathon">Hackathons</label>
+                        </div>
+                        <div class="filter-pill pill-fest">
+                            <input type="checkbox" id="filter-fest" checked>
+                            <label for="filter-fest">College Fests</label>
+                        </div>
+                        <div class="filter-pill pill-workshop">
+                            <input type="checkbox" id="filter-workshop" checked>
+                            <label for="filter-workshop">Workshops</label>
+                        </div>
+                        <div class="filter-pill pill-exam">
+                            <input type="checkbox" id="filter-exam" checked>
+                            <label for="filter-exam">Exams</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="calendar-layout">
+                    <aside class="left-panel">
+                        <div class="mini-calendar-box">
+                            <div class="mini-header">
+                                <h3 id="miniMonthTitle">Month</h3>
+                                <div class="mini-nav">
+                                    <button id="miniPrev" aria-label="Previous month">&lt;</button>
+                                    <button id="miniNext" aria-label="Next month">&gt;</button>
+                                </div>
+                            </div>
+                            <div class="mini-grid" id="miniGrid"></div>
+                        </div>
+                        <div class="upcoming-box">
+                            <h3>Upcoming Events</h3>
+                            <div id="upcomingList"></div>
+                        </div>
+                    </aside>
+
+                    <div class="calendar-card">
+                        <div class="calendar-toolbar">
+                            <div class="view-switch" role="tablist" aria-label="Calendar view switcher">
+                                <button class="view-btn" id="viewMonth" type="button">Month</button>
+                                <button class="view-btn active" id="viewWeek" type="button">Week</button>
+                                <button class="view-btn" id="viewDay" type="button">Day</button>
+                            </div>
+                            <div class="calendar-title" id="calendarTitle">Loading...</div>
+                            <div class="nav-controls">
+                                <button id="prevBtn" aria-label="Previous period">&lt;</button>
+                                <button id="todayBtn" aria-label="Go to today">TODAY</button>
+                                <button id="nextBtn" aria-label="Next period">&gt;</button>
+                            </div>
+                        </div>
+                        <div class="calendar-stage">
+                            <div id="mainCalendar"></div>
+                            <div class="no-results" id="noResults">No events found</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <footer class="dashboard-footer">
+            <p class="footer-copyright">&copy; 2026 InternTrack. All rights reserved.</p>
+            <div class="footer-links">
+                <a href="privacy-policy.html" class="footer-link">Privacy Policy</a>
+                <a href="terms-and-conditions.html" class="footer-link">Terms & Conditions</a>
+                <a href="#" class="footer-link">Contact Us</a>
+            </div>
+        </footer>
+    </div>
+
+    <div class="event-modal-overlay" id="eventModalOverlay">
+        <div class="event-modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle" tabindex="-1" id="eventModal">
+            <button class="modal-close" id="modalCloseBtn" aria-label="Close event details">
+                <i class="fas fa-times"></i>
+            </button>
+            <h2 class="modal-title" id="modalTitle">Event Title</h2>
+            <span class="type-badge" id="modalTypeBadge">Type</span>
+            <div class="modal-row"><strong>Organizer:</strong> <span id="modalOrganizer"></span></div>
+            <div class="modal-row"><strong>Date Range:</strong> <span id="modalDateRange"></span></div>
+            <div class="modal-row"><strong>Deadline:</strong> <span id="modalDeadline"></span></div>
+            <div class="modal-row"><strong>Description:</strong> <span id="modalDescription"></span></div>
+            <div class="modal-row">
+                <strong>Skills Required:</strong>
+                <div class="skills-wrap" id="modalSkills"></div>
+            </div>
+            <div class="modal-actions">
+                <a href="#" target="_blank" rel="noopener noreferrer" class="btn-register" id="modalRegisterBtn">Apply / Register Now</a>
+                <a href="#" class="btn-details" id="modalDetailsBtn">View Full Roadmap &amp; Preparation Guide &rarr;</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+    <script src="config.js?v=20260322-6"></script>
+    <script src="theme.js?v=20260322-6"></script>
+    <script src="calendar.js"></script>
+</body>
+</html>
