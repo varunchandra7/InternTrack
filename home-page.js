@@ -69,11 +69,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 /**
  * Load and render activity graphs (Weekly and Monthly)
+ * NOW: Only called from loadActivityGraphsFromRoadmap - no dummy data
  */
 function loadActivityGraphs() {
-    // This function is now deprecated - use loadActivityGraphsFromRoadmap instead
-    // Kept for backward compatibility but does nothing
-    console.log('⚠️ loadActivityGraphs() deprecated, use loadActivityGraphsFromRoadmap()');
+    // This function is deprecated - use loadActivityGraphsFromRoadmap instead
+    console.warn('loadActivityGraphs() called but deprecated - using loadActivityGraphsFromRoadmap instead');
     loadActivityGraphsFromRoadmap();
 }
 
@@ -185,29 +185,26 @@ async function fetchCompletedRoadmapTasks() {
 
 /**
  * Convert day number (1-indexed) to actual date
- * Assumes roadmap started on stored start date
+ * Uses stored roadmap start date
  */
 function convertDayNumberToDate(dayNumber, totalDays) {
-    const roadmapStart = localStorage.getItem(`roadmapStartDate_${currentUserIdHome}`);
-    let startDate;
+    const roadmapStartKey = `roadmapStartDate_${currentUserIdHome}`;
+    const roadmapStart = localStorage.getItem(roadmapStartKey);
     
+    let startDate;
     if (roadmapStart) {
         startDate = new Date(roadmapStart);
     } else {
-        // Assume roadmap started today
+        // Fallback: assume roadmap started totalDays ago from today
         startDate = new Date();
+        startDate.setDate(startDate.getDate() - (totalDays - 1));
     }
     
-    // Always set time to start of day
-    startDate.setHours(0, 0, 0, 0);
-    
-    // Calculate target date by adding (dayNumber - 1) days to start date
     const targetDate = new Date(startDate);
     targetDate.setDate(startDate.getDate() + (dayNumber - 1));
     targetDate.setHours(0, 0, 0, 0);
     
-    console.log(`📅 Day ${dayNumber}: ${startDate.toDateString()} + ${dayNumber - 1} days = ${targetDate.toDateString()}`);
-    
+    console.log(`📅 Day ${dayNumber} → ${targetDate.toLocaleDateString()}`);
     return targetDate;
 }
 
@@ -226,21 +223,20 @@ async function loadActivityGraphsFromRoadmap() {
     completedRoadmapTasks = await fetchCompletedRoadmapTasks();
     hasCompletedTasks = completedRoadmapTasks.length > 0;
     
-    // Find the activity card (contains "Your Activity" title and activity-graphs)
-    const activityCard = document.querySelector('.dashboard-card:has(.activity-graphs)');
-    
     if (!hasCompletedTasks) {
-        console.log('📊 No completed roadmap tasks yet, hiding activity charts');
+        console.log('No completed roadmap tasks yet, skipping chart rendering');
         // Hide the activity section if no completed tasks
-        if (activityCard) {
-            activityCard.style.display = 'none';
+        const activitySection = document.querySelector('.activity-section');
+        if (activitySection) {
+            activitySection.style.display = 'none';
         }
         return;
     }
     
     // Show the activity section since we have data
-    if (activityCard) {
-        activityCard.style.display = 'block';
+    const activitySection = document.querySelector('.activity-section');
+    if (activitySection) {
+        activitySection.style.display = 'block';
     }
     
     // Convert completed tasks to event-like objects for reuse of existing functions
@@ -252,7 +248,6 @@ async function loadActivityGraphsFromRoadmap() {
     let weeklySeries = buildWeeklyActivitySeries(taskEvents);
     let monthlySummary = buildMonthlyActivitySummary(taskEvents);
     
-    console.log('📊 Rendering with', completedRoadmapTasks.length, 'completed tasks');
     console.log('📊 Weekly series:', weeklySeries, 'Monthly:', monthlySummary);
     
     try {
@@ -377,13 +372,17 @@ function updateActivityInsightTextFromRoadmap(activeDaysThisMonth) {
     const insight = document.querySelector('.insight-note');
     if (!insight) return;
 
+    // Count tasks per day in this week
     const thisWeekSeries = buildWeeklyActivitySeries(completedRoadmapTasks.map(t => ({
         startDate: t.completedDate
     })));
+    
+    // Count total tasks this week
+    const totalTasksThisWeek = thisWeekSeries.reduce((sum, count) => sum + count, 0);
+    // Count active days (days with at least 1 task) this week
     const activeDaysThisWeek = thisWeekSeries.filter(count => count > 0).length;
-    const totalCompletedThisWeek = thisWeekSeries.reduce((a, b) => a + b, 0);
 
-    insight.textContent = `You've completed ${totalCompletedThisWeek} tasks this week across ${activeDaysThisWeek} days, and ${activeDaysThisMonth} days this month.`;
+    insight.textContent = `You've completed ${totalTasksThisWeek} tasks across ${activeDaysThisWeek} days this week, and tasks on ${activeDaysThisMonth} days this month.`;
 }
 
 /**
