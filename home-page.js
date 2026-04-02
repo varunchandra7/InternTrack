@@ -7,9 +7,10 @@ let currentUpcomingEventsById = {};
 let weeklyActivityChartInstance = null;
 let monthlyStreakChartInstance = null;
 
-// Get user ID for data isolation
-const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
-const currentUserIdHome = user._id || user.id || 'unknown';
+// Get user ID for data isolation (use global user from dashboard.js)
+const currentUserIdHome = (typeof user !== 'undefined' && user) 
+    ? (user._id || user.id || 'unknown')
+    : 'unknown';
 const getUserStorageKeyHome = (key) => `${key}_${currentUserIdHome}`;
 
 /**

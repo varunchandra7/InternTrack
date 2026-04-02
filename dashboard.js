@@ -583,7 +583,6 @@ function initializeCalendar() {
             slotDuration: '01:00:00',
             slotMinTime: '08:00:00',
             slotMaxTime: '19:00:00',
-            slotLabelSide: 'left',
             nowIndicator: true,
             eventTimeFormat: {
                 hour: 'numeric',
