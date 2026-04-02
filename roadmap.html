@@ -559,6 +559,83 @@
             font-size: 0.875rem;
             line-height: 1.5;
         }
+        
+        .roadmap-intro {
+            margin: 0.75rem 0 0;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.8;
+        }
+        
+        .roadmap-guide-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1rem;
+            margin-top: 1.25rem;
+        }
+        
+        .guide-mini-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+        
+        .guide-mini-card h4 {
+            margin-bottom: 0.5rem;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+        
+        .guide-mini-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin: 0;
+        }
+        
+        .difficulty-tag {
+            display: inline-block;
+            margin-top: 0.75rem;
+            padding: 0.25rem 0.6rem;
+            border-radius: 999px;
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+        }
+        
+        .difficulty-easy {
+            background: rgba(16, 185, 129, 0.12);
+            color: #059669;
+        }
+        
+        .difficulty-medium {
+            background: rgba(245, 158, 11, 0.14);
+            color: #d97706;
+        }
+        
+        .difficulty-hard {
+            background: rgba(239, 68, 68, 0.12);
+            color: #dc2626;
+        }
+        
+        .resource-links-list {
+            margin: 0;
+            padding-left: 1.1rem;
+            color: var(--text-secondary);
+            line-height: 1.8;
+        }
+        
+        .resource-links-list a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .resource-links-list a:hover {
+            text-decoration: underline;
+        }
 
         /* Empty State */
         .empty-state {
@@ -841,12 +918,14 @@
             <div class="page-header">
                 <h1>🗺️ My Learning Roadmap</h1>
                 <p>Create a personalized learning path for DSA and CS fundamentals</p>
+                <p class="roadmap-intro">Choose the subjects you want to improve, pick how many days you can commit, and InternTrack will break the work into a clear daily plan with topic-by-topic progress.</p>
             </div>
 
             <!-- Roadmap Generator -->
             <div class="generator-section" id="generatorSection">
                 <h2>Customise Your Journey, Track Results With Ease</h2>
                 <p class="subtitle">Pick your preferred topics and set a timeline for personalized roadmap</p>
+                <p class="roadmap-intro">Each roadmap day is planned to start with concept review, then move into problem-solving so your preparation stays practical and placement-focused.</p>
                 
                 <form id="roadmapForm">
                     <!-- Subject Selection -->
@@ -899,6 +978,115 @@
             </div>
 
 
+            <div class="roadmap-section" style="display:block; margin-bottom: 2rem;">
+                <h2>📘 What Each Subject Covers</h2>
+                <p class="roadmap-intro">These subjects form the core of your roadmap. They are selected because they appear frequently in interviews, written tests, and placement screening rounds.</p>
+                <div class="roadmap-guide-grid">
+                    <div class="guide-mini-card">
+                        <h4>DSA</h4>
+                        <p>Data Structures & Algorithms covers arrays, trees, graphs, sorting, searching, and problem-solving patterns. It matters because most technical interviews use DSA to check how well you can break down and solve unfamiliar problems.</p>
+                        <span class="difficulty-tag difficulty-hard">Difficulty: Hard</span>
+                    </div>
+                    <div class="guide-mini-card">
+                        <h4>Operating Systems</h4>
+                        <p>Operating Systems covers processes, threads, memory management, synchronization, and scheduling. It matters because interviewers want to know whether you understand how a program actually runs inside a machine.</p>
+                        <span class="difficulty-tag difficulty-medium">Difficulty: Medium</span>
+                    </div>
+                    <div class="guide-mini-card">
+                        <h4>DBMS</h4>
+                        <p>DBMS covers tables, joins, normalization, transactions, and indexing. It matters because recruiters often expect students to know how data is organized, queried, and kept consistent in real systems.</p>
+                        <span class="difficulty-tag difficulty-medium">Difficulty: Medium</span>
+                    </div>
+                    <div class="guide-mini-card">
+                        <h4>Computer Networks</h4>
+                        <p>Computer Networks covers OSI layers, TCP/IP, HTTP, routing, DNS, and web communication. It matters because every modern application depends on reliable network communication and request handling.</p>
+                        <span class="difficulty-tag difficulty-medium">Difficulty: Medium</span>
+                    </div>
+                    <div class="guide-mini-card">
+                        <h4>System Design</h4>
+                        <p>System Design covers scalability, caching, load balancing, APIs, and architecture choices. It matters because it shows whether you can design software that still performs well when user load increases.</p>
+                        <span class="difficulty-tag difficulty-hard">Difficulty: Hard</span>
+                    </div>
+                    <div class="guide-mini-card">
+                        <h4>Aptitude</h4>
+                        <p>Aptitude covers quantitative reasoning, logical thinking, and verbal problem solving. It matters because many placement drives still use aptitude rounds to filter candidates before technical interviews.</p>
+                        <span class="difficulty-tag difficulty-easy">Difficulty: Easy</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="roadmap-section" style="display:block; margin-bottom: 2rem;">
+                <h2>📝 How Each Day Is Structured</h2>
+                <p class="roadmap-intro">Each day in the roadmap is written to be realistic for students. A typical day uses a 2 hour block, starts with concepts first, and ends with practice problems so you actually apply what you learn.</p>
+                <div class="roadmap-guide-grid">
+                    <div class="guide-mini-card">
+                        <h4>Expected Time</h4>
+                        <p>Most roadmap days are planned for about 2 hours, which keeps the preparation manageable alongside classes, assignments, and projects.</p>
+                    </div>
+                    <div class="guide-mini-card">
+                        <h4>Concept First</h4>
+                        <p>Begin each topic by understanding the idea, the definition, and the method before trying problems, so the topic makes sense instead of feeling memorized.</p>
+                    </div>
+                    <div class="guide-mini-card">
+                        <h4>Practice Next</h4>
+                        <p>After the concept review, solve around 3 problems to strengthen recall, improve speed, and turn knowledge into actual exam readiness.</p>
+                    </div>
+                    <div class="guide-mini-card">
+                        <h4>Difficulty Tags</h4>
+                        <p>Topics are grouped with Easy, Medium, and Hard tags so you can see what to revise quickly and what needs a deeper study session.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="roadmap-section" style="display:block; margin-bottom: 2rem;">
+                <h2>🔗 Recommended Resources</h2>
+                <p class="roadmap-intro">Use these references when you want more examples, a different explanation, or a syllabus-backed source for the subject you are studying.</p>
+                <div class="roadmap-guide-grid">
+                    <div class="guide-mini-card">
+                        <h4>DSA</h4>
+                        <ul class="resource-links-list">
+                            <li><a href="https://www.geeksforgeeks.org/data-structures/" target="_blank" rel="noopener noreferrer">GeeksforGeeks DSA</a></li>
+                            <li><a href="https://www.youtube.com/results?search_query=dsa+playlist" target="_blank" rel="noopener noreferrer">YouTube playlist</a></li>
+                        </ul>
+                    </div>
+                    <div class="guide-mini-card">
+                        <h4>Operating Systems</h4>
+                        <ul class="resource-links-list">
+                            <li><a href="https://www.geeksforgeeks.org/operating-systems/" target="_blank" rel="noopener noreferrer">GeeksforGeeks OS</a></li>
+                            <li><a href="https://nptel.ac.in/" target="_blank" rel="noopener noreferrer">NPTEL</a></li>
+                            <li><a href="https://www.youtube.com/results?search_query=operating+systems+playlist" target="_blank" rel="noopener noreferrer">YouTube playlist</a></li>
+                        </ul>
+                    </div>
+                    <div class="guide-mini-card">
+                        <h4>DBMS</h4>
+                        <ul class="resource-links-list">
+                            <li><a href="https://www.geeksforgeeks.org/dbms/" target="_blank" rel="noopener noreferrer">GeeksforGeeks DBMS</a></li>
+                            <li><a href="https://www.youtube.com/results?search_query=dbms+playlist" target="_blank" rel="noopener noreferrer">YouTube playlist</a></li>
+                        </ul>
+                    </div>
+                    <div class="guide-mini-card">
+                        <h4>Computer Networks</h4>
+                        <ul class="resource-links-list">
+                            <li><a href="https://www.geeksforgeeks.org/computer-network-tutorials/" target="_blank" rel="noopener noreferrer">GeeksforGeeks CN</a></li>
+                            <li><a href="https://www.youtube.com/results?search_query=computer+networks+playlist" target="_blank" rel="noopener noreferrer">YouTube playlist</a></li>
+                        </ul>
+                    </div>
+                    <div class="guide-mini-card">
+                        <h4>System Design</h4>
+                        <ul class="resource-links-list">
+                            <li><a href="https://www.geeksforgeeks.org/system-design-tutorial/" target="_blank" rel="noopener noreferrer">GeeksforGeeks System Design</a></li>
+                            <li><a href="https://www.youtube.com/results?search_query=system+design+playlist" target="_blank" rel="noopener noreferrer">YouTube playlist</a></li>
+                        </ul>
+                    </div>
+                    <div class="guide-mini-card">
+                        <h4>Aptitude</h4>
+                        <ul class="resource-links-list">
+                            <li><a href="https://www.youtube.com/results?search_query=aptitude+for+placements+playlist" target="_blank" rel="noopener noreferrer">YouTube playlist</a></li>
+                            <li><a href="https://nptel.ac.in/" target="_blank" rel="noopener noreferrer">NPTEL</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
 
             <!-- Progress Overview -->
             <div class="roadmap-section" id="progressOverview">

@@ -1215,6 +1215,71 @@
             color: var(--text-primary);
             margin-bottom: 1.5rem;
         }
+
+        .section-subtitle {
+            margin-top: -1rem;
+            margin-bottom: 1.25rem;
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .insight-note {
+            margin-top: 1rem;
+            padding: 0.85rem 1rem;
+            border-radius: 10px;
+            background: var(--accent-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+
+        .quick-tips-card {
+            overflow: hidden;
+        }
+
+        .quick-tip-rotator {
+            position: relative;
+            min-height: 90px;
+            padding: 0.25rem 0;
+        }
+
+        .quick-tip-item {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transform: translateY(8px);
+            animation: tipCycle 12s infinite;
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .quick-tip-item:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .quick-tip-item:nth-child(2) {
+            animation-delay: 4s;
+        }
+
+        .quick-tip-item:nth-child(3) {
+            animation-delay: 8s;
+        }
+
+        .quick-tip-item strong {
+            display: block;
+            color: var(--text-primary);
+            margin-bottom: 0.35rem;
+        }
+
+        @keyframes tipCycle {
+            0% { opacity: 0; transform: translateY(8px); }
+            6% { opacity: 1; transform: translateY(0); }
+            28% { opacity: 1; transform: translateY(0); }
+            34% { opacity: 0; transform: translateY(-6px); }
+            100% { opacity: 0; transform: translateY(-6px); }
+        }
         
         /* Footer */
         .dashboard-footer {
@@ -3437,6 +3502,7 @@
                     <div>
                         <h1 class="welcome-title">Welcome Back, <span id="welcomeUsername">User</span>!</h1>
                         <p class="welcome-subtitle">Here's your learning progress today</p>
+                        <p class="section-subtitle">Use this home view to check your roadmap progress, current goals, and the opportunities coming up next.</p>
                     </div>
                 </div>
 
@@ -3446,6 +3512,7 @@
                         <!-- Roadmap Dashboard Card -->
                         <div class="dashboard-card">
                             <h3 class="card-title"> Current Roadmap</h3>
+                            <p class="section-subtitle">This section summarizes your active learning plan so you can stay focused on the topics that matter most for placements.</p>
                             <div class="roadmap-dashboard">
                                 <div class="roadmap-info" id="roadmapInfo">
                                     <p class="no-roadmap">No active roadmap. <a href="roadmap.html">Create one now</a></p>
@@ -3456,6 +3523,7 @@
                         <!-- Activity Graphs Section -->
                         <div class="dashboard-card">
                             <h3 class="card-title"> Your Activity</h3>
+                            <p class="section-subtitle">These charts show how consistently you are revising, practicing, and returning to the platform each week.</p>
                             <div class="activity-graphs">
                                 <!-- Graph 1: Weekly Activity -->
                                 <div class="activity-graph">
@@ -3468,11 +3536,13 @@
                                     <canvas id="monthlyStreakChart" style="max-height: 200px;"></canvas>
                                 </div>
                             </div>
+                            <p class="insight-note">You’ve been active 4 out of 7 days this week — keep going and try to match or beat that streak next week.</p>
                         </div>
 
                         <!-- Selected Goals -->
                         <div class="dashboard-card">
                             <h3 class="card-title">🎯 Your Goals</h3>
+                            <p class="section-subtitle">Your selected goals collect the events and preparation targets you want to keep on your radar.</p>
                             <div class="goals-list" id="goalsList">
                                 <div class="empty-state-small">
                                     <i class="fas fa-bullseye"></i>
@@ -3488,10 +3558,30 @@
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
                                 <h3 class="card-title" style="margin: 0;">📅 Upcoming Events (1 Month)</h3>
                             </div>
+                            <p class="section-subtitle">These are the opportunities most likely to need your attention soon, so use them to plan your next steps early.</p>
                             <div class="upcoming-events" id="upcomingEventsList">
                                 <div class="empty-state-small">
                                     <i class="fas fa-calendar-check"></i>
                                     <p>No events in the next month</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dashboard-card quick-tips-card">
+                            <h3 class="card-title">Quick Tips</h3>
+                            <p class="section-subtitle">Small, repeatable habits keep placement prep moving even when your schedule gets busy.</p>
+                            <div class="quick-tip-rotator" aria-live="polite">
+                                <div class="quick-tip-item">
+                                    <strong>Tip 1: Practice one topic before moving on.</strong>
+                                    Spend 30 to 45 minutes on a single concept, then solve a few related problems to lock it in.
+                                </div>
+                                <div class="quick-tip-item">
+                                    <strong>Tip 2: Review deadlines before starting study.</strong>
+                                    Check upcoming events first so you can prioritize urgent applications and preparation tasks.
+                                </div>
+                                <div class="quick-tip-item">
+                                    <strong>Tip 3: Keep your resume and links updated.</strong>
+                                    Update your profile, GitHub, and project notes regularly so you are ready when an opportunity opens.
                                 </div>
                             </div>
                         </div>
@@ -3529,6 +3619,7 @@
                     <div class="calendar-main">
                         <div style="width: 100%; margin-bottom: 1.5rem;">
                             <h1 class="section-title" id="calendarSectionTitle" style="margin-bottom: 0.5rem;">Loading...</h1>
+                            <p class="section-subtitle">Use this calendar to compare internships, hackathons, and contests by date so you can plan your preparation in advance.</p>
                             <div class="calendar-controls">
                                 <div class="calendar-search">
                                     <i class="fas fa-search"></i>
@@ -3550,6 +3641,7 @@
             <!-- Removed Resources Section - Now integrated into event details page -->
             <section class="content-section" id="resources-section" style="display:none;">
                 <h1 class="section-title">Preparation Guides & Resources</h1>
+                <p class="section-subtitle">These guides collect topic-specific learning material so you can prepare with more depth and less guesswork.</p>
                 
                 <div class="resources-grid">
                     <!-- Hackathon Preparation -->
@@ -3822,6 +3914,7 @@
             <section class="content-section" id="profile-section">
                 <div class="profile-container">
                     <h1 class="section-title">My Profile</h1>
+                    <p class="section-subtitle">Keep your academic, project, and contact details current so your preparation profile reflects your real progress.</p>
                     
                     <div class="profile-card">
                         <div class="profile-header">
@@ -3921,6 +4014,7 @@
             <section class="content-section" id="settings-section">
                 <div class="settings-container">
                     <h1 class="section-title">Settings</h1>
+                    <p class="section-subtitle">These controls manage how InternTrack notifies you and how your dashboard behaves day to day.</p>
 
                     <!-- Account Settings -->
                     <div class="settings-card">
@@ -4030,6 +4124,7 @@
                         <h1 class="section-title" style="margin-bottom: 0;">Notifications</h1>
                         <button class="btn-secondary" onclick="markAllAsRead()"><i class="fas fa-check-double"></i> Mark All as Read</button>
                     </div>
+                    <p class="section-subtitle">Stay on top of alerts, reminders, and announcements without having to search for them elsewhere.</p>
 
                     <div class="notification-filters">
                         <button class="notif-filter-btn active" data-filter="all" onclick="filterNotifications('all', this)">All</button>
