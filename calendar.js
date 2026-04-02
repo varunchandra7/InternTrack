@@ -382,7 +382,7 @@ function buildEventDetailsUrl(eventObj) {
         createdAt: Date.now(),
         event: eventObj
     }));
-    return `event-details.html?source=calendar&id=${encodeURIComponent(eventObj.id)}&key=${encodeURIComponent(cacheKey)}`;
+    return `event-details.html?source=calendar&id=${encodeURIComponent(eventObj.id)}&key=${encodeURIComponent(cacheKey)}&payload=${encodeURIComponent(JSON.stringify(eventObj))}`;
 }
 
 function openEventDetailsPage(eventObj) {

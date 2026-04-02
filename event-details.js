@@ -7,6 +7,7 @@ if (!token) {
 
 const urlParams = new URLSearchParams(window.location.search);
 const source = urlParams.get('source') || '';
+const payloadParam = urlParams.get('payload');
 const cacheKey = urlParams.get('key');
 const eventId = urlParams.get('id');
 const fallbackTitle = urlParams.get('event') || urlParams.get('title') || '';
@@ -107,6 +108,16 @@ function readCachedCalendarEvent() {
         if (!raw) return null;
         const parsed = JSON.parse(raw);
         return normalizeEvent(parsed);
+    } catch {
+        return null;
+    }
+}
+
+function readPayloadEvent() {
+    if (!payloadParam) return null;
+
+    try {
+        return normalizeEvent(JSON.parse(payloadParam));
     } catch {
         return null;
     }
@@ -673,6 +684,12 @@ async function fetchBackendEventDetails() {
 
 function loadEventDetails() {
     cleanupCachedEvents();
+
+    const payloadEvent = readPayloadEvent();
+    if (payloadEvent) {
+        renderEventDetails(payloadEvent);
+        return;
+    }
 
     const registryEvent = readRegistryEvent();
     if (registryEvent) {
