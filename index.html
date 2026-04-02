@@ -21,7 +21,7 @@
         /* Left Side - Branding */
         .left-side {
             flex: 1;
-            background: linear-gradient(135deg, #7C3AED 0%, #A78BFA 100%);
+            background-color: #1a1a1a;
             display: flex;
             flex-direction: column;
             padding: 40px;
@@ -29,32 +29,58 @@
             overflow: hidden;
         }
 
+        .left-side video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: 0;
+            animation: subtleZoom 8s ease-in-out infinite;
+        }
+
+        @keyframes subtleZoom {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.02);
+            }
+        }
+
         .left-side::before {
             content: '';
             position: absolute;
-            width: 400px;
-            height: 400px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            top: -100px;
-            left: -100px;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            top: 0;
+            left: 0;
+            z-index: 1;
         }
 
         .left-side::after {
             content: '';
             position: absolute;
-            width: 300px;
-            height: 300px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            bottom: -80px;
-            right: -80px;
+            width: 30%;
+            height: 100%;
+            right: 0;
+            top: 0;
+            background: linear-gradient(90deg, 
+                rgba(255, 255, 255, 0) 0%, 
+                rgba(255, 255, 255, 0.02) 30%,
+                rgba(255, 255, 255, 0.08) 70%, 
+                rgba(255, 255, 255, 0.15) 100%);
+            z-index: 2;
+            pointer-events: none;
+            backdrop-filter: blur(1px);
         }
 
         /* Logo at top left */
         .top-logo {
             position: relative;
-            z-index: 2;
+            z-index: 3;
             display: flex;
             align-items: center;
             gap: 15px;
@@ -110,7 +136,7 @@
         /* Content in center */
         .brand-content {
             position: relative;
-            z-index: 1;
+            z-index: 3;
             text-align: center;
             color: white;
             max-width: 500px;
@@ -163,7 +189,7 @@
         /* Right Side - Forms */
         .right-side {
             flex: 1;
-            background: var(--bg-primary);
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-primary) 100%);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -181,7 +207,13 @@
             border-radius: 16px;
             padding: 40px;
             border: 1px solid var(--border-color);
-            box-shadow: 0 4px 20px var(--shadow);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1), 0 0 60px rgba(124, 58, 237, 0.08);
+            transition: box-shadow 0.3s ease, transform 0.3s ease;
+        }
+
+        .form-card:hover {
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.15), 0 0 80px rgba(124, 58, 237, 0.12);
+            transform: translateY(-2px);
         }
 
         /* Theme Toggle - Positioned at bottom-left corner */
@@ -200,6 +232,19 @@
             .left-side {
                 min-height: 35vh;
                 padding: 30px 25px;
+            }
+
+            .left-side::after {
+                width: 100%;
+                height: 20%;
+                right: 0;
+                bottom: 0;
+                top: auto;
+                background: linear-gradient(180deg, 
+                    rgba(255, 255, 255, 0) 0%, 
+                    rgba(255, 255, 255, 0.02) 30%,
+                    rgba(255, 255, 255, 0.08) 70%, 
+                    rgba(255, 255, 255, 0.15) 100%);
             }
 
             .right-side {
@@ -662,6 +707,11 @@
     <div class="split-container">
         <!-- Left Side - Branding -->
         <div class="left-side">
+            <!-- Background Video -->
+            <video autoplay muted loop playsinline>
+                <source src="images/Animated_Placement_Prep_Illustration_Request.mp4" type="video/mp4">
+            </video>
+            
             <!-- Logo at top left -->
             <div class="top-logo" id="logoLink">
                 <div class="logo-icon">
