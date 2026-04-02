@@ -324,6 +324,14 @@
                 padding: 30px 20px;
             }
 
+            .left-side::before {
+                opacity: 0.35;
+            }
+
+            .left-side::after {
+                display: none;
+            }
+
             .brand-logo {
                 width: 70px;
                 height: 70px;
@@ -344,11 +352,31 @@
 
             .right-side {
                 min-height: 70vh;
-                padding: 20px;
+                padding: 25px 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .form-container {
+                width: 100%;
             }
 
             .form-card {
                 padding: 30px 24px;
+                width: 100%;
+                max-width: 100%;
+            }
+
+            .input-field input,
+            .input-field textarea {
+                min-height: 44px;
+                font-size: 16px;
+            }
+
+            button {
+                min-height: 44px;
+                font-size: 14px;
             }
 
             .theme-toggle {
@@ -368,6 +396,14 @@
             .left-side {
                 min-height: 25vh;
                 padding: 25px 15px;
+            }
+
+            .left-side::before {
+                opacity: 0.3;
+            }
+
+            .left-side::after {
+                display: none;
             }
 
             .brand-logo {
@@ -391,26 +427,34 @@
             .right-side {
                 min-height: 75vh;
                 padding: 15px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
 
             .form-container {
                 max-width: 100%;
+                width: 100%;
             }
 
             .form-card {
                 padding: 25px 20px;
                 border-radius: 12px;
+                width: 100%;
             }
 
-            input {
+            .input-field input,
+            .input-field textarea {
+                min-height: 44px;
+                font-size: 16px;
                 padding: 10px 12px;
-                font-size: 14px;
             }
 
             button {
                 padding: 11px;
                 font-size: 13px;
                 min-height: 44px;
+                width: 100%;
             }
 
             .theme-toggle {

@@ -149,21 +149,49 @@ body {
     }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
     .welcome-card {
-        padding: 40px 25px;
+        padding: 35px 25px;
     }
 
     .welcome-card h1 {
-        font-size: 26px;
+        font-size: 28px;
+        margin-bottom: 12px;
+    }
+
+    .button-group {
+        gap: 12px;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+        min-height: 44px;
+        font-size: 15px;
+        padding: 12px 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .welcome-card {
+        padding: 25px 20px;
+        border-radius: 12px;
+    }
+
+    .welcome-card h1 {
+        font-size: 24px;
+        margin-bottom: 10px;
     }
 
     .button-group {
         flex-direction: column;
+        gap: 10px;
     }
 
     .btn-primary,
     .btn-secondary {
         width: 100%;
+        min-height: 44px;
+        font-size: 14px;
+        padding: 11px 16px;
     }
 }

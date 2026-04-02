@@ -443,6 +443,7 @@ body {
     .auth-card {
         padding: 30px 24px;
         border-radius: 20px;
+        max-width: 100%;
     }
 
     .brand-section {
@@ -478,7 +479,8 @@ body {
     }
 
     .form-header p {
-        font-size: 12px;
+        font-size: 13px;
+        line-height: 1.5;
     }
 
     .input-field {
@@ -486,15 +488,24 @@ body {
     }
 
     .input-field input {
+        min-height: 44px;
         padding: 12px 14px 12px 44px;
-        font-size: 14px;
+        font-size: 16px;
         border-radius: 10px;
     }
 
     .password-hint {
-        font-size: 10px;
+        font-size: 11px;
+        line-height: 1.4;
         margin: -6px 0 15px 0;
         padding: 6px 8px;
+    }
+
+    .submit-btn {
+        min-height: 44px;
+        padding: 12px 16px;
+        font-size: 15px;
+        border-radius: 10px;
     }
 
     .form-footer {
@@ -522,6 +533,7 @@ body {
     .auth-card {
         padding: 25px 20px;
         border-radius: 18px;
+        max-width: 100%;
     }
 
     .brand-section {
@@ -557,7 +569,8 @@ body {
     }
 
     .form-header p {
-        font-size: 11px;
+        font-size: 12px;
+        line-height: 1.5;
     }
 
     .input-field {
@@ -570,17 +583,19 @@ body {
     }
 
     .input-field input {
+        min-height: 44px;
         padding: 11px 14px 11px 42px;
-        font-size: 13px;
+        font-size: 16px;
         border-radius: 9px;
     }
 
     .input-field input::placeholder {
-        font-size: 12px;
+        font-size: 13px;
     }
 
     .password-hint {
-        font-size: 9px;
+        font-size: 10px;
+        line-height: 1.4;
         margin: -5px 0 14px 0;
         padding: 5px 8px;
         gap: 6px;
@@ -593,11 +608,12 @@ body {
     }
 
     .submit-btn {
-        padding: 12px;
-        font-size: 13px;
         min-height: 44px;
+        padding: 11px 16px;
+        font-size: 13px;
         gap: 8px;
         border-radius: 9px;
+        width: 100%;
     }
 
     .submit-btn i {
@@ -635,6 +651,7 @@ body {
     .auth-card {
         padding: 22px 16px;
         border-radius: 16px;
+        max-width: 100%;
     }
 
     .logo-circle {
@@ -660,12 +677,14 @@ body {
     }
 
     .form-header p {
-        font-size: 10px;
+        font-size: 11px;
+        line-height: 1.4;
     }
 
     .input-field input {
+        min-height: 42px;
         padding: 10px 12px 10px 38px;
-        font-size: 12px;
+        font-size: 14px;
     }
 
     .input-field i {
@@ -674,13 +693,15 @@ body {
     }
 
     .submit-btn {
-        padding: 10px;
+        min-height: 42px;
+        padding: 10px 12px;
         font-size: 12px;
         border-radius: 8px;
+        width: 100%;
     }
 
     .password-hint {
-        font-size: 8px;
+        font-size: 9px;
         padding: 4px 6px;
     }
 

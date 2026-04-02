@@ -413,13 +413,13 @@ function getPlatformInfo(event) {
         
         switch(platform) {
             case 'codeforces':
-                logo = '<span class="platform-logo-badge" style="background: #1F8ACB; color: white; font-weight: bold;">CF</span>';
+                logo = '<img src="images/code-forces.png" alt="CodeForces" class="platform-logo-image">';
                 break;
             case 'leetcode':
-                logo = '<span class="platform-logo-badge" style="background: #FFA116; color: white; font-weight: bold;">LC</span>';
+                logo = '<img src="images/leetcode.png" alt="LeetCode" class="platform-logo-image">';
                 break;
             case 'codechef':
-                logo = '<span class="platform-logo-badge" style="background: #5B4638; color: white; font-weight: bold;">CC</span>';
+                logo = '<img src="images/codechef.png" alt="CodeChef" class="platform-logo-image">';
                 break;
             case 'atcoder':
                 logo = '<span class="platform-logo-badge" style="background: #FF6B35; color: white; font-weight: bold;">AT</span>';
