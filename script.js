@@ -187,7 +187,7 @@ document.getElementById('signupForm').addEventListener('submit', async (e) => {
             // Add spinner to button
             submitBtn.innerHTML = '<span class="button-spinner"></span> Redirecting...';
             
-            // Redirect to dashboard directly
+            // Redirect to dashboard home/homepage after brief delay
             setTimeout(() => {
                 window.location.href = 'dashboard.html';
             }, 800);
@@ -260,7 +260,7 @@ document.getElementById('signinForm').addEventListener('submit', async (e) => {
             // Add spinner to button
             submitBtn.innerHTML = '<span class="button-spinner"></span> Redirecting...';
             
-            // Redirect to dashboard after brief delay
+            // Redirect to dashboard home/homepage after brief delay
             setTimeout(() => {
                 window.location.href = 'dashboard.html';
             }, 800);
