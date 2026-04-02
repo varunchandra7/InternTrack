@@ -63,6 +63,15 @@
             width: fit-content;
         }
 
+        .top-logo {
+            pointer-events: none;
+        }
+
+        .top-logo h1 {
+            cursor: pointer;
+            pointer-events: auto;
+        }
+
         .top-logo:hover {
             transform: translateX(5px);
         }
@@ -89,6 +98,13 @@
             font-weight: 700;
             margin: 0;
             color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .logo-text h1:hover {
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+            transform: scale(1.05);
         }
 
         /* Content in center */
@@ -564,7 +580,7 @@
         <!-- Left Side - Branding -->
         <div class="left-side">
             <!-- Logo at top left -->
-            <div class="top-logo" onclick="window.location.reload()">
+            <div class="top-logo" id="logoLink">
                 <div class="logo-icon">
                     <i class="fas fa-graduation-cap"></i>
                 </div>
@@ -894,6 +910,16 @@
     <script src="script.js"></script>
     
     <script>
+        // Logo click handler - navigate to dashboard if logged in, otherwise reload
+        document.getElementById('logoLink').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (localStorage.getItem('userId') && localStorage.getItem('token')) {
+                window.location.href = 'dashboard.html';
+            } else {
+                window.location.href = 'index.html';
+            }
+        });
+
         // Handle footer credits links
         document.querySelectorAll('.footer-link').forEach(link => {
             link.addEventListener('click', function(e) {

@@ -273,13 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     
-    // Credits button in sidebar footer
-    const creditsBtn = document.getElementById('creditsBtn');
-    if (creditsBtn) {
-        creditsBtn.addEventListener('click', () => {
-            showSection('credits');
-        });
-    }
+    // Credits button in sidebar footer - REMOVED: Using footer links instead
     
     // Logout button in sidebar footer
     const logoutSidebarBtn = document.getElementById('logoutSidebarBtn');
