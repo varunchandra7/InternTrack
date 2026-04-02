@@ -5,12 +5,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="common.css">
     <style>
+        :root {
+            --primary-color: #7C3AED;
+            --primary-dark: #6D28D9;
+            --secondary-color: #A78BFA;
+            --accent-color: #EC4899;
+            --text-primary: #111827;
+            --text-secondary: #6B7280;
+            --bg-primary: #FFFFFF;
+            --bg-secondary: #F9FAFB;
+            --bg-tertiary: #F3F4F6;
+            --border-color: #E5E7EB;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 50px rgba(0, 0, 0, 0.15);
+        }
+
         body {
             margin: 0;
             padding: 0;
             overflow-x: hidden;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
 
         .split-container {
@@ -471,8 +492,54 @@
         /* Features & Social Proof Section */
         .features-section {
             width: 100%;
-            background: var(--bg-primary);
-            padding: 60px 40px;
+            background: linear-gradient(135deg, #FFFFFF 0%, #F9FAFB 100%);
+            padding: 100px 40px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .features-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.08) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .features-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Section Headers */
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin: 0 0 16px 0;
+            letter-spacing: -0.5px;
+            line-height: 1.2;
+        }
+
+        .section-subtitle {
+            font-size: 1.125rem;
+            color: var(--text-secondary);
+            margin: 0;
+            font-weight: 400;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         /* Scroll Animation Styles */
@@ -518,7 +585,7 @@
 
         .scroll-animate-card {
             opacity: 0;
-            transform: scale(0.9);
+            transform: scale(0.95);
         }
 
         .scroll-animate-card.animate {
@@ -546,6 +613,22 @@
             animation-delay: 0.2s;
         }
 
+        .benefit-item:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .benefit-item:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .benefit-item:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .benefit-item:nth-child(4) {
+            animation-delay: 0.3s;
+        }
+
         .story-card:nth-child(1) {
             animation-delay: 0s;
         }
@@ -558,141 +641,477 @@
             animation-delay: 0.2s;
         }
 
-        .features-grid {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-
-        .features-grid h3 {
-            font-size: 28px;
-            color: var(--text-primary);
-            margin: 0 0 30px 0;
-            font-weight: 700;
-        }
-
+        /* Feature Cards */
         .features-container {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-            margin-bottom: 50px;
+            gap: 32px;
+            margin-bottom: 80px;
         }
 
         .feature-card {
-            background: var(--bg-secondary);
+            background: var(--bg-primary);
             border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 24px;
-            transition: all 0.3s ease;
+            border-radius: 16px;
+            padding: 40px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+            opacity: 0;
+            transition: opacity 0.3s ease;
         }
 
         .feature-card:hover {
-            border-color: var(--accent-color);
-            box-shadow: 0 4px 16px var(--shadow);
+            border-color: rgba(124, 58, 237, 0.3);
+            box-shadow: 0 20px 50px rgba(124, 58, 237, 0.1);
+            transform: translateY(-8px);
         }
 
-        .feature-card h4 {
-            font-size: 18px;
-            color: var(--text-primary);
-            margin: 0 0 12px 0;
-            font-weight: 600;
+        .feature-card:hover::before {
+            opacity: 1;
         }
 
-        .feature-card p {
-            margin: 0;
-            color: var(--text-secondary);
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .why-section {
-            margin-bottom: 50px;
-        }
-
-        .why-section h3 {
-            margin-bottom: 15px;
-        }
-
-        .why-section .subtitle {
-            text-align: left;
-            margin-bottom: 20px;
-        }
-
-        .why-section ul {
-            margin: 0;
-            padding-left: 20px;
-            color: var(--text-secondary);
-            line-height: 1.9;
-        }
-
-        .why-section li {
-            margin-bottom: 10px;
-        }
-
-        .stories-container {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 24px;
-        }
-
-        .story-card {
-            background: var(--bg-secondary);
-            border: 1px solid var(--border-color);
+        .feature-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(167, 139, 250, 0.1));
             border-radius: 12px;
-            padding: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            font-size: 28px;
+            color: var(--primary-color);
             transition: all 0.3s ease;
         }
 
+        .feature-card:hover .feature-icon {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            color: white;
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 12px 0;
+            line-height: 1.3;
+        }
+
+        .feature-card p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin: 0 0 20px 0;
+            line-height: 1.6;
+            flex-grow: 1;
+        }
+
+        .feature-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            width: fit-content;
+        }
+
+        .feature-link:hover {
+            gap: 12px;
+            color: var(--primary-dark);
+        }
+
+        /* Why Section */
+        .why-section {
+            margin-bottom: 80px;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+        }
+
+        .benefit-item {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .benefit-item::after {
+            content: '';
+            position: absolute;
+            bottom: -1px;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .benefit-item:hover {
+            border-color: rgba(124, 58, 237, 0.3);
+            box-shadow: 0 15px 40px rgba(124, 58, 237, 0.08);
+            transform: translateY(-6px);
+        }
+
+        .benefit-item:hover::after {
+            transform: scaleX(1);
+        }
+
+        .benefit-icon {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.15), rgba(236, 72, 153, 0.15));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 24px;
+            color: var(--primary-color);
+            transition: all 0.3s ease;
+        }
+
+        .benefit-item:hover .benefit-icon {
+            background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+            color: white;
+        }
+
+        .benefit-item h4 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 8px 0;
+        }
+
+        .benefit-item p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            margin: 0;
+            line-height: 1.6;
+        }
+
+        /* Stories/Testimonials */
+        .stories-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 32px;
+        }
+
+        .story-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .story-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.03), transparent);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .story-card.featured {
+            border-color: rgba(124, 58, 237, 0.3);
+            box-shadow: 0 10px 35px rgba(124, 58, 237, 0.1);
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.02), rgba(255, 255, 255, 0.98));
+        }
+
         .story-card:hover {
-            border-color: var(--accent-color);
-            box-shadow: 0 4px 16px var(--shadow);
+            border-color: rgba(124, 58, 237, 0.3);
+            box-shadow: 0 20px 50px rgba(124, 58, 237, 0.12);
+            transform: translateY(-8px);
+        }
+
+        .story-card:hover::before {
+            opacity: 1;
+        }
+
+        .story-quote-icon {
+            font-size: 3rem;
+            color: rgba(124, 58, 237, 0.1);
+            font-weight: 700;
+            margin: 0 0 12px 0;
+            line-height: 1;
         }
 
         .story-text {
-            font-size: 15px;
+            font-size: 1rem;
             font-style: italic;
-            line-height: 1.7;
-            margin-bottom: 16px;
+            line-height: 1.8;
+            margin: 0 0 24px 0;
             color: var(--text-primary);
+            flex-grow: 1;
+            font-weight: 500;
         }
 
-        .story-author {
-            font-size: 13px;
-            color: var(--text-secondary);
-            text-align: right;
+        .story-footer {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .story-avatar {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 700;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+
+        .story-info {
+            flex-grow: 1;
+        }
+
+        .story-name {
+            font-weight: 700;
+            color: var(--text-primary);
             margin: 0;
+            font-size: 0.95rem;
         }
 
+        .story-role {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin: 2px 0 0 0;
+        }
+
+        /* Responsive Design */
         @media (max-width: 1024px) {
+            .section-title {
+                font-size: 2rem;
+            }
+
             .features-container,
             .stories-container {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 24px;
             }
 
-            .features-section {
-                padding: 50px 30px;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .features-container,
-            .stories-container {
+            .benefits-grid {
                 grid-template-columns: 1fr;
             }
 
             .features-section {
-                padding: 40px 20px;
+                padding: 80px 30px;
             }
 
-            .features-grid h3 {
-                font-size: 24px;
-                margin-bottom: 24px;
+            .feature-card,
+            .benefit-item,
+            .story-card {
+                padding: 28px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .section-title {
+                font-size: 1.75rem;
+            }
+
+            .section-subtitle {
+                font-size: 1rem;
             }
 
             .features-container,
-            .stories-container {
+            .stories-container,
+            .benefits-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .features-section {
+                padding: 60px 20px;
+            }
+
+            .section-header {
+                margin-bottom: 40px;
+            }
+
+            .feature-card,
+            .benefit-item,
+            .story-card {
+                padding: 24px;
+            }
+
+            .feature-icon {
+                width: 50px;
+                height: 50px;
+                font-size: 24px;
+            }
+
+            .story-footer {
+                gap: 12px;
+                padding-top: 16px;
+            }
+
+            .story-avatar {
+                width: 42px;
+                height: 42px;
+                font-size: 0.8rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .section-title {
+                font-size: 1.5rem;
+                margin-bottom: 12px;
+            }
+
+            .section-subtitle {
+                font-size: 0.9rem;
+            }
+
+            .features-section {
+                padding: 40px 16px;
+            }
+
+            .section-header {
+                margin-bottom: 32px;
+            }
+
+            .feature-card,
+            .benefit-item,
+            .story-card {
+                padding: 20px;
+            }
+
+            .features-container,
+            .stories-container,
+            .benefits-grid {
                 gap: 16px;
                 margin-bottom: 40px;
             }
+
+            .feature-icon {
+                width: 44px;
+                height: 44px;
+                font-size: 20px;
+                margin-bottom: 12px;
+            }
+
+            .feature-card h3 {
+                font-size: 1.25rem;
+            }
+
+            .feature-card p {
+                font-size: 0.9rem;
+            }
+
+            .story-quote-icon {
+                font-size: 2.5rem;
+                margin-bottom: 8px;
+            }
+
+            .story-text {
+                font-size: 0.95rem;
+                margin-bottom: 16px;
+                line-height: 1.6;
+            }
+
+            .story-avatar {
+                width: 40px;
+                height: 40px;
+                font-size: 0.75rem;
+            }
+        }
+
+        /* Dark Mode Support */
+        body.dark-mode {
+            --text-primary: #F3F4F6;
+            --text-secondary: #D1D5DB;
+            --bg-primary: #1F2937;
+            --bg-secondary: #111827;
+            --bg-tertiary: #0F172A;
+            --border-color: #374151;
+        }
+
+        body.dark-mode .features-section {
+            background: linear-gradient(135deg, #111827 0%, #1F2937 100%);
+        }
+
+        body.dark-mode .features-section::before {
+            background: radial-gradient(circle, rgba(124, 58, 237, 0.12) 0%, transparent 70%);
+        }
+
+        body.dark-mode .feature-card,
+        body.dark-mode .benefit-item,
+        body.dark-mode .story-card {
+            background: #1F2937;
+            border-color: #374151;
+        }
+
+        body.dark-mode .feature-card:hover,
+        body.dark-mode .benefit-item:hover,
+        body.dark-mode .story-card:hover {
+            border-color: rgba(124, 58, 237, 0.4);
+            background: #111827;
+        }
+
+        body.dark-mode .feature-card h3,
+        body.dark-mode .benefit-item h4,
+        body.dark-mode .story-name {
+            color: #F3F4F6;
+        }
+
+        body.dark-mode .feature-icon,
+        body.dark-mode .benefit-icon {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(167, 139, 250, 0.2));
+        }
+
+        body.dark-mode .feature-link {
+            color: #A78BFA;
+        }
+
+        body.dark-mode .feature-link:hover {
+            color: #C4B5FD;
+        }
+
+        body.dark-mode .story-footer {
+            border-top-color: #374151;
         }
     </style>
     <title>InternTrack - Login</title>
@@ -849,48 +1268,113 @@
     <div class="features-section">
         <div class="features-grid">
             <!-- Feature Highlights -->
-            <h3 class="scroll-animate-title">Feature Highlights</h3>
+            <div class="section-header">
+                <h2 class="section-title">Feature Highlights</h2>
+                <p class="section-subtitle">Everything you need to succeed in your placement journey</p>
+            </div>
             <div class="features-container">
                 <div class="feature-card scroll-animate-card">
-                    <h4>Roadmap Tracker</h4>
+                    <div class="feature-icon">
+                        <i class="fas fa-map"></i>
+                    </div>
+                    <h3>Roadmap Tracker</h3>
                     <p>Plan your learning path by subject and day so every placement topic is organized. Track progress across your preparation journey without losing momentum.</p>
+                    <a href="#" class="feature-link">Learn more <i class="fas fa-arrow-right"></i></a>
                 </div>
                 <div class="feature-card scroll-animate-card">
-                    <h4>Smart Calendar</h4>
+                    <div class="feature-icon">
+                        <i class="fas fa-calendar-check"></i>
+                    </div>
+                    <h3>Smart Calendar</h3>
                     <p>See internships, hackathons, and contests in one calendar view with date-based planning. Use it to focus on what is closing soon and what needs action first.</p>
+                    <a href="#" class="feature-link">Learn more <i class="fas fa-arrow-right"></i></a>
                 </div>
                 <div class="feature-card scroll-animate-card">
-                    <h4>Progress Analytics</h4>
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Progress Analytics</h3>
                     <p>Review your consistency, completed goals, and monthly activity at a glance. Turn your effort into visible progress so you know what to improve next.</p>
+                    <a href="#" class="feature-link">Learn more <i class="fas fa-arrow-right"></i></a>
                 </div>
             </div>
 
             <!-- Why InternTrack -->
             <div class="why-section scroll-animate">
-                <h3 class="scroll-animate-title">Why InternTrack?</h3>
-                <p class="subtitle">Built to keep your placement preparation structured, focused, and easy to follow.</p>
-                <ul>
-                    <li>It brings learning, event discovery, and goal tracking into one place.</li>
-                    <li>It helps you stay consistent with a clear roadmap and daily progress view.</li>
-                    <li>It keeps urgent deadlines visible so you can act before opportunities close.</li>
-                    <li>It gives you enough detail to prepare properly for internships, contests, and hackathons.</li>
-                </ul>
+                <div class="section-header">
+                    <h2 class="section-title">Why Choose InternTrack?</h2>
+                    <p class="section-subtitle">Built to keep your placement preparation structured, focused, and easy to follow</p>
+                </div>
+                <div class="benefits-grid">
+                    <div class="benefit-item scroll-animate-card">
+                        <div class="benefit-icon">
+                            <i class="fas fa-cube"></i>
+                        </div>
+                        <h4>Unified Dashboard</h4>
+                        <p>It brings learning, event discovery, and goal tracking into one place.</p>
+                    </div>
+                    <div class="benefit-item scroll-animate-card">
+                        <div class="benefit-icon">
+                            <i class="fas fa-sync-alt"></i>
+                        </div>
+                        <h4>Stay Consistent</h4>
+                        <p>It helps you stay consistent with a clear roadmap and daily progress view.</p>
+                    </div>
+                    <div class="benefit-item scroll-animate-card">
+                        <div class="benefit-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <h4>Never Miss Deadlines</h4>
+                        <p>It keeps urgent deadlines visible so you can act before opportunities close.</p>
+                    </div>
+                    <div class="benefit-item scroll-animate-card">
+                        <div class="benefit-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <h4>Complete Preparation</h4>
+                        <p>It gives you enough detail to prepare properly for internships, contests, and hackathons.</p>
+                    </div>
+                </div>
             </div>
 
             <!-- Student Success Stories -->
-            <h3 class="scroll-animate-title">Student Success Stories</h3>
+            <div class="section-header">
+                <h2 class="section-title">Student Success Stories</h2>
+                <p class="section-subtitle">Real stories from students who transformed their placements</p>
+            </div>
             <div class="stories-container">
                 <div class="story-card scroll-animate-card">
-                    <p class="story-text">"InternTrack helped me break my prep into weekly goals, and I finally stayed consistent enough to land a summer internship offer."</p>
-                    <p class="story-author">– Aanya Mehta, 3rd Year Computer Science</p>
+                    <div class="story-quote-icon">"</div>
+                    <p class="story-text">InternTrack helped me break my prep into weekly goals, and I finally stayed consistent enough to land a summer internship offer.</p>
+                    <div class="story-footer">
+                        <div class="story-avatar">AM</div>
+                        <div class="story-info">
+                            <p class="story-name">Aanya Mehta</p>
+                            <p class="story-role">3rd Year, Computer Science</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="story-card scroll-animate-card featured">
+                    <div class="story-quote-icon">"</div>
+                    <p class="story-text">The roadmap and event tracking made my schedule manageable, and I cleared two hackathon shortlists in one semester.</p>
+                    <div class="story-footer">
+                        <div class="story-avatar">RV</div>
+                        <div class="story-info">
+                            <p class="story-name">Rahul Verma</p>
+                            <p class="story-role">Final Year, IT</p>
+                        </div>
+                    </div>
                 </div>
                 <div class="story-card scroll-animate-card">
-                    <p class="story-text">"The roadmap and event tracking made my schedule manageable, and I cleared two hackathon shortlists in one semester."</p>
-                    <p class="story-author">– Rahul Verma, Final Year IT</p>
-                </div>
-                <div class="story-card scroll-animate-card">
-                    <p class="story-text">"I used the goal tracker to stay on top of coding practice, and my contest performance improved enough to boost my placement confidence."</p>
-                    <p class="story-author">– Sneha Iyer, Pre-Final Year ECE</p>
+                    <div class="story-quote-icon">"</div>
+                    <p class="story-text">I used the goal tracker to stay on top of coding practice, and my contest performance improved enough to boost my placement confidence.</p>
+                    <div class="story-footer">
+                        <div class="story-avatar">SI</div>
+                        <div class="story-info">
+                            <p class="story-name">Sneha Iyer</p>
+                            <p class="story-role">Pre-Final Year, ECE</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1169,24 +1653,126 @@
     <script src="script.js"></script>
 
     <script>
-        // Scroll Animation using Intersection Observer
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
-        };
+        // Enhanced Scroll Animation with Intersection Observer
+        class ScrollAnimationManager {
+            constructor() {
+                this.observerOptions = {
+                    threshold: [0, 0.1, 0.5],
+                    rootMargin: '0px 0px -60px 0px'
+                };
+                this.observer = new IntersectionObserver(
+                    this.handleIntersection.bind(this),
+                    this.observerOptions
+                );
+                this.animatedElements = new Set();
+                this.init();
+            }
 
-        const observer = new IntersectionObserver(function(entries) {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('animate');
-                    observer.unobserve(entry.target);
+            init() {
+                // Observe all animated elements
+                document.querySelectorAll('.scroll-animate, .scroll-animate-card, .scroll-animate-title').forEach(el => {
+                    this.observer.observe(el);
+                });
+            }
+
+            handleIntersection(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && !this.animatedElements.has(entry.target)) {
+                        this.animateElement(entry.target);
+                        this.animatedElements.add(entry.target);
+                    }
+                });
+            }
+
+            animateElement(element) {
+                // Add a small delay for smoother animation
+                requestAnimationFrame(() => {
+                    element.classList.add('animate');
+                });
+            }
+        }
+
+        // Initialize animations when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                new ScrollAnimationManager();
+            });
+        } else {
+            new ScrollAnimationManager();
+        }
+
+        // Enhanced Card Hover Effects
+        class CardInteractionManager {
+            constructor() {
+                this.cards = document.querySelectorAll('.feature-card, .benefit-item, .story-card');
+                this.init();
+            }
+
+            init() {
+                this.cards.forEach(card => {
+                    this.attachEventListeners(card);
+                });
+            }
+
+            attachEventListeners(card) {
+                card.addEventListener('mouseenter', (e) => {
+                    this.addHoverClass(card);
+                });
+
+                card.addEventListener('mouseleave', (e) => {
+                    this.removeHoverClass(card);
+                });
+
+                // Add subtle parallax on mouse move
+                card.addEventListener('mousemove', (e) => {
+                    this.applyParallax(card, e);
+                });
+            }
+
+            addHoverClass(card) {
+                card.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+            }
+
+            removeHoverClass(card) {
+                card.style.transform = 'none';
+                card.style.transition = 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)';
+            }
+
+            applyParallax(card, event) {
+                const rect = card.getBoundingClientRect();
+                const x = event.clientX - rect.left;
+                const y = event.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = (y - centerY) * 0.03;
+                const rotateY = (centerX - x) * 0.03;
+
+                // Apply subtle 3D perspective
+                card.style.perspective = '1000px';
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            }
+        }
+
+        // Initialize card interactions
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => {
+                new CardInteractionManager();
+            });
+        } else {
+            new CardInteractionManager();
+        }
+
+        // Smooth Scroll Behavior
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                const href = this.getAttribute('href');
+                if (href !== '#' && document.querySelector(href)) {
+                    e.preventDefault();
+                    document.querySelector(href).scrollIntoView({
+                        behavior: 'smooth'
+                    });
                 }
             });
-        }, observerOptions);
-
-        // Observe all elements with animation classes
-        document.querySelectorAll('.scroll-animate, .scroll-animate-card, .scroll-animate-title').forEach(el => {
-            observer.observe(el);
         });
 
         // Credits content for modal
