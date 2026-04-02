@@ -145,6 +145,9 @@ function showSection(sectionName) {
     if (sectionName === 'home') {
         setTimeout(() => {
             loadRoadmapProgress();
+            if (typeof loadActivityGraphs === 'function') {
+                loadActivityGraphs();
+            }
         }, 100);
     }
 
@@ -228,6 +231,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Load roadmap progress for home page
     loadRoadmapProgress();
+
+    // Explicitly load activity graphs on dashboard load
+    setTimeout(() => {
+        if (typeof loadActivityGraphs === 'function') {
+            loadActivityGraphs();
+        }
+    }, 300);
     
     // Auto-refresh roadmap every 2 seconds to catch updates
     setInterval(() => {
