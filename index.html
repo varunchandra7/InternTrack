@@ -406,6 +406,150 @@
                 margin-bottom: 10px;
             }
         }
+
+        /* Features & Social Proof Section */
+        .features-section {
+            width: 100%;
+            background: var(--bg-primary);
+            padding: 60px 40px;
+        }
+
+        .features-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .features-grid h3 {
+            font-size: 28px;
+            color: var(--text-primary);
+            margin: 0 0 30px 0;
+            font-weight: 700;
+        }
+
+        .features-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 50px;
+        }
+
+        .feature-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 4px 16px var(--shadow);
+        }
+
+        .feature-card h4 {
+            font-size: 18px;
+            color: var(--text-primary);
+            margin: 0 0 12px 0;
+            font-weight: 600;
+        }
+
+        .feature-card p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .why-section {
+            margin-bottom: 50px;
+        }
+
+        .why-section h3 {
+            margin-bottom: 15px;
+        }
+
+        .why-section .subtitle {
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .why-section ul {
+            margin: 0;
+            padding-left: 20px;
+            color: var(--text-secondary);
+            line-height: 1.9;
+        }
+
+        .why-section li {
+            margin-bottom: 10px;
+        }
+
+        .stories-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .story-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .story-card:hover {
+            border-color: var(--accent-color);
+            box-shadow: 0 4px 16px var(--shadow);
+        }
+
+        .story-text {
+            font-size: 15px;
+            font-style: italic;
+            line-height: 1.7;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+        }
+
+        .story-author {
+            font-size: 13px;
+            color: var(--text-secondary);
+            text-align: right;
+            margin: 0;
+        }
+
+        @media (max-width: 1024px) {
+            .features-container,
+            .stories-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .features-section {
+                padding: 50px 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .features-container,
+            .stories-container {
+                grid-template-columns: 1fr;
+            }
+
+            .features-section {
+                padding: 40px 20px;
+            }
+
+            .features-grid h3 {
+                font-size: 24px;
+                margin-bottom: 24px;
+            }
+
+            .features-container,
+            .stories-container {
+                gap: 16px;
+                margin-bottom: 40px;
+            }
+        }
     </style>
     <title>InternTrack - Login</title>
 </head>
@@ -546,56 +690,58 @@
                         <div class="text-center">
                             Already have an account? <a href="#" id="showSignin" class="link">Sign In</a>
                         </div>
-
-                        <div style="margin-top: 24px; display: flex; flex-direction: column; gap: 20px;">
-                            <section class="form-card" style="padding: 24px;">
-                                <h3 style="margin-bottom: 16px; color: var(--text-primary);">Feature Highlights</h3>
-                                <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;">
-                                    <div class="quote-box" style="margin-top: 0; padding: 18px; background: var(--accent-bg); border-color: var(--border-color);">
-                                        <h4 style="margin-bottom: 8px; color: var(--text-primary);">Roadmap Tracker</h4>
-                                        <p style="margin: 0; color: var(--text-secondary); font-size: 14px; line-height: 1.6;">Plan your learning path by subject and day so every placement topic is organized. Track progress across your preparation journey without losing momentum.</p>
-                                    </div>
-                                    <div class="quote-box" style="margin-top: 0; padding: 18px; background: var(--accent-bg); border-color: var(--border-color);">
-                                        <h4 style="margin-bottom: 8px; color: var(--text-primary);">Smart Calendar</h4>
-                                        <p style="margin: 0; color: var(--text-secondary); font-size: 14px; line-height: 1.6;">See internships, hackathons, and contests in one calendar view with date-based planning. Use it to focus on what is closing soon and what needs action first.</p>
-                                    </div>
-                                    <div class="quote-box" style="margin-top: 0; padding: 18px; background: var(--accent-bg); border-color: var(--border-color);">
-                                        <h4 style="margin-bottom: 8px; color: var(--text-primary);">Progress Analytics</h4>
-                                        <p style="margin: 0; color: var(--text-secondary); font-size: 14px; line-height: 1.6;">Review your consistency, completed goals, and monthly activity at a glance. Turn your effort into visible progress so you know what to improve next.</p>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <section class="form-card" style="padding: 24px;">
-                                <h3 style="margin-bottom: 12px; color: var(--text-primary);">Why InternTrack?</h3>
-                                <p class="subtitle" style="text-align: left; margin-bottom: 16px;">Built to keep your placement preparation structured, focused, and easy to follow.</p>
-                                <ul style="margin: 0; padding-left: 20px; color: var(--text-secondary); line-height: 1.8;">
-                                    <li>It brings learning, event discovery, and goal tracking into one place.</li>
-                                    <li>It helps you stay consistent with a clear roadmap and daily progress view.</li>
-                                    <li>It keeps urgent deadlines visible so you can act before opportunities close.</li>
-                                    <li>It gives you enough detail to prepare properly for internships, contests, and hackathons.</li>
-                                </ul>
-                            </section>
-
-                            <section class="form-card" style="padding: 24px;">
-                                <h3 style="margin-bottom: 16px; color: var(--text-primary);">Student Success Stories</h3>
-                                <div style="display: grid; gap: 16px;">
-                                    <div class="quote-box" style="margin-top: 0;">
-                                        <p class="quote-text">"InternTrack helped me break my prep into weekly goals, and I finally stayed consistent enough to land a summer internship offer."</p>
-                                        <p class="quote-author">- Aanya Mehta, 3rd Year Computer Science</p>
-                                    </div>
-                                    <div class="quote-box" style="margin-top: 0;">
-                                        <p class="quote-text">"The roadmap and event tracking made my schedule manageable, and I cleared two hackathon shortlists in one semester."</p>
-                                        <p class="quote-author">- Rahul Verma, Final Year IT</p>
-                                    </div>
-                                    <div class="quote-box" style="margin-top: 0;">
-                                        <p class="quote-text">"I used the goal tracker to stay on top of coding practice, and my contest performance improved enough to boost my placement confidence."</p>
-                                        <p class="quote-author">- Sneha Iyer, Pre-Final Year ECE</p>
-                                    </div>
-                                </div>
-                            </section>
-                        </div>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features & Social Proof Section Below Login -->
+    <div class="features-section">
+        <div class="features-grid">
+            <!-- Feature Highlights -->
+            <h3>Feature Highlights</h3>
+            <div class="features-container">
+                <div class="feature-card">
+                    <h4>Roadmap Tracker</h4>
+                    <p>Plan your learning path by subject and day so every placement topic is organized. Track progress across your preparation journey without losing momentum.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Smart Calendar</h4>
+                    <p>See internships, hackathons, and contests in one calendar view with date-based planning. Use it to focus on what is closing soon and what needs action first.</p>
+                </div>
+                <div class="feature-card">
+                    <h4>Progress Analytics</h4>
+                    <p>Review your consistency, completed goals, and monthly activity at a glance. Turn your effort into visible progress so you know what to improve next.</p>
+                </div>
+            </div>
+
+            <!-- Why InternTrack -->
+            <div class="why-section">
+                <h3>Why InternTrack?</h3>
+                <p class="subtitle">Built to keep your placement preparation structured, focused, and easy to follow.</p>
+                <ul>
+                    <li>It brings learning, event discovery, and goal tracking into one place.</li>
+                    <li>It helps you stay consistent with a clear roadmap and daily progress view.</li>
+                    <li>It keeps urgent deadlines visible so you can act before opportunities close.</li>
+                    <li>It gives you enough detail to prepare properly for internships, contests, and hackathons.</li>
+                </ul>
+            </div>
+
+            <!-- Student Success Stories -->
+            <h3>Student Success Stories</h3>
+            <div class="stories-container">
+                <div class="story-card">
+                    <p class="story-text">"InternTrack helped me break my prep into weekly goals, and I finally stayed consistent enough to land a summer internship offer."</p>
+                    <p class="story-author">– Aanya Mehta, 3rd Year Computer Science</p>
+                </div>
+                <div class="story-card">
+                    <p class="story-text">"The roadmap and event tracking made my schedule manageable, and I cleared two hackathon shortlists in one semester."</p>
+                    <p class="story-author">– Rahul Verma, Final Year IT</p>
+                </div>
+                <div class="story-card">
+                    <p class="story-text">"I used the goal tracker to stay on top of coding practice, and my contest performance improved enough to boost my placement confidence."</p>
+                    <p class="story-author">– Sneha Iyer, Pre-Final Year ECE</p>
                 </div>
             </div>
         </div>

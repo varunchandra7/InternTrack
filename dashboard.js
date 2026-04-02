@@ -402,6 +402,9 @@ async function fetchEvents() {
         
         allEvents = futureEvents;
         window.dashboardEvents = futureEvents;
+        window.dispatchEvent(new CustomEvent('dashboardEventsUpdated', {
+            detail: { events: futureEvents }
+        }));
         
         // Format events for FullCalendar - show only on start date
         const calendarEvents = futureEvents.map(event => {
@@ -426,6 +429,9 @@ async function fetchEvents() {
             calendar.removeAllEvents();
             calendar.addEventSource(calendarEvents);
         }
+
+        renderUpcomingEvents(futureEvents);
+        renderMobileGoalsOptions(futureEvents);
         
         // Apply current filter if not 'all'
         if (currentFilter !== 'all') {
@@ -839,11 +845,11 @@ function toggleEventGoal(event) {
             const storedId = e._id || e.id || e.title;
             return storedId !== eventId;
         });
-        localStorage.setItem('selectedEvents', JSON.stringify(selectedEvents));
+        localStorage.setItem(getUserStorageKey('selectedEvents'), JSON.stringify(selectedEvents));
     } else {
         // Add to goals
         selectedEvents.push(event);
-        localStorage.setItem('selectedEvents', JSON.stringify(selectedEvents));
+        localStorage.setItem(getUserStorageKey('selectedEvents'), JSON.stringify(selectedEvents));
     }
     
     // Immediately refresh both displays to show the change
@@ -922,7 +928,7 @@ function renderSelectedEvents() {
     // Update localStorage if any events were removed
     if (updatedEvents.length !== selectedEvents.length) {
         selectedEvents = updatedEvents;
-        localStorage.setItem('selectedEvents', JSON.stringify(selectedEvents));
+        localStorage.setItem(getUserStorageKey('selectedEvents'), JSON.stringify(selectedEvents));
     }
     
     if (selectedEvents.length === 0) {

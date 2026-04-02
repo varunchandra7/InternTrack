@@ -20,8 +20,26 @@ const roadmapRoutes = require('./routes/roadmap');
 const app = express();
 
 // Middleware
+const configuredFrontendOrigin = process.env.FRONTEND_URL;
+const allowLocalOrigin = (origin) => /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin);
+
 const corsOptions = {
-  origin: process.env.FRONTEND_URL || 'http://localhost:5500',
+  origin: (origin, callback) => {
+    // Allow server-to-server requests and local files during development.
+    if (!origin || origin === 'null') {
+      return callback(null, true);
+    }
+
+    if (allowLocalOrigin(origin)) {
+      return callback(null, true);
+    }
+
+    if (configuredFrontendOrigin && origin === configuredFrontendOrigin) {
+      return callback(null, true);
+    }
+
+    return callback(new Error(`CORS blocked for origin: ${origin}`));
+  },
   credentials: true,
   optionsSuccessStatus: 200
 };

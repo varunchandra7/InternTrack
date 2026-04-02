@@ -4,6 +4,8 @@
 
 let eventRefreshInterval;
 let currentUpcomingEventsById = {};
+let weeklyActivityChartInstance = null;
+let monthlyStreakChartInstance = null;
 
 // Get user ID for data isolation
 const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
@@ -39,68 +41,71 @@ document.addEventListener('DOMContentLoaded', () => {
  * Load and render activity graphs (Weekly and Monthly)
  */
 function loadActivityGraphs() {
-    // Generate sample activity data for this week
-    const weeklyData = {
-        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-        datasets: [{
-            label: 'Activity (hours)',
-            data: [2, 3.5, 2.5, 4, 3, 1.5, 0],
-            backgroundColor: '#7C3AED',
-            borderColor: '#7C3AED',
-            borderWidth: 0,
-            borderRadius: 4
-        }]
-    };
+    const selectedEvents = JSON.parse(localStorage.getItem(getUserStorageKeyHome('selectedEvents')) || '[]');
+    const sourceEvents = selectedEvents.length > 0
+        ? selectedEvents
+        : (Array.isArray(window.dashboardEvents) ? window.dashboardEvents : []);
 
-    // Weekly Activity Chart
+    const weeklySeries = buildWeeklyActivitySeries(sourceEvents);
+    const monthlySummary = buildMonthlyActivitySummary(sourceEvents);
+
     const weeklyCtx = document.getElementById('weeklyActivityChart');
     if (weeklyCtx) {
-        new Chart(weeklyCtx, {
+        if (weeklyActivityChartInstance) {
+            weeklyActivityChartInstance.destroy();
+        }
+
+        weeklyActivityChartInstance = new Chart(weeklyCtx, {
             type: 'bar',
-            data: weeklyData,
+            data: {
+                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                datasets: [{
+                    label: 'Planned Activities',
+                    data: weeklySeries,
+                    backgroundColor: '#7C3AED',
+                    borderColor: '#7C3AED',
+                    borderWidth: 0,
+                    borderRadius: 4
+                }]
+            },
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
                 plugins: {
-                    legend: {
-                        display: false
-                    }
+                    legend: { display: false }
                 },
                 scales: {
                     y: {
                         beginAtZero: true,
-                        max: 5,
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
-                        }
+                        ticks: { precision: 0 },
+                        suggestedMax: Math.max(3, ...weeklySeries) + 1,
+                        grid: { color: 'rgba(0, 0, 0, 0.08)' }
                     },
                     x: {
-                        grid: {
-                            display: false
-                        }
+                        grid: { display: false }
                     }
                 }
             }
         });
     }
-    
-    // Generate monthly streak data - Doughnut chart  
-    const monthlyData = {
-        labels: ['Days Active', 'Days Inactive'],
-        datasets: [{
-            data: [20, 10],
-            backgroundColor: ['#7C3AED', '#E5E7EB'],
-            borderColor: ['#7C3AED', '#E5E7EB'],
-            borderWidth: 0
-        }]
-    };
-    
-    // Monthly Streak Chart - Doughnut
+
     const monthlyCtx = document.getElementById('monthlyStreakChart');
     if (monthlyCtx) {
-        new Chart(monthlyCtx, {
+        if (monthlyStreakChartInstance) {
+            monthlyStreakChartInstance.destroy();
+        }
+
+        monthlyStreakChartInstance = new Chart(monthlyCtx, {
             type: 'doughnut',
-            data: monthlyData,
+            data: {
+                labels: ['Active Days', 'Remaining Days'],
+                datasets: [{
+                    data: [monthlySummary.activeDays, monthlySummary.inactiveDays],
+                    backgroundColor: ['#7C3AED', '#E5E7EB'],
+                    borderColor: ['#7C3AED', '#E5E7EB'],
+                    borderWidth: 0
+                }]
+            },
             options: {
                 responsive: true,
                 maintainAspectRatio: true,
@@ -113,6 +118,72 @@ function loadActivityGraphs() {
             }
         });
     }
+
+    updateActivityInsightText(monthlySummary.activeDays);
+}
+
+function buildWeeklyActivitySeries(events) {
+    const series = [0, 0, 0, 0, 0, 0, 0];
+    const now = new Date();
+    const day = now.getDay();
+    const mondayOffset = day === 0 ? -6 : 1 - day;
+    const weekStart = new Date(now);
+    weekStart.setDate(now.getDate() + mondayOffset);
+    weekStart.setHours(0, 0, 0, 0);
+
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+    weekEnd.setHours(23, 59, 59, 999);
+
+    events.forEach((event) => {
+        const rawDate = event.startDate || event.start;
+        if (!rawDate) return;
+        const eventDate = new Date(rawDate);
+        if (Number.isNaN(eventDate.getTime())) return;
+        if (eventDate < weekStart || eventDate > weekEnd) return;
+
+        const jsDay = eventDate.getDay();
+        const mondayIndex = jsDay === 0 ? 6 : jsDay - 1;
+        series[mondayIndex] += 1;
+    });
+
+    return series;
+}
+
+function buildMonthlyActivitySummary(events) {
+    const now = new Date();
+    const month = now.getMonth();
+    const year = now.getFullYear();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const activeDaysSet = new Set();
+
+    events.forEach((event) => {
+        const rawDate = event.startDate || event.start;
+        if (!rawDate) return;
+        const eventDate = new Date(rawDate);
+        if (Number.isNaN(eventDate.getTime())) return;
+        if (eventDate.getMonth() !== month || eventDate.getFullYear() !== year) return;
+
+        activeDaysSet.add(eventDate.getDate());
+    });
+
+    const activeDays = activeDaysSet.size;
+    return {
+        activeDays,
+        inactiveDays: Math.max(0, daysInMonth - activeDays)
+    };
+}
+
+function updateActivityInsightText(activeDaysThisMonth) {
+    const insight = document.querySelector('.insight-note');
+    if (!insight) return;
+
+    const thisWeekSeries = buildWeeklyActivitySeries(
+        JSON.parse(localStorage.getItem(getUserStorageKeyHome('selectedEvents')) || '[]')
+    );
+    const activeDaysThisWeek = thisWeekSeries.filter(count => count > 0).length;
+
+    insight.textContent = `You've been active ${activeDaysThisWeek} out of 7 days this week, and ${activeDaysThisMonth} days this month.`;
 }
 
 /**
@@ -126,24 +197,22 @@ async function loadUpcomingEvents() {
         const userId = user._id || user.id;
         const apiBase = window.API_CONFIG?.BASE_URL || 'http://localhost:5000/api';
         
-        // Try to fetch from API with proper error handling
-        let events = [];
-        try {
-            const response = await fetch(`${apiBase}/events?userId=${userId}`);
-            if (response.ok) {
-                const payload = await response.json();
-                events = Array.isArray(payload?.data) ? payload.data : (Array.isArray(payload) ? payload : []);
-            }
-        } catch (e) {
-            console.log('API fetch failed, trying alternative method');
-        }
-        
-        // If no events from API, use events already loaded into dashboard calendar state
+        // Prefer the already-loaded calendar feed for immediate sync with dashboard calendar.
+        let events = Array.isArray(window.dashboardEvents) ? window.dashboardEvents : [];
+
+        // Fallback to API only when dashboard state is not available yet.
         if (!events || events.length === 0) {
-            if (Array.isArray(window.dashboardEvents)) {
-                events = window.dashboardEvents;
-            } else {
-                events = [];
+            try {
+                const authToken = localStorage.getItem('token') || sessionStorage.getItem('token');
+                const response = await fetch(`${apiBase}/events?userId=${userId}`, {
+                    headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
+                });
+                if (response.ok) {
+                    const payload = await response.json();
+                    events = Array.isArray(payload?.data) ? payload.data : (Array.isArray(payload) ? payload : []);
+                }
+            } catch (e) {
+                console.log('API fetch failed, falling back to in-memory dashboard events');
             }
         }
         
@@ -175,6 +244,8 @@ async function loadUpcomingEvents() {
                 return new Date(a.startDate) - new Date(b.startDate);
             })
             .slice(0, 10); // Limit to 10 events
+
+        loadActivityGraphs();
 
         currentUpcomingEventsById = {};
         upcomingEvents.forEach(event => {
@@ -310,6 +381,7 @@ function toggleUpcomingGoal(eventId) {
     localStorage.setItem(getUserStorageKeyHome('selectedEvents'), JSON.stringify(selectedEvents));
     loadSelectedGoals();
     loadUpcomingEvents();
+    loadActivityGraphs();
 }
 
 function toggleUpcomingPin(eventId) {
@@ -396,6 +468,11 @@ function showSection(sectionName) {
 function refreshUpcomingEvents() {
     loadUpcomingEvents();
 }
+
+window.addEventListener('dashboardEventsUpdated', () => {
+    loadUpcomingEvents();
+    loadActivityGraphs();
+});
 
 /**
  * Trigger refresh when visibility changes (page comes back into focus)
