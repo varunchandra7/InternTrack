@@ -432,6 +432,33 @@ let calendar;
 let currentEventData = null;
 
 /**
+ * Get calendar event logo (small version for inline display)
+ * Returns HTML string for platform logo or empty string
+ */
+function getCalendarEventLogo(event) {
+    if (!event) return '';
+    
+    const platform = event.platform ? event.platform.toLowerCase() : '';
+    
+    switch(platform) {
+        case 'codeforces':
+            return '<img src="images/code-forces.png" alt="CodeForces" class="calendar-event-logo" title="CodeForces">';
+        case 'leetcode':
+            return '<img src="images/leetcode.png" alt="LeetCode" class="calendar-event-logo" title="LeetCode">';
+        case 'codechef':
+            return '<img src="images/codechef.png" alt="CodeChef" class="calendar-event-logo" title="CodeChef">';
+        case 'atcoder':
+            return '<span class="calendar-event-badge" style="background: #FF6B35;">AT</span>';
+        case 'hackerrank':
+            return '<span class="calendar-event-badge" style="background: #00C89B;">HR</span>';
+        case 'hackerearth':
+            return '<span class="calendar-event-badge" style="background: #5037FF;">HE</span>';
+        default:
+            return '';
+    }
+}
+
+/**
  * Get logo and platform class for an event
  */
 function getPlatformInfo(event) {
@@ -729,12 +756,17 @@ function initializeCalendar() {
                 }
             },
             eventDidMount: function(info) {
-                // Add logo to event title
-                const logo = info.event.extendedProps.logo;
+                // Get platform logo for calendar event (small version)
+                const logo = getCalendarEventLogo(info.event.extendedProps);
                 if (logo && info.el) {
                     const titleEl = info.el.querySelector('.fc-event-title');
                     if (titleEl) {
+                        // Clear existing content and add logo + title
                         titleEl.innerHTML = `${logo} ${titleEl.textContent}`;
+                        // Add flex display for proper alignment
+                        titleEl.style.display = 'flex';
+                        titleEl.style.alignItems = 'center';
+                        titleEl.style.gap = '0.3rem';
                     }
                 }
             },
