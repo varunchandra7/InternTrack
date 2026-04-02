@@ -371,6 +371,20 @@ function updateToolbarState() {
     document.getElementById('viewDay').classList.toggle('active', type === 'timeGridDay');
 }
 
+function buildEventDetailsUrl(eventObj) {
+    const cacheKey = `interntrack-event-detail-${eventObj.id}-${Date.now()}`;
+    localStorage.setItem(cacheKey, JSON.stringify({
+        createdAt: Date.now(),
+        event: eventObj
+    }));
+    return `event-details.html?source=calendar&key=${encodeURIComponent(cacheKey)}`;
+}
+
+function openEventDetailsPage(eventObj) {
+    const detailsUrl = buildEventDetailsUrl(eventObj);
+    window.open(detailsUrl, '_blank', 'noopener,noreferrer');
+}
+
 function openEventModal(eventObj) {
     const meta = typeMeta[eventObj.type] || typeMeta.workshop;
     const modalOverlay = document.getElementById('eventModalOverlay');
@@ -399,7 +413,9 @@ function openEventModal(eventObj) {
     registerBtn.href = eventObj.registrationLink;
 
     const detailsBtn = document.getElementById('modalDetailsBtn');
-    detailsBtn.href = `event-details.html?event=${encodeURIComponent(eventObj.title)}&id=${encodeURIComponent(eventObj.id)}`;
+    detailsBtn.href = buildEventDetailsUrl(eventObj);
+    detailsBtn.target = '_blank';
+    detailsBtn.rel = 'noopener noreferrer';
 
     modalOverlay.classList.add('show');
     modal.focus();
@@ -590,7 +606,7 @@ function initializeCalendar() {
             info.el.setAttribute('aria-label', aria);
         },
         eventClick(info) {
-            openEventModal(info.event.extendedProps);
+            openEventDetailsPage(info.event.extendedProps);
         },
         dateClick(info) {
             if (calendar.view.type === 'dayGridMonth') {

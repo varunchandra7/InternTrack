@@ -1,8 +1,3 @@
-/**
- * Event Details Page JavaScript
- */
-
-// Check authentication
 const token = localStorage.getItem('token') || sessionStorage.getItem('token');
 const user = JSON.parse(localStorage.getItem('user') || sessionStorage.getItem('user') || '{}');
 
@@ -10,716 +5,611 @@ if (!token) {
     window.location.href = 'index.html';
 }
 
-// Get event ID from URL
 const urlParams = new URLSearchParams(window.location.search);
+const source = urlParams.get('source') || '';
+const cacheKey = urlParams.get('key');
 const eventId = urlParams.get('id');
-
-if (!eventId) {
-    showError('No event specified');
-}
-
-// API Base URL
+const fallbackTitle = urlParams.get('event') || urlParams.get('title') || '';
 const API_URL = window.API_CONFIG?.BASE_URL || 'http://localhost:5000/api';
 
-// Fetch and display event details
-async function fetchEventDetails() {
-    try {
-        const response = await fetch(`${API_URL}/events`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
+let currentEvent = null;
+let currentRoadmap = [];
+
+const TYPE_META = {
+    internship: { label: 'Internship', badgeClass: 'badge-internship', accent: '#6366f1' },
+    hackathon: { label: 'Hackathon', badgeClass: 'badge-hackathon', accent: '#ec4899' },
+    fest: { label: 'College Fest', badgeClass: 'badge-workshop', accent: '#3b82f6' },
+    workshop: { label: 'Workshop', badgeClass: 'badge-workshop', accent: '#3b82f6' },
+    exam: { label: 'Exam', badgeClass: 'badge-workshop', accent: '#f59e0b' }
+};
+
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function formatDate(dateString) {
+    if (!dateString) return 'To be announced';
+    const date = new Date(`${dateString}T00:00:00`);
+    if (Number.isNaN(date.getTime())) return dateString;
+    return date.toLocaleDateString('en-US', {
+        month: 'long',
+        day: 'numeric',
+        year: 'numeric'
+    });
+}
+
+function formatDateRange(event) {
+    if (!event.startDate && !event.endDate) return 'Check official page';
+    if (event.startDate && event.endDate) {
+        return `${formatDate(event.startDate)} to ${formatDate(event.endDate)}`;
+    }
+    return formatDate(event.startDate || event.endDate);
+}
+
+function getTypeMeta(type) {
+    return TYPE_META[type] || TYPE_META.workshop;
+}
+
+function normalizeEvent(raw) {
+    const event = raw?.event || raw || {};
+    return {
+        id: event.id || event._id || fallbackTitle || 'event',
+        title: event.title || fallbackTitle || 'Event Details',
+        organizer: event.organizer || event.company || event.college || event.name || 'InternTrack',
+        type: event.type || 'workshop',
+        description: event.description || 'Detailed information will appear here.',
+        startDate: event.startDate || event.start || '',
+        endDate: event.endDate || event.end || event.startDate || '',
+        deadline: event.deadline || event.registrationDeadline || event.endDate || event.startDate || '',
+        skillsRequired: event.skillsRequired || event.skills || [],
+        registrationLink: event.registrationLink || event.link || '#',
+        time: event.time || 'Full day',
+        rounds: event.rounds || [],
+        imageUrl: event.imageUrl || event.bannerUrl || '',
+        roadmapSeed: event.roadmapSeed || ''
+    };
+}
+
+function cleanupCachedEvents() {
+    const prefix = 'interntrack-event-detail-';
+    const maxAge = 6 * 60 * 60 * 1000;
+    const now = Date.now();
+
+    for (let index = 0; index < localStorage.length; index += 1) {
+        const key = localStorage.key(index);
+        if (!key || !key.startsWith(prefix)) {
+            continue;
+        }
+
+        try {
+            const payload = JSON.parse(localStorage.getItem(key) || '{}');
+            const createdAt = payload.createdAt || 0;
+            if (!createdAt || now - createdAt > maxAge) {
+                localStorage.removeItem(key);
             }
-        });
-        
-        if (!response.ok) {
-            throw new Error('Failed to fetch events');
+        } catch {
+            localStorage.removeItem(key);
         }
-        
-        const result = await response.json();
-        const events = result.data || result;
-        
-        // Find the specific event
-        const event = events.find(e => e._id === eventId);
-        
-        if (!event) {
-            showError('Event not found');
-            return;
-        }
-        
-        displayEventDetails(event);
-    } catch (error) {
-        console.error('Error fetching event details:', error);
-        showError('Failed to load event details. Please try again.');
     }
 }
 
-function displayEventDetails(event) {
-    const container = document.getElementById('eventDetailsContainer');
-    
-    // Format dates
-    const startDate = new Date(event.startDate);
-    const endDate = event.endDate ? new Date(event.endDate) : null;
-    const deadline = event.deadline ? new Date(event.deadline) : null;
-    
-    const formatDate = (date) => {
-        return date.toLocaleDateString('en-US', { 
-            month: 'long', 
-            day: 'numeric', 
-            year: 'numeric' 
+function readCachedCalendarEvent() {
+    if (!cacheKey) return null;
+
+    try {
+        const raw = localStorage.getItem(cacheKey);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        return normalizeEvent(parsed);
+    } catch {
+        return null;
+    }
+}
+
+function getBannerColors(type) {
+    switch (type) {
+        case 'internship':
+            return ['#1d4ed8', '#60a5fa'];
+        case 'hackathon':
+            return ['#be185d', '#f472b6'];
+        case 'fest':
+            return ['#0f766e', '#2dd4bf'];
+        case 'exam':
+            return ['#b45309', '#f59e0b'];
+        default:
+            return ['#4338ca', '#818cf8'];
+    }
+}
+
+function createBannerDataUrl(event) {
+    const [fromColor, toColor] = getBannerColors(event.type);
+    const typeLabel = getTypeMeta(event.type).label;
+    const title = escapeHtml(event.title).slice(0, 64);
+    const organizer = escapeHtml(event.organizer).slice(0, 40);
+    const subtitle = escapeHtml((event.skillsRequired || []).slice(0, 4).join(' • ') || 'Preparation roadmap included');
+
+    const svg = `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1400 420" role="img" aria-label="${title}">
+            <defs>
+                <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="${fromColor}" />
+                    <stop offset="100%" stop-color="${toColor}" />
+                </linearGradient>
+                <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#0f172a" flood-opacity="0.24" />
+                </filter>
+            </defs>
+            <rect width="1400" height="420" rx="36" fill="url(#bg)" />
+            <circle cx="1220" cy="86" r="112" fill="rgba(255,255,255,0.15)" />
+            <circle cx="112" cy="330" r="90" fill="rgba(255,255,255,0.12)" />
+            <circle cx="1160" cy="300" r="180" fill="rgba(255,255,255,0.08)" />
+            <rect x="70" y="66" width="1260" height="288" rx="28" fill="rgba(255,255,255,0.11)" stroke="rgba(255,255,255,0.22)" filter="url(#shadow)" />
+            <text x="122" y="146" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="700" letter-spacing="2">${typeLabel.toUpperCase()}</text>
+            <text x="122" y="228" fill="#ffffff" font-family="Arial, Helvetica, sans-serif" font-size="66" font-weight="800">${title}</text>
+            <text x="122" y="286" fill="rgba(255,255,255,0.92)" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="600">${organizer}</text>
+            <text x="122" y="332" fill="rgba(255,255,255,0.86)" font-family="Arial, Helvetica, sans-serif" font-size="22">${subtitle}</text>
+            <rect x="1040" y="128" width="156" height="60" rx="30" fill="rgba(255,255,255,0.18)" />
+            <text x="1118" y="166" fill="#ffffff" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-size="24" font-weight="700">InternTrack</text>
+        </svg>`;
+
+    return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
+function buildRoundDetails(event) {
+    if (Array.isArray(event.rounds) && event.rounds.length) {
+        return event.rounds.map((round, index) => ({
+            number: index + 1,
+            title: round.title || `Round ${index + 1}`,
+            ask: round.ask || round.description || round,
+            skills: round.skills || event.skillsRequired || [],
+            outcome: round.outcome || round.result || 'Shortlisted candidates move ahead.'
+        }));
+    }
+
+    const sharedSkills = (event.skillsRequired || []).join(', ') || 'core preparation skills';
+
+    if (event.type === 'internship') {
+        return [
+            {
+                number: 1,
+                title: 'Resume Screening',
+                ask: `Recruiters check whether your profile matches ${event.organizer} and whether your projects prove strong fundamentals.`,
+                skills: ['resume clarity', 'projects', 'branch relevance', 'CGPA'],
+                outcome: 'Only candidates with clear fit move forward.'
+            },
+            {
+                number: 2,
+                title: 'Online Assessment',
+                ask: 'Expect coding questions, aptitude, and a quick CS fundamentals check covering data structures, algorithms, and sometimes OS or DBMS.',
+                skills: ['DSA', 'problem solving', 'aptitude', 'time management'],
+                outcome: 'High scorers are invited to technical interviews.'
+            },
+            {
+                number: 3,
+                title: 'Technical Interview',
+                ask: 'Interviewers usually dig into one or two coding problems plus your projects, design choices, and the trade-offs you made.',
+                skills: ['coding', 'projects', 'system thinking', 'communication'],
+                outcome: 'Strong technical depth is required to clear this round.'
+            },
+            {
+                number: 4,
+                title: 'HR / Hiring Discussion',
+                ask: 'They ask why you want this role, how you work in teams, and whether your timeline and expectations match the company.',
+                skills: ['confidence', 'clarity', 'teamwork', 'motivation'],
+                outcome: 'Final shortlist and offer decisions are made here.'
+            }
+        ];
+    }
+
+    if (event.type === 'hackathon') {
+        return [
+            {
+                number: 1,
+                title: 'Idea Submission',
+                ask: 'Teams submit the problem statement, why it matters, the target users, and a feasible solution plan.',
+                skills: ['problem framing', 'product thinking', 'team planning'],
+                outcome: 'Only practical and high-impact ideas are shortlisted.'
+            },
+            {
+                number: 2,
+                title: 'Technical Screening',
+                ask: 'Judges check whether the solution is buildable, whether the stack is realistic, and whether the team can deliver in time.',
+                skills: ['system design basics', 'stack selection', 'feasibility'],
+                outcome: 'Selected teams are allowed into the build phase.'
+            },
+            {
+                number: 3,
+                title: 'Prototype Build',
+                ask: 'Teams must produce a working prototype, live demo, or polished walkthrough with clear feature coverage.',
+                skills: ['frontend', 'backend', 'debugging', 'deployment'],
+                outcome: 'Working demos move to the final judging stage.'
+            },
+            {
+                number: 4,
+                title: 'Final Presentation',
+                ask: 'Judges ask about innovation, impact, scalability, edge cases, and how your solution differs from existing tools.',
+                skills: ['presentation', 'storytelling', 'demo skills', 'Q&A'],
+                outcome: 'Winners are picked based on impact and execution.'
+            }
+        ];
+    }
+
+    if (event.type === 'fest') {
+        return [
+            {
+                number: 1,
+                title: 'Registration and Eligibility Check',
+                ask: 'The organiser verifies team details, college ID, event category, and eligibility rules before allowing participation.',
+                skills: ['registration accuracy', 'team coordination'],
+                outcome: 'Valid entries are entered into the event bracket.'
+            },
+            {
+                number: 2,
+                title: 'Prelims / Shortlist',
+                ask: 'Participants are usually tested on domain basics such as coding, robotics, quiz knowledge, or project relevance.',
+                skills: ['subject fundamentals', 'speed', 'accuracy'],
+                outcome: 'Top entries move to the live event.'
+            },
+            {
+                number: 3,
+                title: 'Final Event',
+                ask: 'Finalists present, perform, or compete live depending on the event format and the theme of the fest.',
+                skills: ['confidence', 'performance', 'technical execution'],
+                outcome: 'Judges announce winners and special mentions.'
+            }
+        ];
+    }
+
+    return [
+        {
+            number: 1,
+            title: 'Registration and Prerequisites',
+            ask: 'Organisers check if you completed the required setup or basic prerequisites before the session starts.',
+            skills: ['setup', 'basics', 'attention to detail'],
+            outcome: 'Only prepared participants continue.'
+        },
+        {
+            number: 2,
+            title: 'Hands-on Exercise',
+            ask: 'Expect practical questions and step-by-step tasks that test whether you can apply the concept live.',
+            skills: sharedSkills,
+            outcome: 'Hands-on understanding matters more than memorisation.'
+        },
+        {
+            number: 3,
+            title: 'Q&A / Assessment',
+            ask: 'The instructor may ask you to explain the process, troubleshoot an issue, or show the output you built.',
+            skills: ['communication', 'troubleshooting', 'concept clarity'],
+            outcome: 'Successful participants receive certificates or further invites.'
+        }
+    ];
+}
+
+function buildRoadmapSteps(event) {
+    const sharedSkills = (event.skillsRequired || []).slice(0, 5);
+
+    if (event.type === 'internship') {
+        return [
+            {
+                title: 'Refresh the core subjects',
+                window: 'Week 1',
+                focus: 'Revise DSA, OS, DBMS, and CN so you can move quickly in the OA and technical rounds.',
+                skills: ['DSA', 'OS', 'DBMS', 'CN']
+            },
+            {
+                title: 'Polish projects and resume',
+                window: 'Week 2',
+                focus: 'Rewrite project bullets with impact, stack, and results. Be ready to explain each project in one minute.',
+                skills: ['resume writing', 'project explanation', 'impact writing']
+            },
+            {
+                title: 'Practice timed interviews',
+                window: 'Week 3',
+                focus: 'Solve mock coding questions, rehearse system design basics, and prepare for behavioral questions.',
+                skills: ['mock interviews', 'coding under pressure', 'communication']
+            },
+            {
+                title: 'Apply early and track responses',
+                window: 'Week 4',
+                focus: 'Submit applications, keep a response sheet, and prepare a short note for each company you apply to.',
+                skills: ['application tracking', 'follow-up', 'timing']
+            }
+        ];
+    }
+
+    if (event.type === 'hackathon') {
+        return [
+            {
+                title: 'Understand the problem statement',
+                window: 'Before registration closes',
+                focus: 'Read the theme, shortlist a feasible problem, and decide how the solution will help real users.',
+                skills: ['problem framing', 'idea selection']
+            },
+            {
+                title: 'Choose a stack and divide roles',
+                window: 'Planning day',
+                focus: 'Keep the stack familiar, assign frontend, backend, design, and pitch responsibilities, and set milestones.',
+                skills: ['team planning', 'stack choice', 'ownership']
+            },
+            {
+                title: 'Build the minimum viable prototype',
+                window: 'Build sprint',
+                focus: 'Focus on a working demo, a clean UI, and one clear feature set rather than many unfinished ideas.',
+                skills: ['MVP building', 'debugging', 'deployment']
+            },
+            {
+                title: 'Prepare the demo and pitch',
+                window: 'Final review',
+                focus: 'Create a crisp presentation that explains the problem, the solution, the impact, and what comes next.',
+                skills: ['storytelling', 'demo', 'presentation']
+            }
+        ];
+    }
+
+    if (event.type === 'fest') {
+        return [
+            {
+                title: 'Register the team and verify rules',
+                window: 'Before the fest',
+                focus: 'Check category requirements, team size, venue details, and any qualification rules listed by the organisers.',
+                skills: ['registration', 'event rules']
+            },
+            {
+                title: 'Prepare for prelims or qualifiers',
+                window: 'Practice week',
+                focus: 'Revise the core topic, practice sample questions, and work on speed, accuracy, and coordination.',
+                skills: sharedSkills.length ? sharedSkills : ['basics', 'accuracy']
+            },
+            {
+                title: 'Rehearse the final event',
+                window: 'Final round',
+                focus: 'Dry-run the live presentation or competition flow so you can perform confidently under pressure.',
+                skills: ['confidence', 'stage presence', 'timing']
+            }
+        ];
+    }
+
+    return [
+        {
+            title: 'Set up the environment',
+            window: 'Day 1',
+            focus: 'Install the required tools, read the schedule carefully, and confirm that your laptop or setup is ready.',
+            skills: ['setup', 'tools']
+        },
+        {
+            title: 'Work through the hands-on tasks',
+            window: 'Day 2',
+            focus: 'Practice the exact workflow the session will use so you can follow along without getting stuck.',
+            skills: sharedSkills.length ? sharedSkills : ['practice', 'execution']
+        },
+        {
+            title: 'Review notes and keep the outcome ready',
+            window: 'Day 3',
+            focus: 'Summarise the lesson, keep screenshots or notes, and be ready for any quiz, submission, or follow-up.',
+            skills: ['revision', 'notes', 'follow-up']
+        }
+    ];
+}
+
+function buildRoadmapText(event, steps) {
+    const header = `${event.title} - Preparation Roadmap`;
+    const lines = [header, `Organizer: ${event.organizer}`, `Type: ${getTypeMeta(event.type).label}`, ''];
+
+    steps.forEach((step, index) => {
+        lines.push(`${index + 1}. ${step.title} (${step.window})`);
+        lines.push(`   Focus: ${step.focus}`);
+        lines.push(`   Skills: ${Array.isArray(step.skills) ? step.skills.join(', ') : step.skills}`);
+    });
+
+    return lines.join('\n');
+}
+
+function getSavedEvents() {
+    try {
+        return JSON.parse(localStorage.getItem('selectedEvents') || '[]');
+    } catch {
+        return [];
+    }
+}
+
+function getEventStorageKey(event) {
+    return String(event.id || event._id || event.title).toLowerCase();
+}
+
+function isEventSaved(event) {
+    const key = getEventStorageKey(event);
+    return getSavedEvents().some((item) => getEventStorageKey(item) === key);
+}
+
+function toggleEventSave(event) {
+    const key = getEventStorageKey(event);
+    const savedEvents = getSavedEvents();
+    const existingIndex = savedEvents.findIndex((item) => getEventStorageKey(item) === key);
+
+    if (existingIndex >= 0) {
+        savedEvents.splice(existingIndex, 1);
+    } else {
+        savedEvents.push({
+            id: event.id,
+            title: event.title,
+            organizer: event.organizer,
+            type: event.type,
+            start: event.startDate || event.deadline || '',
+            deadline: event.deadline || '',
+            registrationLink: event.registrationLink || ''
         });
-    };
-    
-    // Determine badge class
-    const badgeClass = `badge-${event.type}`;
-    const typeName = event.type.charAt(0).toUpperCase() + event.type.slice(1);
-    
-    // Check if event is already in selected events
-    const selectedEvents = JSON.parse(localStorage.getItem('selectedEvents') || '[]');
-    const isSelected = selectedEvents.some(e => (e.id || e._id) === event._id);
-    
+    }
+
+    localStorage.setItem('selectedEvents', JSON.stringify(savedEvents));
+}
+
+function renderEventCardList(items, className, useRoadmap = false) {
+    return items.map((item) => `
+        <div class="${className}">
+            <h4>${escapeHtml(item.title || `Round ${item.number || ''}`)}</h4>
+            ${item.window ? `<p class="card-kicker">${escapeHtml(item.window)}</p>` : ''}
+            ${item.ask ? `<p><strong>What they ask:</strong> ${escapeHtml(item.ask)}</p>` : ''}
+            ${item.focus ? `<p>${escapeHtml(item.focus)}</p>` : ''}
+            ${item.skills ? `<div class="chips">${[].concat(item.skills).map((skill) => `<span class="chip">${escapeHtml(skill)}</span>`).join('')}</div>` : ''}
+            ${item.outcome ? `<p class="card-outcome"><strong>Outcome:</strong> ${escapeHtml(item.outcome)}</p>` : ''}
+            ${useRoadmap && item.step ? `<p class="card-outcome"><strong>Step:</strong> ${escapeHtml(item.step)}</p>` : ''}
+        </div>
+    `).join('');
+}
+
+function renderEventDetails(event) {
+    currentEvent = normalizeEvent(event);
+    currentRoadmap = buildRoadmapSteps(currentEvent);
+
+    const bannerUrl = currentEvent.imageUrl || createBannerDataUrl(currentEvent);
+    const typeMeta = getTypeMeta(currentEvent.type);
+    const rounds = buildRoundDetails(currentEvent);
+    const skills = [...new Set(currentEvent.skillsRequired || [])];
+    const backLink = source === 'calendar' ? 'calendar.html' : 'dashboard.html';
+
+    const backButton = document.querySelector('.back-button');
+    if (backButton) {
+        backButton.href = backLink;
+        backButton.innerHTML = source === 'calendar'
+            ? '<i class="fas fa-arrow-left"></i> Back to Calendar'
+            : '<i class="fas fa-arrow-left"></i> Back to Dashboard';
+    }
+
+    const container = document.getElementById('eventDetailsContainer');
+    const roadmapText = buildRoadmapText(currentEvent, currentRoadmap);
+    const roundCount = rounds.length;
+    const headline = currentEvent.description || `Detailed guidance for ${currentEvent.title}.`;
+    const applyLabel = currentEvent.registrationLink && currentEvent.registrationLink !== '#'
+        ? 'Open Official Page'
+        : 'No Official Link Available';
+
     container.innerHTML = `
         <div class="event-details-card">
-            <div class="event-header">
-                <h1 class="event-title">${event.title}</h1>
-                <p class="event-company">${event.company}</p>
-                <div class="badges">
-                    <span class="badge ${badgeClass}">${typeName}</span>
-                    ${event.eligibility ? `<span class="badge" style="background: rgba(16, 185, 129, 0.1); color: #10b981;">${event.eligibility}</span>` : ''}
+            <div class="detail-hero">
+                <div class="detail-banner">
+                    <img src="${escapeHtml(bannerUrl)}" alt="${escapeHtml(currentEvent.organizer)} banner" class="banner-image">
+                </div>
+                <div class="detail-hero-copy">
+                    <div class="badges detail-badges">
+                        <span class="badge ${typeMeta.badgeClass}">${typeMeta.label}</span>
+                        <span class="badge badge-soft">${roundCount} rounds</span>
+                    </div>
+                    <h1 class="event-title">${escapeHtml(currentEvent.title)}</h1>
+                    <p class="event-company">${escapeHtml(currentEvent.organizer)}</p>
+                    <p class="hero-summary">${escapeHtml(headline)}</p>
                 </div>
             </div>
 
-            <div class="event-info-grid">
+            <div class="event-info-grid detail-grid">
                 <div class="info-item">
                     <i class="fas fa-calendar-alt"></i>
                     <div class="info-content">
-                        <h4>Start Date</h4>
-                        <p>${formatDate(startDate)}</p>
+                        <h4>Date Range</h4>
+                        <p>${escapeHtml(formatDateRange(currentEvent))}</p>
                     </div>
                 </div>
-                ${endDate ? `
-                <div class="info-item">
-                    <i class="fas fa-calendar-check"></i>
-                    <div class="info-content">
-                        <h4>End Date</h4>
-                        <p>${formatDate(endDate)}</p>
-                    </div>
-                </div>
-                ` : ''}
-                ${deadline ? `
                 <div class="info-item">
                     <i class="fas fa-clock"></i>
                     <div class="info-content">
-                        <h4>Registration Deadline</h4>
-                        <p>${formatDate(deadline)}</p>
+                        <h4>Deadline / Status</h4>
+                        <p>${escapeHtml(currentEvent.deadline ? formatDate(currentEvent.deadline) : 'Check official page')}</p>
                     </div>
                 </div>
-                ` : ''}
-                ${event.location ? `
                 <div class="info-item">
-                    <i class="fas fa-map-marker-alt"></i>
+                    <i class="fas fa-layer-group"></i>
                     <div class="info-content">
-                        <h4>Location</h4>
-                        <p>${event.location}</p>
+                        <h4>Selection Stages</h4>
+                        <p>${roundCount} round${roundCount === 1 ? '' : 's'}</p>
                     </div>
                 </div>
-                ` : ''}
-                ${event.duration ? `
                 <div class="info-item">
-                    <i class="fas fa-hourglass-half"></i>
+                    <i class="fas fa-bolt"></i>
                     <div class="info-content">
-                        <h4>Duration</h4>
-                        <p>${event.duration}</p>
+                        <h4>Prep Focus</h4>
+                        <p>${escapeHtml((skills.slice(0, 3).join(' • ') || 'General preparation'))}</p>
                     </div>
                 </div>
-                ` : ''}
-                ${event.stipend ? `
-                <div class="info-item">
-                    <i class="fas fa-money-bill-wave"></i>
-                    <div class="info-content">
-                        <h4>Stipend</h4>
-                        <p>${event.stipend}</p>
-                    </div>
-                </div>
-                ` : ''}
             </div>
 
-            ${event.description ? `
             <div class="section">
-                <h3 class="section-title">
-                    <i class="fas fa-info-circle"></i>
-                    About This ${typeName}
-                </h3>
+                <h3 class="section-title"><i class="fas fa-info-circle"></i> About This ${escapeHtml(typeMeta.label)}</h3>
                 <div class="description">
-                    ${getEnhancedDescription(event)}
+                    <p>${escapeHtml(headline)}</p>
+                    <p><strong>How it works:</strong> This page is generated from the calendar event itself, so the rounds and roadmap below are matched to this event type and the skills listed on the card.</p>
                 </div>
             </div>
-            ` : ''}
 
-            ${event.skills && event.skills.length > 0 ? `
             <div class="section">
-                <h3 class="section-title">
-                    <i class="fas fa-code"></i>
-                    Required Skills
-                </h3>
+                <h3 class="section-title"><i class="fas fa-list-check"></i> What Each Round Asks</h3>
+                <div class="rounds-grid">
+                    ${renderEventCardList(rounds, 'round-card')}
+                </div>
+            </div>
+
+            <div class="section">
+                <h3 class="section-title"><i class="fas fa-route"></i> Generated Roadmap</h3>
+                <div class="roadmap-grid">
+                    ${renderEventCardList(currentRoadmap.map((step, index) => ({ ...step, step: `Step ${index + 1}` })), 'roadmap-card', true)}
+                </div>
+            </div>
+
+            <div class="section">
+                <h3 class="section-title"><i class="fas fa-code"></i> Required Skills</h3>
                 <div class="skills-list">
-                    ${event.skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
+                    ${skills.map((skill) => `<span class="skill-tag">${escapeHtml(skill)}</span>`).join('')}
                 </div>
             </div>
-            ` : ''}
 
-            ${event.rounds && event.rounds.length > 0 ? `
             <div class="section">
-                <h3 class="section-title">
-                    <i class="fas fa="tasks"></i>
-                    Selection Process
-                </h3>
-                <div class="rounds-list">
-                    ${event.rounds.map((round, index) => `
-                        <div class="round-item">
-                            <i class="fas fa-check-circle"></i>
-                            Round ${index + 1}: ${round}
-                        </div>
-                    `).join('')}
+                <h3 class="section-title"><i class="fas fa-lightbulb"></i> Fast Prep Notes</h3>
+                <div class="description">
+                    <p><strong>Round count:</strong> ${roundCount}</p>
+                    <p><strong>Best strategy:</strong> Focus on the first three skills above, then rehearse one real example per round so you can explain your thinking clearly.</p>
+                    <p><strong>Roadmap copy:</strong> Use the button below to copy a clean prep plan for this event.</p>
                 </div>
             </div>
-            ` : ''}
-
-            ${getPreparationGuide(event)}
 
             <div class="action-buttons">
-                <button class="btn btn-primary" onclick="toggleEventSelection()">
-                    <i class="fas ${isSelected ? 'fa-times' : 'fa-plus'}"></i>
-                    ${isSelected ? 'Remove from Goals' : 'Add to Goals'}
+                <button class="btn btn-primary" id="saveGoalsBtn" type="button">
+                    <i class="fas ${isEventSaved(currentEvent) ? 'fa-check' : 'fa-plus'}"></i>
+                    <span>${isEventSaved(currentEvent) ? 'Saved to Goals' : 'Add to Goals'}</span>
                 </button>
-                ${event.registrationLink ? `
-                <a href="${event.registrationLink}" target="_blank" class="btn btn-secondary">
+                <a href="${escapeHtml(currentEvent.registrationLink || '#')}" target="_blank" rel="noopener noreferrer" class="btn btn-secondary ${currentEvent.registrationLink && currentEvent.registrationLink !== '#' ? '' : 'btn-disabled'}" id="officialLinkBtn">
                     <i class="fas fa-external-link-alt"></i>
-                    Registration Link
+                    <span>${applyLabel}</span>
                 </a>
-                ` : ''}
-                ${event.link ? `
-                <a href="${event.link}" target="_blank" class="btn btn-secondary">
-                    <i class="fas fa-external-link-alt"></i>
-                    Visit Official Page
-                </a>
-                ` : ''}
+                <button class="btn btn-secondary" id="copyRoadmapBtn" type="button">
+                    <i class="fas fa-copy"></i>
+                    <span>Copy Roadmap</span>
+                </button>
             </div>
         </div>
     `;
-}
 
-function getEnhancedDescription(event) {
-    let enhanced = `<div class="enhanced-description">`;
-    
-    // Original description
-    enhanced += `<p class="main-description">${event.description}</p>`;
-    
-    // Add type-specific context
-    if (event.type === 'hackathon') {
-        enhanced += `
-            <div class="description-section">
-                <h4><i class="fas fa-bullseye"></i> What to Expect</h4>
-                <p>This hackathon is an intensive innovation challenge where you'll collaborate with talented developers, designers, and innovators to build working prototypes. You'll have ${event.endDate ? 'multiple days' : '24-48 hours'} to transform your ideas into reality, with access to mentors, technical resources, and networking opportunities.</p>
-            </div>
-            
-            <div class="description-section">
-                <h4><i class="fas fa-gift"></i> Why Participate?</h4>
-                <ul class="benefits-list">
-                    <li><i class="fas fa-trophy"></i> <strong>Win Prizes:</strong> Cash rewards, tech gadgets, and exclusive swag from ${event.company}</li>
-                    <li><i class="fas fa-handshake"></i> <strong>Direct Recruitment:</strong> Top performers often receive internship/job offers directly</li>
-                    <li><i class="fas fa-users"></i> <strong>Networking:</strong> Connect with industry professionals, potential co-founders, and like-minded developers</li>
-                    <li><i class="fas fa-chart-line"></i> <strong>Skill Development:</strong> Learn new technologies, improve problem-solving, and build portfolio projects</li>
-                    <li><i class="fas fa-certificate"></i> <strong>Recognition:</strong> Certificates of participation and winner announcements on company platforms</li>
-                </ul>
-            </div>
-            
-            <div class="description-section">
-                <h4><i class="fas fa-users-cog"></i> Who Should Apply?</h4>
-                <p>This hackathon is open to ${event.eligibility || 'all students and developers'}. Whether you're a beginner or experienced coder, teams with diverse skills (frontend, backend, design, product management) have the best chances of success. Solo participants can join and find team members during the event.</p>
-            </div>
-        `;
-    } else if (event.type === 'internship') {
-        enhanced += `
-            <div class="description-section">
-                <h4><i class="fas fa-briefcase"></i> About This Internship</h4>
-                <p>${event.company} is offering this ${event.duration || '8-12 week'} internship opportunity for talented students to gain hands-on experience in real-world software development. You'll work alongside experienced engineers on impactful projects that affect millions of users.</p>
-            </div>
-            
-            <div class="description-section">
-                <h4><i class="fas fa-star"></i> What You'll Gain</h4>
-                <ul class="benefits-list">
-                    <li><i class="fas fa-laptop-code"></i> <strong>Real Projects:</strong> Work on production code, not just learning exercises</li>
-                    <li><i class="fas fa-user-tie"></i> <strong>Mentorship:</strong> 1-on-1 guidance from senior engineers and tech leads</li>
-                    <li><i class="fas fa-money-bill-wave"></i> <strong>Competitive Stipend:</strong> ${event.stipend || 'Industry-standard compensation for your work'}</li>
-                    <li><i class="fas fa-graduation-cap"></i> <strong>Learning:</strong> Access to internal training, tech talks, and workshops</li>
-                    <li><i class="fas fa-door-open"></i> <strong>PPO Potential:</strong> High-performing interns often receive Pre-Placement Offers (full-time roles)</li>
-                    <li><i class="fas fa-building"></i> <strong>Company Culture:</strong> Experience working at ${event.company} firsthand</li>
-                </ul>
-            </div>
-            
-            <div class="description-section">
-                <h4><i class="fas fa-check-circle"></i> Eligibility & Requirements</h4>
-                <p><strong>Who can apply:</strong> ${event.eligibility || 'Pre-final and final year students from CS/IT/related branches'}</p>
-                <p><strong>Selection process:</strong> The hiring process is rigorous and includes ${event.rounds ? event.rounds.length : '3-4'} rounds of technical and behavioral interviews. Strong data structures, algorithms, and problem-solving skills are essential.</p>
-            </div>
-            
-            <div class="description-section">
-                <h4><i class="fas fa-calendar-check"></i> Important Dates</h4>
-                <p><strong>Application Deadline:</strong> ${event.deadline ? new Date(event.deadline).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : 'Check official page'}</p>
-                <p><strong>Internship Duration:</strong> ${event.startDate && event.endDate ? `${new Date(event.startDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })} to ${new Date(event.endDate).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}` : 'Typically 8-12 weeks during summer/winter break'}</p>
-                <p><strong>💡 Tip:</strong> Apply early! Applications are reviewed on a rolling basis, and positions fill quickly.</p>
-            </div>
-        `;
-    } else if (event.type === 'contest') {
-        enhanced += `
-            <div class="description-section">
-                <h4><i class="fas fa-trophy"></i> About This Contest</h4>
-                <p>This competitive programming contest by ${event.company} is designed to test your algorithmic thinking, coding speed, and problem-solving abilities. Compete against thousands of talented programmers from around the world to prove your skills and climb the leaderboard.</p>
-            </div>
-            
-            <div class="description-section">
-                <h4><i class="fas fa-medal"></i> Why Compete?</h4>
-                <ul class="benefits-list">
-                    <li><i class="fas fa-brain"></i> <strong>Sharpen Skills:</strong> Improve your algorithmic thinking and coding speed under pressure</li>
-                    <li><i class="fas fa-chart-line"></i> <strong>Rating Boost:</strong> Increase your competitive programming rating and rank</li>
-                    <li><i class="fas fa-award"></i> <strong>Recognition:</strong> Top performers get certificates, prizes, and bragging rights</li>
-                    <li><i class="fas fa-briefcase"></i> <strong>Career Benefits:</strong> Strong contest performance can lead to interview calls from ${event.company}</li>
-                    <li><i class="fas fa-users"></i> <strong>Global Competition:</strong> Compete with the best programmers worldwide</li>
-                    <li><i class="fas fa-book"></i> <strong>Learn New Techniques:</strong> Upsolve problems after contest to learn advanced algorithms</li>
-                </ul>
-            </div>
-            
-            <div class="description-section">
-                <h4><i class="fas fa-gamepad"></i> Contest Format</h4>
-                <p><strong>Duration:</strong> ${event.endDate ? `${Math.ceil((new Date(event.endDate) - new Date(event.startDate)) / (1000 * 60 * 60))} hours` : '2-3 hours typically'}</p>
-                <p><strong>Problems:</strong> Expect ${event.rounds ? event.rounds.length : '5-8'} problems ranging from easy implementation to advanced algorithms</p>
-                <p><strong>Scoring:</strong> Points based on problem difficulty and submission time. Penalty for wrong submissions.</p>
-                <p><strong>Platform:</strong> Contest will be hosted on ${event.company}'s coding platform with real-time leaderboard</p>
-            </div>
-            
-            <div class="description-section">
-                <h4><i class="fas fa-user-graduate"></i> Who Should Participate?</h4>
-                <p><strong>All skill levels welcome!</strong> Whether you're a beginner looking to improve or an expert aiming for top ranks, there's something for everyone. ${event.eligibility || 'Open to students and professionals worldwide'}.</p>
-                <p><strong>Preparation:</strong> Practice data structures, algorithms, and solve previous year problems. Focus on time management and accuracy.</p>
-            </div>
-        `;
-    }
-    
-    enhanced += `</div>`;
-    return enhanced;
-}
+    const saveGoalsBtn = document.getElementById('saveGoalsBtn');
+    saveGoalsBtn.addEventListener('click', () => {
+        toggleEventSave(currentEvent);
+        const saved = isEventSaved(currentEvent);
+        saveGoalsBtn.innerHTML = `<i class="fas ${saved ? 'fa-check' : 'fa-plus'}"></i><span>${saved ? 'Saved to Goals' : 'Add to Goals'}</span>`;
+    });
 
-function getPreparationGuide(event) {
-    if (event.type === 'hackathon') {
-        return getHackathonGuide();
-    } else if (event.type === 'internship') {
-        return getInternshipGuide();
-    } else if (event.type === 'contest') {
-        return getContestGuide();
-    }
-    return '';
-}
-
-function getHackathonGuide() {
-    return `
-        <div class="section preparation-guide">
-            <h3 class="section-title">
-                <i class="fas fa-graduation-cap"></i>
-                Complete Hackathon Preparation Guide
-            </h3>
-            <div class="guide-content">
-                <div class="guide-section">
-                    <h4><i class="fas fa-info-circle"></i> What is a Hackathon?</h4>
-                    <ul>
-                        <li>A <strong>hackathon</strong> is an intensive event (usually 24-48 hours) where developers, designers, and innovators collaborate to build working prototypes or solutions to specific problems</li>
-                        <li>Companies use hackathons to identify talented developers, promote innovation, and sometimes recruit directly</li>
-                        <li>Participants compete in teams (usually 2-4 members) to create functional software, apps, or hardware solutions</li>
-                        <li><strong>Prize:</strong> Cash rewards, internship opportunities, mentorship, and recognition</li>
-                        <li><strong>Types:</strong> Physical (on-campus), Virtual (online), or Hybrid format</li>
-                    </ul>
-                </div>
-
-                <div class="guide-section">
-                    <h4><i class="fas fa-list-ol"></i> Typical Hackathon Round Structure</h4>
-                    <ul>
-                        <li><strong>Total Rounds:</strong> Usually 3-4 rounds spanning 1-3 months</li>
-                        <li>Each round eliminates teams progressively until the final winners</li>
-                        <li>Top companies: Google, Microsoft, Meta, Uber conduct multi-round hackathons</li>
-                    </ul>
-                </div>
-
-                <div class="guide-section">
-                    <h4><i class="fas fa-clipboard-list"></i> Round 1: Registration & Idea Submission (Week 1-2)</h4>
-                    <ul>
-                        <li><strong>What happens:</strong> Teams register on the company's portal and submit their initial idea or problem statement</li>
-                        <li><strong>Deliverables:</strong> Team details, project title, abstract (200-500 words), technology stack, and expected impact</li>
-                        <li><strong>Duration:</strong> Typically 1-2 weeks for registration window</li>
-                        <li><strong>Selection Criteria:</strong> Innovation, feasibility, alignment with hackathon theme (e.g., FinTech, HealthTech, Sustainability)</li>
-                        <li><strong>Example Themes:</strong> "Build for billion users" (Uber), "Social Good" (Microsoft), "Future of Commerce" (Amazon)</li>
-                        <li><strong>Outcome:</strong> 40-50% of teams are shortlisted for next round</li>
-                        <li><strong>Pro Tip:</strong> Make your abstract compelling - clearly state the problem you're solving and why it matters</li>
-                    </ul>
-                </div>
-
-                <div class="guide-section">
-                    <h4><i class="fas fa-code"></i> Round 2: Online Screening/Quiz (Week 3)</h4>
-                    <ul>
-                        <li><strong>What happens:</strong> Shortlisted teams take an online technical assessment to prove coding skills</li>
-                        <li><strong>Format:</strong> MCQs + Coding Problems (2-3 questions)</li>
-                        <li><strong>Topics Tested:</strong> Data Structures, Algorithms, Problem Solving, Domain Knowledge (based on theme)</li>
-                        <li><strong>Duration:</strong> 90-120 minutes</li>
-                        <li><strong>Difficulty Level:</strong> Easy to Medium (similar to LeetCode Medium)</li>
-                        <li><strong>Team Participation:</strong> Either 1 representative per team OR entire team (varies by hackathon)</li>
-                        <li><strong>Outcome:</strong> Top 20-30% teams advance to prototyping round</li>
-                        <li><strong>Example (Google HackTag):</strong> 2 coding problems + 20 MCQs on data structures in 2 hours</li>
-                    </ul>
-                </div>
-
-                <div class="guide-section">
-                    <h4><i class="fas fa-laptop-code"></i> Round 3: Prototype Development (Week 4-6)</h4>
-                    <ul>
-                        <li><strong>What happens:</strong> The actual hackathon phase where teams build their product from scratch</li>
-                        <li><strong>Duration:</strong> 24-48 hours continuous coding (can be spread over a weekend)</li>
-                        <li><strong>Start Time:</strong> Usually Friday evening or Saturday morning</li>
-                        <li><strong>Submission Deadline:</strong> Sunday evening with strict cutoff</li>
-                        <li><strong>Environment:</strong> Physical venue (college/company office) OR virtual (Discord/Slack channels)</li>
-                    </ul>
-                </div>
-
-                <div class="guide-section">
-                    <h4><i class="fas fa-clock"></i> Hour-by-Hour Hackathon Strategy (24-hour format)</h4>
-                    <ul>
-                        <li><strong>Hour 0-1 (Opening Ceremony):</strong> Problem statement reveal, mentors introduced, rules explained. Attend carefully!</li>
-                        <li><strong>Hour 1-3 (Ideation & Planning):</strong> Brainstorm solutions, finalize ONE idea, sketch wireframes, divide tasks (Frontend/Backend/DB/Design)</li>
-                        <li><strong>Hour 3-4 (Setup):</strong> Create GitHub repo, setup development environment, initialize project (React + Node/Flask), configure database</li>
-                        <li><strong>Hour 4-12 (Core Development):</strong> Build the MVP - focus on critical features only. Frontend builds UI, Backend creates APIs, Designer polishes mockups</li>
-                        <li><strong>Hour 12-14 (Integration Break):</strong> Take short power naps (crucial!), grab food, integrate frontend-backend</li>
-                        <li><strong>Hour 14-18 (Feature Completion):</strong> Complete all planned features, connect all components, add error handling</li>
-                        <li><strong>Hour 18-20 (Testing & Bug Fixing):</strong> Test every feature thoroughly, fix critical bugs, handle edge cases</li>
-                        <li><strong>Hour 20-22 (UI Polish & Deployment):</strong> Improve UI/UX, add animations, deploy on cloud (Vercel/Heroku), test live URL</li>
-                        <li><strong>Hour 22-24 (Presentation Prep):</strong> Create PPT (10 slides max), record demo video (3-5 min), prepare pitch script, rehearse demo</li>
-                        <li><strong>Submission:</strong> Upload code to GitHub, submit live URL, PPT, and video before deadline (miss deadline = disqualification!)</li>
-                    </ul>
-                </div>
-
-                <div class="guide-section">
-                    <h4><i class="fas fa-presentation"></i> Round 4: Presentation & Demo (Finals)</h4>
-                    <ul>
-                        <li><strong>What happens:</strong> Top 10-15 teams present their solutions to judges (company engineers, CTOs, VPs)</li>
-                        <li><strong>Format:</strong> 5 min presentation + 5 min live demo + 5 min Q&A = 15 min total per team</li>
-                        <li><strong>Presentation Structure:</strong> 
-                            <br>• Slide 1: Team intro (names, colleges, roles)
-                            <br>• Slide 2-3: Problem statement (make judges feel the pain point)
-                            <br>• Slide 4-5: Your solution (how it works, uniqueness)
-                            <br>• Slide 6-7: Live demo or video walkthrough
-                            <br>• Slide 8: Tech stack & architecture diagram
-                            <br>• Slide 9: Impact & scalability (how it helps users)
-                            <br>• Slide 10: Future scope & thank you
-                        </li>
-                        <li><strong>Live Demo Tips:</strong> Rehearse 10+ times, use sample data (don't create new data live), have backup video if WiFi fails, test on judges' screen beforehand</li>
-                        <li><strong>Common Judge Questions:</strong> "How is this different from existing solutions?", "What if X scenario happens?", "How will you scale this?", "What challenges did you face?"</li>
-                        <li><strong>Judging Criteria (typical breakdown):</strong>
-                            <br>• Innovation & Creativity: 25%
-                            <br>• Technical Complexity: 20%
-                            <br>• Usefulness & Impact: 25%
-                            <br>• Design & User Experience: 15%
-                            <br>• Presentation Quality: 15%
-                        </li>
-                        <li><strong>Outcome:</strong> Winners announced (1st, 2nd, 3rd prizes + special mentions)</li>
-                    </ul>
-                </div>
-
-                <div class="guide-section">
-                    <h4><i class="fas fa-users"></i> Team Formation Strategy</h4>
-                    <ul>
-                        <li><strong>Ideal Team Size:</strong> 3-4 members (2 is too risky, 5+ creates coordination issues)</li>
-                        <li><strong>Role Distribution:</strong>
-                            <br>• <strong>Full Stack Developer (2 people):</strong> One focuses on frontend (React/Vue), other on backend (Node/Django)
-                            <br>• <strong>UI/UX Designer (1 person):</strong> Creates mockups in Figma, ensures polished interface
-                            <br>• <strong>Presenter/PM (1 person):</strong> Manages timeline, prepares presentation, often overlaps with backend dev
-                        </li>
-                        <li><strong>Team Chemistry:</strong> Work with people you've collaborated before, shared GitHub repos, or done projects together</li>
-                        <li><strong>Where to find teammates:</strong> College coding clubs, GitHub, LinkedIn, hackathon Discord servers, or friends from previous competitions</li>
-                    </ul>
-                </div>
-
-                <div class="guide-section">
-                    <h4><i class="fas fa-tools"></i> Tech Stack Recommendations</h4>
-                    <ul>
-                        <li><strong>Use what you KNOW:</strong> Hackathons are NOT the time to learn new frameworks - stick to familiar tech</li>
-                        <li><strong>Quick Setup Stack:</strong>
-                            <br>• Frontend: React + Tailwind CSS (fast UI building)
-                            <br>• Backend: Node.js + Express (JavaScript everywhere) OR Python Flask (simple APIs)
-                            <br>• Database: Firebase (real-time, zero setup) OR MongoDB Atlas (free cloud database)
-                            <br>• Deployment: Vercel (frontend), Render/Railway (backend)
-                        </li>
-                        <li><strong>Advanced Stack (if experienced):</strong> Next.js (full-stack React), Supabase (Firebase alternative), TypeScript, PostgreSQL</li>
-                        <li><strong>Must-Have Tools:</strong> Git/GitHub (version control), Postman (API testing), Figma (design), VS Code Live Share (real-time collaboration)</li>
-                    </ul>
-                </div>
-
-                <div class="guide-section">
-                    <h4><i class="fas fa-trophy"></i> Winning Strategies</h4>
-                    <ul>
-                        <li><strong>Problem > Technology:</strong> Judges care about the problem you're solving, not fancy tech you used</li>
-                        <li><strong>Working Demo is KING:</strong> A simple working solution beats a complex broken one - always!</li>
-                        <li><strong>Storytelling Matters:</strong> Start with a relatable story/scenario to hook judges emotionally</li>
-                        <li><strong>Quantify Impact:</strong> "Saves 2 hours daily for 10,000 students" > "Makes life easier"</li>
-                        <li><strong>Backup Everything:</strong> Record demo video, take screenshots, have GitHub README ready</li>
-                        <li><strong>Practice Pitch:</strong> Rehearse in front of friends, time yourself, anticipate questions</li>
-                        <li><strong>Mentorship:</strong> Talk to mentors during hackathon - they give valuable feedback and may influence judges</li>
-                        <li><strong>Git Commits:</strong> Commit frequently with good messages - judges often check commit history for genuine work</li>
-                    </ul>
-                </div>
-
-                <div class="guide-section">
-                    <h4><i class="fas fa-exclamation-triangle"></i> Common Pitfalls to Avoid</h4>
-                    <ul>
-                        <li><strong>Scope Creep:</strong> Trying to build 10 features instead of 3 core ones - keep it simple!</li>
-                        <li><strong>Poor Time Management:</strong> Spending 15 hours on one feature - timebox tasks!</li>
-                        <li><strong>Ignoring UI:</strong> Great backend with ugly UI loses to decent backend with polished UI</li>
-                        <li><strong>No Testing:</strong> Demo crashes during presentation - always test before submitting</li>
-                        <li><strong>Plagiarism:</strong> Copying existing projects - judges can tell, leads to disqualification</li>
-                        <li><strong>Overconfidence:</strong> Not rehearsing presentation - practice makes perfect!</li>
-                    </ul>
-                </div>
-
-                <div class="guide-section">
-                    <h4><i class="fas fa-calendar-alt"></i> Pre-Hackathon Checklist (1 week before)</h4>
-                    <ul>
-                        <li>☐ Team finalized and registered</li>
-                        <li>☐ Roles assigned to each member</li>
-                        <li>☐ Tech stack decided and tested locally</li>
-                        <li>☐ GitHub organization/repo created</li>
-                        <li>☐ Design tools setup (Figma/Canva)</li>
-                        <li>☐ Cloud accounts created (Vercel, MongoDB Atlas, Firebase)</li>
-                        <li>☐ Boilerplate code ready (React template, Express server template)</li>
-                        <li>☐ Communication channel setup (WhatsApp group, Discord server)</li>
-                        <li>☐ Laptop charged, stable internet verified</li>
-                        <li>☐ Snacks, energy drinks, and backup plan for meals ready!</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-function getInternshipGuide() {
-    return `
-        <div class="section preparation-guide">
-            <h3 class="section-title">
-                <i class="fas fa-graduation-cap"></i>
-                Complete Internship Preparation Guide
-            </h3>
-            <div class="guide-content">
-                <div class="guide-section">
-                    <h4><i class="fas fa-code"></i> Technical Preparation</h4>
-                    <ul>
-                        <li><strong>Data Structures:</strong> Arrays, Linked Lists, Stacks, Queues, Trees (Binary, BST, AVL), Graphs, Hash Tables, Heaps</li>
-                        <li><strong>Algorithms:</strong> Sorting (Quick, Merge, Heap), Searching (Binary, DFS, BFS), Dynamic Programming, Greedy Algorithms, Divide & Conquer</li>
-                        <li><strong>Practice Platforms:</strong> LeetCode (focus on Medium problems), HackerRank, CodeForces, InterviewBit</li>
-                        <li><strong>Target:</strong> Solve 150-200 problems (Easy: 40%, Medium: 50%, Hard: 10%) over 3-6 months</li>
-                        <li><strong>Company-Specific:</strong> Study company interview patterns (Blind 75 for FAANG, Striver's SDE Sheet)</li>
-                    </ul>
-                </div>
-
-                <div class="guide-section">
-                    <h4><i class="fas fa-laptop-code"></i> Development Skills</h4>
-                    <ul>
-                        <li><strong>Build Projects:</strong> Create 2-3 full-stack projects to showcase on resume (e.g., E-commerce site, Chat app, Task manager)</li>
-                        <li><strong>Git & GitHub:</strong> Learn version control - commits, branches, pull requests, merge conflicts</li>
-                        <li><strong>REST APIs:</strong> Understand HTTP methods, status codes, authentication (JWT, OAuth)</li>
-                        <li><strong>Databases:</strong> SQL (MySQL/PostgreSQL) + NoSQL (MongoDB) - learn CRUD operations, joins, indexing</li>
-                        <li><strong>Deployment:</strong> Deploy at least one project live (Vercel, Netlify, Heroku, Railway) - show live URLs on resume</li>
-                        <li><strong>Documentation:</strong> Write clean README files with screenshots, setup instructions, and tech stack</li>
-                    </ul>
-                </div>
-
-                <div class="guide-section">
-                    <h4><i class="fas fa-file-alt"></i> Resume Building</h4>
-                    <ul>
-                        <li><strong>Length:</strong> Keep it to 1 page (2 pages max for experienced developers)</li>
-                        <li><strong>Structure:</strong> Name/Contact → Education → Projects → Skills → Achievements → Certifications</li>
-                        <li><strong>Projects Section:</strong> 2-3 best projects with tech stack, description, and impact ("Reduced load time by 40%")</li>
-                        <li><strong>Action Verbs:</strong> Built, Developed, Optimized, Implemented, Designed, Engineered (avoid "helped", "worked on")</li>
-                        <li><strong>Quantify:</strong> Use numbers - "Handled 1000+ concurrent users", "Improved performance by 50%"</li>
-                        <li><strong>ATS-Friendly:</strong> Use standard fonts (Arial, Calibri), avoid tables/graphics, include keywords from job description</li>
-                        <li><strong>Tailor:</strong> Customize resume for each company - highlight relevant projects and skills</li>
-                    </ul>
-                </div>
-
-                <div class="guide-section">
-                    <h4><i class="fas fa-comments"></i> Interview Rounds Breakdown</h4>
-                    <ul>
-                        <li><strong>Round 1 - Online Assessment (OA):</strong>
-                            <br>• Duration: 90-120 minutes
-                            <br>• Format: 2-3 coding problems + 20-30 MCQs
-                            <br>• Topics: DSA (Medium difficulty), CS fundamentals (OS, DBMS, Networks)
-                            <br>• Tip: Practice timed contests on LeetCode/CodeChef
-                        </li>
-                        <li><strong>Round 2 - Technical Interview 1:</strong>
-                            <br>• Duration: 45-60 minutes
-                            <br>• Focus: Data Structures & Algorithms (2 coding problems)
-                            <br>• Platform: CoderPad, HackerRank, or shared Google Doc
-                            <br>• Tip: Think aloud, explain your approach before coding, test with examples
-                        </li>
-                        <li><strong>Round 3 - Technical Interview 2:</strong>
-                            <br>• Duration: 45-60 minutes
-                            <br>• Focus: Project discussion + System design (basic) + DSA (1 problem)
-                            <br>• Questions: "Explain your project", "How did you handle X?", "Design a URL shortener"
-                            <br>• Tip: Know your projects inside-out, be ready to code any feature live
-                        </li>
-                        <li><strong>Round 4 - HR/Behavioral:</strong>
-                            <br>• Duration: 30-45 minutes
-                            <br>• Questions: "Why this company?", "Tell me about yourself", "Strengths/Weaknesses", "Where do you see yourself in 5 years?"
-                            <br>• Format: STAR method (Situation, Task, Action, Result)
-                            <br>• Tip: Research company culture, prepare 2-3 questions to ask interviewer
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="guide-section">
-                    <h4><i class="fas fa-star"></i> Pro Tips for Success</h4>
-                    <ul>
-                        <li><strong>Start Early:</strong> Begin preparation 3-6 months before placement season (not 1 week before!)</li>
-                        <li><strong>Consistency > Intensity:</strong> Practice 1-2 hours daily rather than 10 hours once a week</li>
-                        <li><strong>Mock Interviews:</strong> Practice with peers on Pramp, interviewing.io, or with seniors</li>
-                        <li><strong>Company Patterns:</strong> Research company-specific interview patterns (GeeksforGeeks company tags, Glassdoor)</li>
-                        <li><strong>Networking:</strong> Connect with company employees on LinkedIn, ask about culture and interview tips</li>
-                        <li><strong>Follow-up:</strong> Send thank-you emails after interviews (shows professionalism)</li>
-                        <li><strong>Rejections are Normal:</strong> Don't get discouraged - even top candidates face 5-10 rejections before getting offers</li>
-                    </ul>
-                </div>
-
-                <div class="guide-section">
-                    <h4><i class="fas fa-brain"></i> CS Fundamentals to Review</h4>
-                    <ul>
-                        <li><strong>Operating Systems:</strong> Processes, Threads, Deadlocks, Paging, Scheduling algorithms</li>
-                        <li><strong>DBMS:</strong> Normalization, ACID properties, Joins, Indexing, Transactions</li>
-                        <li><strong>Computer Networks:</strong> OSI Model, TCP/IP, HTTP/HTTPS, DNS, Routing</li>
-                        <li><strong>OOP Concepts:</strong> Inheritance, Polymorphism, Encapsulation, Abstraction</li>
-                        <li><strong>System Design (Basic):</strong> Scalability, Load Balancing, Caching, Database sharding</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-function getContestGuide() {
-    return `
-        <div class="section preparation-guide">
-            <h3 class="section-title">
-                <i class="fas fa-graduation-cap"></i>
-                Complete Contest Preparation Guide
-            </h3>
-            <div class="guide-content">
-                <div class="guide-section">
-                    <h4><i class="fas fa-book"></i> Core Topics to Master</h4>
-                    <ul>
-                        <li><strong>Mathematics:</strong> Number Theory (GCD, LCM, Prime numbers, Modular arithmetic), Combinatorics (Permutations, Combinations), Probability</li>
-                        <li><strong>Algorithms:</strong> Greedy, Dynamic Programming (Knapsack, LCS, LIS), Graph algorithms (Dijkstra, Bellman-Ford, Floyd-Warshall), String algorithms (KMP, Rabin-Karp)</li>
-                        <li><strong>Data Structures:</strong> Segment Trees, Fenwick Trees (BIT), Trie, Disjoint Set Union (DSU), Priority Queues</li>
-                        <li><strong>Advanced Topics:</strong> Suffix Arrays, Z-algorithm, Binary Indexed Trees, Sparse Table</li>
-                    </ul>
-                </div>
-
-                <div class="guide-section">
-                    <h4><i class="fas fa-chart-line"></i> Rating Journey (Codeforces scale)</h4>
-                    <ul>
-                        <li><strong>Newbie (0-1199):</strong> Focus on implementation, basic math, brute force, simple loops</li>
-                        <li><strong>Pupil (1200-1399):</strong> Binary search, two pointers, greedy basics, prefix sums</li>
-                        <li><strong>Specialist (1400-1599):</strong> DP fundamentals, graph traversal (DFS/BFS), sorting variations</li>
-                        <li><strong>Expert (1600-1899):</strong> Advanced DP, segment trees, number theory, shortest paths</li>
-                        <li><strong>Candidate Master (1900+):</strong> Complex DS, game theory, advanced graph algorithms</li>
-                    </ul>
-                </div>
-
-                <div class="guide-section">
-                    <h4><i class="fas fa-dumbbell"></i> Training Regimen</h4>
-                    <ul>
-                        <li><strong>Contests:</strong> Participate in 2-3 contests per week (Codeforces Div 2/3, AtCoder Beginner, LeetCode Weekly/Biweekly)</li>
-                        <li><strong>Upsolving:</strong> After each contest, solve problems you couldn't during contest (aim for at least 2-3 problems)</li>
-                        <li><strong>Practice:</strong> Solve 3-5 problems daily at your level + 1-2 problems slightly above your rating</li>
-                        <li><strong>Learn from Editorials:</strong> Read official editorials and study top-rated solutions for new techniques</li>
-                        <li><strong>Topic-wise Practice:</strong> Spend 1-2 weeks mastering one topic (e.g., DP week, Graph week) using CSES or A2OJ ladders</li>
-                    </ul>
-                </div>
-
-                <div class="guide-section">
-                    <h4><i class="fas fa-clock"></i> Contest Strategy</h4>
-                    <ul>
-                        <li><strong>Reading Phase (5-10 min):</strong> Read ALL problems quickly, identify easy ones, note constraints</li>
-                        <li><strong>Solve in Order:</strong> Usually A → B → C (increasing difficulty), but skip if stuck >20 minutes</li>
-                        <li><strong>Don't Get Stuck:</strong> If no progress in 15-20 min, move to next problem and return later</li>
-                        <li><strong>Test Edge Cases:</strong> Before submitting, test with: small inputs, maximum constraints, zeros, negative numbers</li>
-                        <li><strong>Penalty Time Matters:</strong> Fewer wrong submissions = better rank. Double-check before submitting!</li>
-                        <li><strong>Time Management:</strong> Don't spend entire contest on one hard problem - secure easier points first</li>
-                    </ul>
-                </div>
-
-                <div class="guide-section">
-                    <h4><i class="fas fa-graduation-cap"></i> Learning Resources</h4>
-                    <ul>
-                        <li><strong>Books:</strong>
-                            <br>• Competitive Programming 4 by Steven & Felix Halim
-                            <br>• Guide to Competitive Programming by Antti Laaksonen
-                            <br>• Competitive Programmer's Handbook (free PDF)
-                        </li>
-                        <li><strong>YouTube Channels:</strong>
-                            <br>• Errichto (advanced explanations)
-                            <br>• William Lin (contest speedruns)
-                            <br>• Colin Galen (rating improvement tips)
-                            <br>• Luv (beginner-friendly DSA)
-                        </li>
-                        <li><strong>Practice Platforms:</strong>
-                            <br>• Codeforces (best for contests)
-                            <br>• AtCoder (clean problems, great editorials)
-                            <br>• CSES Problem Set (topic-wise 300 problems)
-                            <br>• CodeChef (Long Challenge for beginners)
-                        </li>
-                        <li><strong>Visualizers:</strong>
-                            <br>• VisuAlgo (algorithm animations)
-                            <br>• Algorithm Visualizer
-                            <br>• CP-Algorithms (theory + implementations)
-                        </li>
-                    </ul>
-                </div>
-
-                <div class="guide-section">
-                    <h4><i class="fas fa-trophy"></i> Contest-Specific Tips</h4>
-                    <ul>
-                        <li><strong>Codeforces:</strong> Focus on Div 2 contests, upsolve A-D problems, join practice rounds</li>
-                        <li><strong>AtCoder:</strong> Excellent for DP and math - Beginner Contests are perfect for <1400 rating</li>
-                        <li><strong>LeetCode:</strong> Good for interview prep + Weekly contests simulate time pressure</li>
-                        <li><strong>Google Competitions:</strong> Kick Start, Code Jam - focus on problem analysis over speed</li>
-                        <li><strong>Meta Hacker Cup:</strong> Qualification round is beginner-friendly, Round 1 requires solid practice</li>
-                    </ul>
-                </div>
-
-                <div class="guide-section">
-                    <h4><i class="fas fa-exclamation-triangle"></i> Common Mistakes to Avoid</h4>
-                    <ul>
-                        <li><strong>Jumping to Hard Problems:</strong> Master basics first - don't attempt 2000-rated problems at 1200 rating</li>
-                        <li><strong>Not Upsolving:</strong> Reading editorial without implementing = waste of time. Code it yourself!</li>
-                        <li><strong>Ignoring Constraints:</strong> 10^9 needs long long, 10^5 allows O(n log n) but not O(n^2)</li>
-                        <li><strong>Copy-Pasting Code:</strong> Understand WHY a solution works, don't just copy templates</li>
-                        <li><strong>Contest Addiction:</strong> Balance contests with topic-wise practice - don't just do contests</li>
-                        <li><strong>Giving Up Early:</strong> Rating growth is slow - 6-12 months to reach Expert is normal</li>
-                    </ul>
-                </div>
-
-                <div class="guide-section">
-                    <h4><i class="fas fa-calendar-alt"></i> 3-Month Training Plan</h4>
-                    <ul>
-                        <li><strong>Month 1 - Foundations:</strong> Master basic DS (arrays, strings, stacks, queues), learn binary search, two pointers, prefix sums. Solve 60-80 problems.</li>
-                        <li><strong>Month 2 - Intermediate:</strong> Learn DP (5-6 standard patterns), graph basics (DFS, BFS, DSU), number theory. Participate in 8-10 contests.</li>
-                        <li><strong>Month 3 - Advanced:</strong> Segment trees, advanced DP, shortest paths, practice past contest problems. Target +100 rating increase.</li>
-                        <li><strong>Daily Routine:</strong> 1 hour theory/learning + 2 hours problem solving + 1 contest every 2-3 days</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-    `;
+    const copyRoadmapBtn = document.getElementById('copyRoadmapBtn');
+    copyRoadmapBtn.addEventListener('click', async () => {
+        try {
+            await navigator.clipboard.writeText(roadmapText);
+            copyRoadmapBtn.innerHTML = '<i class="fas fa-check"></i><span>Roadmap Copied</span>';
+            setTimeout(() => {
+                copyRoadmapBtn.innerHTML = '<i class="fas fa-copy"></i><span>Copy Roadmap</span>';
+            }, 1500);
+        } catch {
+            alert('Copy failed. Please try again.');
+        }
+    });
 }
 
 function showError(message) {
@@ -728,60 +618,61 @@ function showError(message) {
         <div class="error">
             <i class="fas fa-exclamation-circle"></i>
             <h2>Error</h2>
-            <p>${message}</p>
+            <p>${escapeHtml(message)}</p>
         </div>
     `;
 }
 
-function toggleEventSelection() {
-    // Get event data from the page
-    const eventTitle = document.querySelector('.event-title').textContent;
-    
-    // Fetch current event data
-    fetch(`${API_URL}/events`, {
-        headers: {
-            'Authorization': `Bearer ${token}`
+async function fetchBackendEventDetails() {
+    try {
+        const response = await fetch(`${API_URL}/events`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to fetch events');
         }
-    })
-    .then(response => response.json())
-    .then(result => {
+
+        const result = await response.json();
         const events = result.data || result;
-        const event = events.find(e => e._id === eventId);
-        
+        const event = events.find((item) => String(item._id) === String(eventId));
+
         if (!event) {
-            alert('Event not found');
+            showError('Event not found');
             return;
         }
-        
-        let selectedEvents = JSON.parse(localStorage.getItem('selectedEvents') || '[]');
-        const isSelected = selectedEvents.some(e => (e.id || e._id) === event._id);
-        
-        if (isSelected) {
-            // Remove from selected
-            selectedEvents = selectedEvents.filter(e => (e.id || e._id) !== event._id);
-            localStorage.setItem('selectedEvents', JSON.stringify(selectedEvents));
-            alert('Event removed from your goals!');
-        } else {
-            // Add to selected
-            selectedEvents.push({
-                ...event,
-                id: event._id,
-                start: event.startDate
-            });
-            localStorage.setItem('selectedEvents', JSON.stringify(selectedEvents));
-            alert('Event added to your goals! Check the Home page.');
-        }
-        
-        // Reload to update button
-        fetchEventDetails();
-    })
-    .catch(error => {
-        console.error('Error toggling event:', error);
-        alert('Failed to update event selection. Please try again.');
-    });
+
+        renderEventDetails(normalizeEvent(event));
+    } catch (error) {
+        console.error('Error fetching event details:', error);
+        showError('Failed to load event details. Please try again.');
+    }
 }
 
-// Initialize on page load
+function loadEventDetails() {
+    cleanupCachedEvents();
+
+    const cachedEvent = readCachedCalendarEvent();
+    if (cachedEvent) {
+        renderEventDetails(cachedEvent);
+        return;
+    }
+
+    if (eventId) {
+        fetchBackendEventDetails();
+        return;
+    }
+
+    if (fallbackTitle) {
+        showError('This event view needs the calendar payload to open correctly. Please reopen it from the calendar.');
+        return;
+    }
+
+    showError('No event specified');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    fetchEventDetails();
+    loadEventDetails();
 });
