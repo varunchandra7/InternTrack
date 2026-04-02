@@ -382,19 +382,12 @@ function buildEventDetailsUrl(eventObj) {
         createdAt: Date.now(),
         event: eventObj
     }));
-    return `event-details.html?source=calendar&id=${encodeURIComponent(eventObj.id)}&key=${encodeURIComponent(cacheKey)}&payload=${encodeURIComponent(JSON.stringify(eventObj))}`;
+    return new URL(`event-details.html?source=calendar&id=${encodeURIComponent(eventObj.id)}&key=${encodeURIComponent(cacheKey)}`, window.location.href).href;
 }
 
 function openEventDetailsPage(eventObj) {
     const detailsUrl = buildEventDetailsUrl(eventObj);
-    const link = document.createElement('a');
-    link.href = detailsUrl;
-    link.target = '_blank';
-    link.rel = 'noopener noreferrer';
-    link.style.display = 'none';
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
+    window.open(detailsUrl, '_blank', 'noopener,noreferrer');
 }
 
 function openEventModal(eventObj) {
