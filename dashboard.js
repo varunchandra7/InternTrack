@@ -118,6 +118,39 @@ function performLogout() {
     window.location.href = 'index.html';
 }
 
+/**
+ * Generate platform logo element or fallback badge
+ * @param {string} platform - Platform name (e.g., 'CodeForces', 'LeetCode', 'CodeChef')
+ * @returns {string} HTML string for logo or fallback badge
+ */
+function getPlatformLogo(platform) {
+    if (!platform) return '<span class="platform-logo-fallback" style="background: #666;">?</span>';
+    
+    const platformLower = platform.toLowerCase();
+    const logoMap = {
+        'codeforces': { src: 'images/code-forces.png', alt: 'CodeForces' },
+        'leetcode': { src: 'images/leetcode.png', alt: 'LeetCode' },
+        'codechef': { src: 'images/codechef.png', alt: 'CodeChef' }
+    };
+    
+    const logoInfo = logoMap[platformLower];
+    
+    if (logoInfo) {
+        return `<img src="${logoInfo.src}" alt="${logoInfo.alt}" class="platform-logo-img" onerror="this.style.display='none'; this.nextElementSibling?.style.display='inline-block';">
+                <span class="platform-logo-fallback platform-fallback-${platformLower}" style="display:none;">${platform.charAt(0).toUpperCase()}</span>`;
+    }
+    
+    // Fallback for other platforms
+    const fallbackColors = {
+        'atcoder': '#FF6B35',
+        'hackerrank': '#00C89B',
+        'hackerearth': '#5037FF'
+    };
+    
+    const bgColor = fallbackColors[platformLower] || '#666';
+    return `<span class="platform-logo-fallback" style="background: ${bgColor};">${platform.charAt(0).toUpperCase()}</span>`;
+}
+
 // Navigation between sections - will be initialized in DOMContentLoaded
 let navItems;
 let contentSections;
@@ -1076,7 +1109,7 @@ function renderSelectedEvents() {
                         <p class="event-company">${event.company || event.platform || 'Contest'}</p>
                     </div>
                     <div style="display: flex; gap: 0.5rem; align-items: center;">
-                        ${isExternal ? `<span class="platform-badge platform-${event.platform.toLowerCase()}">${event.platform}</span>` : `<span class="${badgeClass}">${badgeText}</span>`}
+                        ${isExternal ? `<div class="platform-badge-container">${getPlatformLogo(event.platform)}</div>` : `<span class="${badgeClass}">${badgeText}</span>`}
                         <button class="remove-event-btn" onclick="${isExternal ? 'event.stopPropagation(); ' : ''}removeEventFromHome('${eventId}')" title="Remove event">
                             <i class="fas fa-times"></i>
                         </button>

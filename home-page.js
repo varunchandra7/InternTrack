@@ -9,6 +9,39 @@ let monthlyStreakChartInstance = null;
 let completedRoadmapTasks = []; // Store completed tasks for activity tracking
 let hasCompletedTasks = false; // Track if user has any completed roadmap tasks
 
+/**
+ * Generate platform logo element or fallback badge
+ * @param {string} platform - Platform name (e.g., 'CodeForces', 'LeetCode', 'CodeChef')
+ * @returns {string} HTML string for logo or fallback badge
+ */
+function getPlatformLogo(platform) {
+    if (!platform) return '<span class="platform-logo-fallback" style="background: #666;">?</span>';
+    
+    const platformLower = platform.toLowerCase();
+    const logoMap = {
+        'codeforces': { src: 'images/code-forces.png', alt: 'CodeForces' },
+        'leetcode': { src: 'images/leetcode.png', alt: 'LeetCode' },
+        'codechef': { src: 'images/codechef.png', alt: 'CodeChef' }
+    };
+    
+    const logoInfo = logoMap[platformLower];
+    
+    if (logoInfo) {
+        return `<img src="${logoInfo.src}" alt="${logoInfo.alt}" class="platform-logo-img" onerror="this.style.display='none'; this.nextElementSibling?.style.display='inline-block';">
+                <span class="platform-logo-fallback platform-fallback-${platformLower}" style="display:none;">${platform.charAt(0).toUpperCase()}</span>`;
+    }
+    
+    // Fallback for other platforms
+    const fallbackColors = {
+        'atcoder': '#FF6B35',
+        'hackerrank': '#00C89B',
+        'hackerearth': '#5037FF'
+    };
+    
+    const bgColor = fallbackColors[platformLower] || '#666';
+    return `<span class="platform-logo-fallback" style="background: ${bgColor};">${platform.charAt(0).toUpperCase()}</span>`;
+}
+
 // Get user ID for data isolation (use global user from dashboard.js or localStorage)
 let currentUserIdHome = 'unknown';
 
@@ -512,13 +545,12 @@ async function loadUpcomingEvents() {
             const isGoal = selectedEvents.some(item => getUpcomingEventId(item) === eventId);
             const isPinned = pinnedIds.includes(eventId);
             
-            // Get platform info
-            const platformClass = `platform-${event.platform || event.type}`;
-            
             return `
                 <div class="event-item-home" onclick="openUpcomingEvent('${safeEventId}')">
                     <div class="event-header-home">
-                        <span class="event-platform-badge-home ${platformClass}">${event.platform || event.type}</span>
+                        <div class="platform-badge-container-home">
+                            ${getPlatformLogo(event.platform || event.type)}
+                        </div>
                     </div>
                     <h4 class="event-title-home">${event.title}</h4>
                     <div class="event-date-home">

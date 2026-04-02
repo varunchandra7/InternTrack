@@ -1426,7 +1426,7 @@
         }
         
         .event-platform-badge-home {
-            display: inline-block;
+            display: none;
             padding: 0.3rem 0.7rem;
             border-radius: 6px;
             font-size: 0.75rem;
@@ -2215,6 +2215,69 @@
             font-weight: 600;
             text-transform: uppercase;
             margin-top: 0.25rem;
+        }
+
+        /* Platform Logo Container */
+        .platform-badge-container {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 32px;
+        }
+
+        .platform-badge-container-home {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            height: 36px;
+            margin-bottom: 0.5rem;
+        }
+
+        /* Platform Logo Image */
+        .platform-logo-img {
+            height: 32px;
+            max-width: 40px;
+            object-fit: contain;
+            border-radius: 6px;
+            display: inline-block;
+        }
+
+        .platform-badge-container-home .platform-logo-img {
+            height: 36px;
+            max-width: 48px;
+        }
+
+        /* Platform Logo Fallback */
+        .platform-logo-fallback {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: white;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .platform-badge-container-home .platform-logo-fallback {
+            width: 36px;
+            height: 36px;
+            font-size: 0.85rem;
+        }
+
+        .platform-fallback-codeforces {
+            background: #1F8ACB;
+        }
+
+        .platform-fallback-leetcode {
+            background: #FFA116;
+        }
+
+        .platform-fallback-codechef {
+            background: #5B4638;
         }
 
         .platform-codeforces {
