@@ -430,6 +430,89 @@
             padding: 60px 40px;
         }
 
+        /* Scroll Animation Styles */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInScale {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .scroll-animate {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+
+        .scroll-animate.animate {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .scroll-animate-card {
+            opacity: 0;
+            transform: scale(0.9);
+        }
+
+        .scroll-animate-card.animate {
+            animation: fadeInScale 0.6s ease-out forwards;
+        }
+
+        .scroll-animate-title {
+            opacity: 0;
+        }
+
+        .scroll-animate-title.animate {
+            animation: fadeIn 0.6s ease-out forwards;
+        }
+
+        /* Stagger effect for multiple items */
+        .feature-card:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .feature-card:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .feature-card:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
+        .story-card:nth-child(1) {
+            animation-delay: 0s;
+        }
+
+        .story-card:nth-child(2) {
+            animation-delay: 0.1s;
+        }
+
+        .story-card:nth-child(3) {
+            animation-delay: 0.2s;
+        }
+
         .features-grid {
             max-width: 1400px;
             margin: 0 auto;
@@ -716,25 +799,25 @@
     <div class="features-section">
         <div class="features-grid">
             <!-- Feature Highlights -->
-            <h3>Feature Highlights</h3>
+            <h3 class="scroll-animate-title">Feature Highlights</h3>
             <div class="features-container">
-                <div class="feature-card">
+                <div class="feature-card scroll-animate-card">
                     <h4>Roadmap Tracker</h4>
                     <p>Plan your learning path by subject and day so every placement topic is organized. Track progress across your preparation journey without losing momentum.</p>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card scroll-animate-card">
                     <h4>Smart Calendar</h4>
                     <p>See internships, hackathons, and contests in one calendar view with date-based planning. Use it to focus on what is closing soon and what needs action first.</p>
                 </div>
-                <div class="feature-card">
+                <div class="feature-card scroll-animate-card">
                     <h4>Progress Analytics</h4>
                     <p>Review your consistency, completed goals, and monthly activity at a glance. Turn your effort into visible progress so you know what to improve next.</p>
                 </div>
             </div>
 
             <!-- Why InternTrack -->
-            <div class="why-section">
-                <h3>Why InternTrack?</h3>
+            <div class="why-section scroll-animate">
+                <h3 class="scroll-animate-title">Why InternTrack?</h3>
                 <p class="subtitle">Built to keep your placement preparation structured, focused, and easy to follow.</p>
                 <ul>
                     <li>It brings learning, event discovery, and goal tracking into one place.</li>
@@ -745,17 +828,17 @@
             </div>
 
             <!-- Student Success Stories -->
-            <h3>Student Success Stories</h3>
+            <h3 class="scroll-animate-title">Student Success Stories</h3>
             <div class="stories-container">
-                <div class="story-card">
+                <div class="story-card scroll-animate-card">
                     <p class="story-text">"InternTrack helped me break my prep into weekly goals, and I finally stayed consistent enough to land a summer internship offer."</p>
                     <p class="story-author">– Aanya Mehta, 3rd Year Computer Science</p>
                 </div>
-                <div class="story-card">
+                <div class="story-card scroll-animate-card">
                     <p class="story-text">"The roadmap and event tracking made my schedule manageable, and I cleared two hackathon shortlists in one semester."</p>
                     <p class="story-author">– Rahul Verma, Final Year IT</p>
                 </div>
-                <div class="story-card">
+                <div class="story-card scroll-animate-card">
                     <p class="story-text">"I used the goal tracker to stay on top of coding practice, and my contest performance improved enough to boost my placement confidence."</p>
                     <p class="story-author">– Sneha Iyer, Pre-Final Year ECE</p>
                 </div>
@@ -1036,6 +1119,26 @@
     <script src="script.js"></script>
 
     <script>
+        // Scroll Animation using Intersection Observer
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('animate');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // Observe all elements with animation classes
+        document.querySelectorAll('.scroll-animate, .scroll-animate-card, .scroll-animate-title').forEach(el => {
+            observer.observe(el);
+        });
+
         // Credits content for modal
         const creditsContent = {
             about: {
