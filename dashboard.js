@@ -1082,11 +1082,20 @@ function renderSelectedEvents() {
         let badgeClass = 'event-badge';
         let badgeText = '';
         
-        // Set badge text based on type
-        if (event.type === 'internship') badgeText = 'Internship';
-        else if (event.type === 'hackathon') badgeText = 'Hackathon';
-        else if (event.type === 'contest') badgeText = isExternal ? event.platform : 'Contest';
-        else badgeText = event.type;
+        // Set badge text and class based on type
+        if (event.type === 'internship') {
+            badgeText = 'Internship';
+            badgeClass += ' event-badge-internship';
+        } else if (event.type === 'hackathon') {
+            badgeText = 'Hackathon';
+            badgeClass += ' event-badge-hackathon';
+        } else if (event.type === 'contest') {
+            badgeText = isExternal ? event.platform : 'Contest';
+            badgeClass += ' event-badge-contest';
+        } else {
+            badgeText = event.type;
+            badgeClass += ' event-badge-event';
+        }
         
         if (daysUntilDeadline !== null && daysUntilDeadline <= 7) {
             cardClass += ' deadline-soon';
