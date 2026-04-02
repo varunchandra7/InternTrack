@@ -3070,7 +3070,8 @@
         /* Profile, Settings, Notifications Sections */
         .profile-container,
         .settings-container,
-        .notifications-container {
+        .notifications-container,
+        .help-container {
             width: 100%;
             margin: 0;
         }
@@ -3369,6 +3370,82 @@
             background: var(--accent-color);
             color: white;
             border-color: var(--accent-color);
+        }
+
+        /* Help Section Styles */
+        .help-content {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .help-card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+
+        .help-card h3 {
+            color: var(--accent-color);
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .help-faq {
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .faq-item {
+            padding: 1rem;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            border-left: 4px solid var(--accent-color);
+        }
+
+        .faq-item h4 {
+            color: var(--text-primary);
+            cursor: pointer;
+            margin: 0;
+            padding: 0.5rem 0;
+            user-select: none;
+            transition: color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .faq-item h4:hover {
+            color: var(--accent-color);
+        }
+
+        .faq-item h4::before {
+            content: "▶";
+            transition: transform 0.3s;
+            font-size: 0.8rem;
+        }
+
+        .faq-item.active h4::before {
+            transform: rotate(90deg);
+        }
+
+        .faq-item p {
+            color: var(--text-secondary);
+            margin: 0.5rem 0 0 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            line-height: 1.6;
+        }
+
+        .faq-item.active p {
+            max-height: 500px;
+            transition: max-height 0.3s ease-in;
         }
 
         .section-header {
@@ -4135,6 +4212,137 @@
 
                     <div id="notificationsList">
                         <!-- Notifications will be loaded here -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Help Section -->
+            <section class="content-section" id="help-section">
+                <div class="help-container">
+                    <div class="section-header">
+                        <h1 class="section-title" style="margin-bottom: 0;">Help & Support</h1>
+                    </div>
+                    <p class="section-subtitle">Get started with InternTrack and learn how to make the most of your competitive programming and internship preparation journey.</p>
+
+                    <div class="help-content">
+                        <!-- Quick Start Guide -->
+                        <div class="help-card">
+                            <h3><i class="fas fa-rocket"></i> Getting Started</h3>
+                            <div class="help-faq">
+                                <div class="faq-item">
+                                    <h4 onclick="toggleFAQ(this)">What is InternTrack?</h4>
+                                    <p>InternTrack is an all-in-one platform designed to help students prepare for competitive programming contests and internship placements. It combines roadmap generation, contest tracking, and progress monitoring in one place.</p>
+                                </div>
+                                <div class="faq-item">
+                                    <h4 onclick="toggleFAQ(this)">How do I create a learning roadmap?</h4>
+                                    <p>Go to the <strong>Roadmap</strong> section in the sidebar, select your subjects (DSA, OS, DBMS, CN, SD), choose the number of days for your roadmap, and click Generate. Our AI will create a personalized roadmap with daily tasks for you.</p>
+                                </div>
+                                <div class="faq-item">
+                                    <h4 onclick="toggleFAQ(this)">What subjects can I learn?</h4>
+                                    <p><strong>Available subjects:</strong><br>
+                                    • <strong>DSA</strong> - Data Structures & Algorithms<br>
+                                    • <strong>OS</strong> - Operating Systems<br>
+                                    • <strong>DBMS</strong> - Database Management Systems<br>
+                                    • <strong>CN</strong> - Computer Networks<br>
+                                    • <strong>SD</strong> - System Design</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Using Features -->
+                        <div class="help-card">
+                            <h3><i class="fas fa-star"></i> Key Features</h3>
+                            <div class="help-faq">
+                                <div class="faq-item">
+                                    <h4 onclick="toggleFAQ(this)">How does the activity tracking work?</h4>
+                                    <p>The activity charts on your Home page show your progress based on completed roadmap tasks. When you check a task in your roadmap, it automatically updates your weekly activity bar chart and monthly streak doughnut chart. This helps you visualize your consistency and motivation.</p>
+                                </div>
+                                <div class="faq-item">
+                                    <h4 onclick="toggleFAQ(this)">How can I track contests and events?</h4>
+                                    <p>Go to the <strong>Calendar</strong> section to view all upcoming competitions. You can:</p>
+                                    <p>• Filter by platform (CodeForces, LeetCode, CodeChef, etc.)<br>
+                                    • Add contests as goals<br>
+                                    • Pin important competitions<br>
+                                    • View contest details and registration links</p>
+                                </div>
+                                <div class="faq-item">
+                                    <h4 onclick="toggleFAQ(this)">What are goals and how do I use them?</h4>
+                                    <p>Goals are contests and events you want to prepare for. On the Home page, you can add upcoming events as goals, and they'll appear in your Goals section. This helps you stay focused on what matters most to you.</p>
+                                </div>
+                                <div class="faq-item">
+                                    <h4 onclick="toggleFAQ(this)">How does the progress monitoring work?</h4>
+                                    <p>Your Current Roadmap card shows your overall progress with a percentage indicator. As you complete daily tasks in your roadmap, the progress updates in real-time, giving you a clear picture of how far you've come.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Best Practices -->
+                        <div class="help-card">
+                            <h3><i class="fas fa-lightbulb"></i> Pro Tips</h3>
+                            <div class="help-faq">
+                                <div class="faq-item">
+                                    <h4 onclick="toggleFAQ(this)">How to stay consistent with your roadmap?</h4>
+                                    <p>✓ Set a realistic timeline for your roadmap<br>
+                                    ✓ Check off tasks daily to maintain your streak<br>
+                                    ✓ Review your activity charts weekly to track patterns<br>
+                                    ✓ Adjust your roadmap if needed based on progress</p>
+                                </div>
+                                <div class="faq-item">
+                                    <h4 onclick="toggleFAQ(this)">How should I balance multiple subjects?</h4>
+                                    <p>You can select multiple subjects when generating a roadmap. The AI will intelligently distribute daily tasks across all chosen subjects, ensuring balanced learning. If you want to focus on one subject first, create separate roadmaps.</p>
+                                </div>
+                                <div class="faq-item">
+                                    <h4 onclick="toggleFAQ(this)">How do I prepare for contests?</h4>
+                                    <p>1. Add contests to your goals 1-2 weeks in advance<br>
+                                    2. Follow your roadmap's daily tasks for practice<br>
+                                    3. Review resources provided in each topic<br>
+                                    4. Join contests to test your skills<br>
+                                    5. Analyze your performance and improve</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Troubleshooting -->
+                        <div class="help-card">
+                            <h3><i class="fas fa-tools"></i> Troubleshooting</h3>
+                            <div class="help-faq">
+                                <div class="faq-item">
+                                    <h4 onclick="toggleFAQ(this)">Activity charts are not showing data</h4>
+                                    <p>Make sure you have:</p>
+                                    <p>1. Generated a roadmap in the Roadmap section<br>
+                                    2. Completed at least one task (checked the checkbox)<br>
+                                    3. Wait a moment for the charts to load<br>
+                                    The charts will automatically appear once you have completed tasks.</p>
+                                </div>
+                                <div class="faq-item">
+                                    <h4 onclick="toggleFAQ(this)">My roadmap is not updating</h4>
+                                    <p>Try refreshing the page. If the issue persists:</p>
+                                    <p>1. Clear your browser cache<br>
+                                    2. Log out and log back in<br>
+                                    3. Check your internet connection<br>
+                                    4. Try a different browser</p>
+                                </div>
+                                <div class="faq-item">
+                                    <h4 onclick="toggleFAQ(this)">Can I edit or regenerate my roadmap?</h4>
+                                    <p>Yes! You can regenerate a new roadmap at any time from the Roadmap section. Your previous progress will be saved, but a new roadmap will replace the current one. Your activity data remains intact.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Contact & Feedback -->
+                        <div class="help-card">
+                            <h3><i class="fas fa-envelope"></i> Feedback & Support</h3>
+                            <div class="help-faq">
+                                <div class="faq-item">
+                                    <h4 onclick="toggleFAQ(this)">How can I provide feedback?</h4>
+                                    <p>We'd love to hear from you! Your feedback helps us improve InternTrack. You can share your thoughts and suggestions on how we can make your competitive programming and internship preparation journey better.</p>
+                                </div>
+                                <div class="faq-item">
+                                    <h4 onclick="toggleFAQ(this)">Is there a way to reset my account?</h4>
+                                    <p>Yes, you can delete your account in the Settings section under "Danger Zone". This will permanently delete all your data. After deletion, you can create a new account.</p>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>

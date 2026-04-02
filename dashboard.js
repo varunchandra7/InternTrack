@@ -160,6 +160,13 @@ function showSection(sectionName) {
         }, 50);
     }
 
+    if (sectionName === 'help') {
+        setTimeout(() => {
+            // Initialize FAQ items on help section load
+            initializeFAQ();
+        }, 50);
+    }
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
@@ -216,6 +223,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (settingsBtn) {
         settingsBtn.addEventListener('click', () => {
             showSection('settings');
+        });
+    }
+    
+    // Help button in sidebar footer
+    const helpBtn = document.getElementById('helpBtn');
+    if (helpBtn) {
+        helpBtn.addEventListener('click', () => {
+            showSection('help');
         });
     }
     
@@ -1544,6 +1559,27 @@ function initializeDarkModeToggle() {
             toggle.classList.remove('active');
         }
     }
+}
+
+/**
+ * Toggle FAQ item open/close
+ */
+function toggleFAQ(element) {
+    const faqItem = element.closest('.faq-item');
+    if (faqItem) {
+        faqItem.classList.toggle('active');
+    }
+}
+
+/**
+ * Initialize all FAQ items on help section load
+ */
+function initializeFAQ() {
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        // Reset to closed state
+        item.classList.remove('active');
+    });
 }
 
 /**
