@@ -747,9 +747,177 @@
         </div>
     </div>
 
+    <!-- Footer with Credits Links -->
+    <footer class="login-footer">
+        <div class="footer-container">
+            <div class="footer-section">
+                <a href="#" class="footer-link" data-credits-section="about">
+                    <i class="fas fa-info-circle"></i>
+                    <span>About InternTrack</span>
+                </a>
+            </div>
+            <div class="footer-section">
+                <a href="#" class="footer-link" data-credits-section="technologies">
+                    <i class="fas fa-cog"></i>
+                    <span>Technologies Used</span>
+                </a>
+            </div>
+            <div class="footer-section">
+                <a href="#" class="footer-link" data-credits-section="fonts">
+                    <i class="fas fa-icons"></i>
+                    <span>Fonts & Icons</span>
+                </a>
+            </div>
+            <div class="footer-section">
+                <a href="#" class="footer-link" data-credits-section="sources">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Event Sources</span>
+                </a>
+            </div>
+            <div class="footer-section">
+                <a href="#" class="footer-link" data-credits-section="copyright">
+                    <i class="fas fa-copyright"></i>
+                    <span>Copyright</span>
+                </a>
+            </div>
+            <div class="footer-section">
+                <a href="#" class="footer-link" data-credits-section="contact">
+                    <i class="fas fa-envelope"></i>
+                    <span>Contact</span>
+                </a>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025-2026 InternTrack. All rights reserved. | <a href="https://github.com/varunchandra7/InternTrack" target="_blank">GitHub</a></p>
+        </div>
+    </footer>
+
+    <style>
+        /* Login Footer Styles */
+        .login-footer {
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.95), rgba(167, 139, 250, 0.95));
+            backdrop-filter: blur(10px);
+            padding: 40px 20px 20px;
+            margin-top: 60px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .footer-section {
+            text-align: center;
+        }
+
+        .footer-link {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 10px 15px;
+            border-radius: 8px;
+        }
+
+        .footer-link:hover {
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.05);
+        }
+
+        .footer-link i {
+            font-size: 24px;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+        }
+
+        .footer-bottom a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .footer-bottom a:hover {
+            color: white;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .footer-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 15px;
+            }
+
+            .login-footer {
+                padding: 30px 15px 15px;
+                margin-top: 40px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .footer-container {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .footer-section {
+                padding: 8px 0;
+            }
+
+            .login-footer {
+                padding: 20px 10px 10px;
+                margin-top: 30px;
+            }
+        }
+    </style>
+
     <script src="config.js"></script>
     <script src="theme.js"></script>
     <script src="script.js"></script>
+    
+    <script>
+        // Handle footer credits links
+        document.querySelectorAll('.footer-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Get the section identifier
+                const section = this.dataset.creditsSection;
+                
+                // Check if user is logged in
+                if (localStorage.getItem('userId') && localStorage.getItem('token')) {
+                    // User is logged in, go directly to dashboard credits with scroll to section
+                    window.location.href = 'dashboard.html?section=credits&subsection=' + section;
+                } else {
+                    // Store intent for after login
+                    sessionStorage.setItem('creditsTarget', 'credits-' + section);
+                    // Scroll to login form
+                    const formCard = document.querySelector('.form-card');
+                    if (formCard) {
+                        formCard.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 
 </html>

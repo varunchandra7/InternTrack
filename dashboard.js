@@ -170,6 +170,25 @@ function showSection(sectionName) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+// Handle credits subsection navigation
+function navigateToCreditsSubsection(subsectionId) {
+    showSection('credits');
+    
+    // Scroll to the specific subsection after showing the section
+    setTimeout(() => {
+        const element = document.getElementById('credits-' + subsectionId);
+        if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            // Highlight the section briefly
+            const originalBg = element.style.backgroundColor;
+            element.style.backgroundColor = 'rgba(124, 58, 237, 0.1)';
+            setTimeout(() => {
+                element.style.backgroundColor = originalBg;
+            }, 1500);
+        }
+    }, 100);
+}
+
 // Consolidated DOMContentLoaded initialization
 document.addEventListener('DOMContentLoaded', () => {
     // Query navigation elements after DOM is ready
@@ -195,6 +214,26 @@ document.addEventListener('DOMContentLoaded', () => {
             section.classList.remove('active');
         }
     });
+    
+    // Check for credits section navigation from footer links or post-login
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetSection = urlParams.get('section');
+    const targetSubsection = urlParams.get('subsection');
+    
+    if (targetSection === 'credits' && targetSubsection) {
+        navigateToCreditsSubsection(targetSubsection);
+        // Clean up the URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+    } else {
+        // Check if there's a credits target in sessionStorage (from login redirect)
+        const creditsTarget = sessionStorage.getItem('creditsTarget');
+        if (creditsTarget) {
+            sessionStorage.removeItem('creditsTarget');
+            // Extract subsection from format like 'credits-about'
+            const subsection = creditsTarget.replace('credits-', '');
+            navigateToCreditsSubsection(subsection);
+        }
+    }
     
     // Add navigation click handlers
     navItems.forEach(item => {
