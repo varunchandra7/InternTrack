@@ -291,6 +291,11 @@ let searchText = '';
 let miniMonthDate = new Date();
 let selectedMiniDate = null;
 const activeTypes = new Set(['internship', 'hackathon', 'fest', 'workshop', 'exam']);
+const EVENT_REGISTRY_KEY = 'interntrack-calendar-event-registry';
+
+function saveEventRegistry() {
+    localStorage.setItem(EVENT_REGISTRY_KEY, JSON.stringify(eventData));
+}
 
 function parseDate(dateStr) {
     const [year, month, day] = dateStr.split('-').map(Number);
@@ -377,7 +382,7 @@ function buildEventDetailsUrl(eventObj) {
         createdAt: Date.now(),
         event: eventObj
     }));
-    return `event-details.html?source=calendar&key=${encodeURIComponent(cacheKey)}&payload=${encodeURIComponent(JSON.stringify(eventObj))}`;
+    return `event-details.html?source=calendar&id=${encodeURIComponent(eventObj.id)}&key=${encodeURIComponent(cacheKey)}`;
 }
 
 function openEventDetailsPage(eventObj) {
@@ -606,6 +611,7 @@ function initializeCalendar() {
             info.el.setAttribute('aria-label', aria);
         },
         eventClick(info) {
+            info.jsEvent.preventDefault();
             openEventDetailsPage(info.event.extendedProps);
         },
         dateClick(info) {
@@ -784,6 +790,7 @@ function setupMobileSidebar() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    saveEventRegistry();
     setupUserUi();
     setupMobileSidebar();
     setupFilters();

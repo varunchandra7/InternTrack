@@ -7,11 +7,11 @@ if (!token) {
 
 const urlParams = new URLSearchParams(window.location.search);
 const source = urlParams.get('source') || '';
-const payloadParam = urlParams.get('payload');
 const cacheKey = urlParams.get('key');
 const eventId = urlParams.get('id');
 const fallbackTitle = urlParams.get('event') || urlParams.get('title') || '';
 const API_URL = window.API_CONFIG?.BASE_URL || 'http://localhost:5000/api';
+const EVENT_REGISTRY_KEY = 'interntrack-calendar-event-registry';
 
 let currentEvent = null;
 let currentRoadmap = [];
@@ -112,12 +112,20 @@ function readCachedCalendarEvent() {
     }
 }
 
-function readPayloadEvent() {
-    if (!payloadParam) return null;
-
+function readRegistryEvent() {
     try {
-        const parsed = JSON.parse(payloadParam);
-        return normalizeEvent(parsed);
+        const raw = localStorage.getItem(EVENT_REGISTRY_KEY);
+        if (!raw) return null;
+        const registry = JSON.parse(raw);
+        if (!Array.isArray(registry)) return null;
+
+        const match = registry.find((item) => {
+            if (eventId && String(item.id) === String(eventId)) return true;
+            if (fallbackTitle && item.title === fallbackTitle) return true;
+            return false;
+        });
+
+        return match ? normalizeEvent(match) : null;
     } catch {
         return null;
     }
@@ -666,9 +674,9 @@ async function fetchBackendEventDetails() {
 function loadEventDetails() {
     cleanupCachedEvents();
 
-    const payloadEvent = readPayloadEvent();
-    if (payloadEvent) {
-        renderEventDetails(payloadEvent);
+    const registryEvent = readRegistryEvent();
+    if (registryEvent) {
+        renderEventDetails(registryEvent);
         return;
     }
 
