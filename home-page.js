@@ -223,20 +223,22 @@ async function loadActivityGraphsFromRoadmap() {
     completedRoadmapTasks = await fetchCompletedRoadmapTasks();
     hasCompletedTasks = completedRoadmapTasks.length > 0;
     
+    console.log(`📚 Activities loaded: ${completedRoadmapTasks.length} completed tasks found`);
+    
     if (!hasCompletedTasks) {
-        console.log('No completed roadmap tasks yet, skipping chart rendering');
-        // Hide the activity section if no completed tasks
-        const activitySection = document.querySelector('.activity-section');
-        if (activitySection) {
-            activitySection.style.display = 'none';
+        console.log('No completed roadmap tasks yet, hiding activity section');
+        // Hide the activity card if no completed tasks
+        const activityCard = document.querySelector('.activity-graphs')?.closest('.dashboard-card');
+        if (activityCard) {
+            activityCard.style.display = 'none';
         }
         return;
     }
     
-    // Show the activity section since we have data
-    const activitySection = document.querySelector('.activity-section');
-    if (activitySection) {
-        activitySection.style.display = 'block';
+    // Show the activity card since we have data
+    const activityCard = document.querySelector('.activity-graphs')?.closest('.dashboard-card');
+    if (activityCard) {
+        activityCard.style.display = 'block';
     }
     
     // Convert completed tasks to event-like objects for reuse of existing functions
