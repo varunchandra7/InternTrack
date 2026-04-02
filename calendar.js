@@ -387,7 +387,14 @@ function buildEventDetailsUrl(eventObj) {
 
 function openEventDetailsPage(eventObj) {
     const detailsUrl = buildEventDetailsUrl(eventObj);
-    window.open(detailsUrl, '_blank', 'noopener,noreferrer');
+    const link = document.createElement('a');
+    link.href = detailsUrl;
+    link.target = '_blank';
+    link.rel = 'noopener noreferrer';
+    link.style.display = 'none';
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
 }
 
 function openEventModal(eventObj) {
