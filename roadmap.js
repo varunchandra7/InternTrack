@@ -254,6 +254,11 @@ async function handleGenerateRoadmap(event) {
     if (data.success) {
       currentRoadmap = data.roadmap;
       localStorage.setItem('currentRoadmapCache', JSON.stringify(data.roadmap));
+      
+      // Store roadmap start date for activity tracking
+      const startDate = new Date().toISOString();
+      localStorage.setItem(`roadmapStartDate_${currentUserId}`, startDate);
+      
       displayRoadmap(data.roadmap);
       updateProgressDisplay(data.roadmap.progress);
       
@@ -530,6 +535,12 @@ async function handleTaskToggle(day, checkbox) {
         newStatus ? 'Task completed! 🎉' : 'Task marked incomplete',
         newStatus ? 'success' : 'info'
       );
+      
+      // Dispatch event to notify home page to update activity charts
+      const event = new CustomEvent('roadmapTaskUpdated', {
+        detail: { day: day, isCompleted: newStatus }
+      });
+      document.dispatchEvent(event);
     } else {
       alert('Error updating progress: ' + data.message);
       checkbox.checked = !newStatus;
