@@ -9,10 +9,29 @@ let monthlyStreakChartInstance = null;
 let completedRoadmapTasks = []; // Store completed tasks for activity tracking
 let hasCompletedTasks = false; // Track if user has any completed roadmap tasks
 
-// Get user ID for data isolation (use global user from dashboard.js)
-const currentUserIdHome = (typeof user !== 'undefined' && user) 
-    ? (user._id || user.id || 'unknown')
-    : 'unknown';
+// Get user ID for data isolation (use global user from dashboard.js or localStorage)
+let currentUserIdHome = 'unknown';
+
+function updateCurrentUserIdHome() {
+    if (typeof user !== 'undefined' && user && (user._id || user.id)) {
+        currentUserIdHome = user._id || user.id;
+    } else {
+        // Fallback to localStorage
+        const storedUser = localStorage.getItem('user') || sessionStorage.getItem('user');
+        if (storedUser) {
+            try {
+                const parsedUser = JSON.parse(storedUser);
+                currentUserIdHome = parsedUser._id || parsedUser.id || 'unknown';
+            } catch (e) {
+                currentUserIdHome = 'unknown';
+            }
+        }
+    }
+}
+
+// Initialize user ID on load
+updateCurrentUserIdHome();
+
 const getUserStorageKeyHome = (key) => `${key}_${currentUserIdHome}`;
 
 /**
@@ -395,7 +414,22 @@ async function loadUpcomingEvents() {
         const container = document.getElementById('upcomingEventsList');
         if (!container) return;
         
-        const userId = user._id || user.id;
+        // Get userId safely
+        updateCurrentUserIdHome();
+        let userId = currentUserIdHome;
+        
+        // Fallback to user object if available
+        if (!userId || userId === 'unknown') {
+            if (typeof user !== 'undefined' && user && (user._id || user.id)) {
+                userId = user._id || user.id;
+            }
+        }
+        
+        if (!userId || userId === 'unknown') {
+            console.warn('⚠️ User ID not available for loading events');
+            return;
+        }
+        
         const apiBase = window.API_CONFIG?.BASE_URL || 'http://localhost:5000/api';
         
         // Prefer the already-loaded calendar feed for immediate sync with dashboard calendar.
@@ -509,6 +543,9 @@ async function loadUpcomingEvents() {
  */
 function loadSelectedGoals() {
     try {
+        // Update user ID before accessing storage
+        updateCurrentUserIdHome();
+        
         const container = document.getElementById('goalsList');
         if (!container) return;
         
