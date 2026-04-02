@@ -145,10 +145,12 @@ function showSection(sectionName) {
     if (sectionName === 'home') {
         setTimeout(() => {
             loadRoadmapProgress();
+            // Ensure charts are rendered after transition
             if (typeof loadActivityGraphs === 'function') {
+                console.log('📊 Rendering activity charts for home section');
                 loadActivityGraphs();
             }
-        }, 100);
+        }, 150);
     }
 
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -232,12 +234,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load roadmap progress for home page
     loadRoadmapProgress();
 
-    // Explicitly load activity graphs on dashboard load
+    // Explicitly load activity charts after a small delay to ensure DOM is ready
     setTimeout(() => {
         if (typeof loadActivityGraphs === 'function') {
+            console.log('📊 Initial dashboard load - rendering activity charts');
             loadActivityGraphs();
         }
-    }, 300);
+    }, 400);
     
     // Auto-refresh roadmap every 2 seconds to catch updates
     setInterval(() => {

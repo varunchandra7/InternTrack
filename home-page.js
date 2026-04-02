@@ -34,15 +34,41 @@ function initializeHomePage() {
 
 // Initialize home page when DOM loads
 document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(initializeHomePage, 50); // Small delay to ensure dashboard.js has loaded
-    // Ensure charts render even if called multiple times
-    setTimeout(loadActivityGraphs, 200);
+    console.log('🏠 Home page DOMContentLoaded triggered');
+    
+    // Wait for Chart.js to be available
+    const waitForChart = setInterval(() => {
+        if (typeof Chart !== 'undefined') {
+            clearInterval(waitForChart);
+            console.log('📊 Chart.js available, initializing...');
+            
+            setTimeout(() => {
+                if (typeof initializeHomePage === 'function') {
+                    initializeHomePage();
+                }
+                loadActivityGraphs();
+            }, 100);
+        }
+    }, 50);
+    
+    // Fallback: try after 2 seconds anyway
+    setTimeout(() => {
+        console.log('⏱️ Fallback initialization started');
+        loadActivityGraphs();
+    }, 2000);
 });
 
 /**
  * Load and render activity graphs (Weekly and Monthly)
  */
 function loadActivityGraphs() {
+    // Check if Chart.js is loaded
+    if (typeof Chart === 'undefined') {
+        console.warn('Chart.js not loaded yet, retrying...');
+        setTimeout(loadActivityGraphs, 500);
+        return;
+    }
+
     const selectedEvents = JSON.parse(localStorage.getItem(getUserStorageKeyHome('selectedEvents')) || '[]');
     const sourceEvents = selectedEvents.length > 0
         ? selectedEvents
@@ -57,103 +83,116 @@ function loadActivityGraphs() {
         monthlySummary = { activeDays: 12, inactiveDays: 18 };
     }
 
-    const weeklyCtx = document.getElementById('weeklyActivityChart');
-    if (weeklyCtx) {
-        if (weeklyActivityChartInstance) {
-            weeklyActivityChartInstance.destroy();
-        }
+    try {
+        const weeklyCtx = document.getElementById('weeklyActivityChart');
+        if (weeklyCtx && weeklyCtx.getContext) {
+            if (weeklyActivityChartInstance) {
+                weeklyActivityChartInstance.destroy();
+                weeklyActivityChartInstance = null;
+            }
 
-        weeklyActivityChartInstance = new Chart(weeklyCtx, {
-            type: 'bar',
-            data: {
-                labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                datasets: [{
-                    label: 'Activities',
-                    data: weeklySeries,
-                    backgroundColor: '#7C3AED',
-                    borderColor: '#6D28D9',
-                    borderWidth: 1,
-                    borderRadius: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                indexAxis: undefined,
-                plugins: {
-                    legend: { 
-                        display: false
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return context.parsed.y + ' activities';
+            weeklyActivityChartInstance = new Chart(weeklyCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+                    datasets: [{
+                        label: 'Activities',
+                        data: weeklySeries,
+                        backgroundColor: '#7C3AED',
+                        borderColor: '#6D28D9',
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { 
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.parsed.y + ' activities';
+                                }
                             }
                         }
-                    }
-                },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { 
-                            precision: 0,
-                            stepSize: 1
-                        },
-                        suggestedMax: Math.max(5, Math.max(...weeklySeries) + 1),
-                        grid: { color: 'rgba(124, 58, 237, 0.1)' }
                     },
-                    x: {
-                        grid: { display: false }
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { 
+                                precision: 0,
+                                stepSize: 1
+                            },
+                            suggestedMax: Math.max(5, Math.max(...weeklySeries) + 1),
+                            grid: { color: 'rgba(124, 58, 237, 0.1)' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
                     }
                 }
-            }
-        });
+            });
+        } else {
+            console.warn('Weekly activity canvas not found');
+        }
+    } catch (error) {
+        console.error('Error creating weekly chart:', error);
     }
 
-    const monthlyCtx = document.getElementById('monthlyStreakChart');
-    if (monthlyCtx) {
-        if (monthlyStreakChartInstance) {
-            monthlyStreakChartInstance.destroy();
-        }
+    try {
+        const monthlyCtx = document.getElementById('monthlyStreakChart');
+        if (monthlyCtx && monthlyCtx.getContext) {
+            if (monthlyStreakChartInstance) {
+                monthlyStreakChartInstance.destroy();
+                monthlyStreakChartInstance = null;
+            }
 
-        const activeDays = monthlySummary.activeDays;
-        const inactiveDays = monthlySummary.inactiveDays;
-        const total = activeDays + inactiveDays;
-        const activePercent = total > 0 ? Math.round((activeDays / total) * 100) : 0;
+            const activeDays = monthlySummary.activeDays;
+            const inactiveDays = monthlySummary.inactiveDays;
+            const total = activeDays + inactiveDays;
+            const activePercent = total > 0 ? Math.round((activeDays / total) * 100) : 0;
 
-        monthlyStreakChartInstance = new Chart(monthlyCtx, {
-            type: 'doughnut',
-            data: {
-                labels: [`Active (${activeDays}d)`, `Remaining (${inactiveDays}d)`],
-                datasets: [{
-                    data: [activeDays, inactiveDays],
-                    backgroundColor: ['#7C3AED', '#E5E7EB'],
-                    borderColor: ['#6D28D9', '#D1D5DB'],
-                    borderWidth: 2
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: true,
-                plugins: {
-                    legend: {
-                        display: true,
-                        position: 'bottom',
-                        labels: {
-                            font: { size: 12 },
-                            padding: 15
-                        }
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: function(context) {
-                                return context.label + ': ' + context.parsed.y + ' days';
+            monthlyStreakChartInstance = new Chart(monthlyCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: [`Active Days (${activeDays})`, `Remaining Days (${inactiveDays})`],
+                    datasets: [{
+                        data: [activeDays, inactiveDays],
+                        backgroundColor: ['#7C3AED', '#E5E7EB'],
+                        borderColor: ['#6D28D9', '#D1D5DB'],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                font: { size: 12 },
+                                padding: 15
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return context.label + ': ' + context.parsed.y + ' days';
+                                }
                             }
                         }
                     }
                 }
-            }
-        });
+            });
+        } else {
+            console.warn('Monthly streak canvas not found');
+        }
+    } catch (error) {
+        console.error('Error creating monthly chart:', error);
     }
 
     updateActivityInsightText(monthlySummary.activeDays);
