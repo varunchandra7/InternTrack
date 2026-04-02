@@ -71,140 +71,10 @@ document.addEventListener('DOMContentLoaded', () => {
  * Load and render activity graphs (Weekly and Monthly)
  */
 function loadActivityGraphs() {
-    // Check if Chart.js is loaded
-    if (typeof Chart === 'undefined') {
-        console.warn('Chart.js not loaded yet, retrying...');
-        setTimeout(loadActivityGraphs, 500);
-        return;
-    }
-
-    const selectedEvents = JSON.parse(localStorage.getItem(getUserStorageKeyHome('selectedEvents')) || '[]');
-    const sourceEvents = selectedEvents.length > 0
-        ? selectedEvents
-        : (Array.isArray(window.dashboardEvents) ? window.dashboardEvents : []);
-
-    let weeklySeries = buildWeeklyActivitySeries(sourceEvents);
-    let monthlySummary = buildMonthlyActivitySummary(sourceEvents);
-
-    // Show sample data if no events yet to make charts visible
-    if (sourceEvents.length === 0) {
-        weeklySeries = [2, 3, 1, 4, 2, 1, 0];
-        monthlySummary = { activeDays: 12, inactiveDays: 18 };
-    }
-
-    try {
-        const weeklyCtx = document.getElementById('weeklyActivityChart');
-        if (weeklyCtx && weeklyCtx.getContext) {
-            if (weeklyActivityChartInstance) {
-                weeklyActivityChartInstance.destroy();
-                weeklyActivityChartInstance = null;
-            }
-
-            weeklyActivityChartInstance = new Chart(weeklyCtx, {
-                type: 'bar',
-                data: {
-                    labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                    datasets: [{
-                        label: 'Activities',
-                        data: weeklySeries,
-                        backgroundColor: '#7C3AED',
-                        borderColor: '#6D28D9',
-                        borderWidth: 1,
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: { 
-                            display: false
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.parsed.y + ' activities';
-                                }
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: { 
-                                precision: 0,
-                                stepSize: 1
-                            },
-                            suggestedMax: Math.max(5, Math.max(...weeklySeries) + 1),
-                            grid: { color: 'rgba(124, 58, 237, 0.1)' }
-                        },
-                        x: {
-                            grid: { display: false }
-                        }
-                    }
-                }
-            });
-        } else {
-            console.warn('Weekly activity canvas not found');
-        }
-    } catch (error) {
-        console.error('Error creating weekly chart:', error);
-    }
-
-    try {
-        const monthlyCtx = document.getElementById('monthlyStreakChart');
-        if (monthlyCtx && monthlyCtx.getContext) {
-            if (monthlyStreakChartInstance) {
-                monthlyStreakChartInstance.destroy();
-                monthlyStreakChartInstance = null;
-            }
-
-            const activeDays = monthlySummary.activeDays;
-            const inactiveDays = monthlySummary.inactiveDays;
-            const total = activeDays + inactiveDays;
-            const activePercent = total > 0 ? Math.round((activeDays / total) * 100) : 0;
-
-            monthlyStreakChartInstance = new Chart(monthlyCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: [`Active Days (${activeDays})`, `Remaining Days (${inactiveDays})`],
-                    datasets: [{
-                        data: [activeDays, inactiveDays],
-                        backgroundColor: ['#7C3AED', '#E5E7EB'],
-                        borderColor: ['#6D28D9', '#D1D5DB'],
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: true,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            position: 'bottom',
-                            labels: {
-                                font: { size: 12 },
-                                padding: 15
-                            }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    return context.label + ': ' + context.parsed.y + ' days';
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        } else {
-            console.warn('Monthly streak canvas not found');
-        }
-    } catch (error) {
-        console.error('Error creating monthly chart:', error);
-    }
-
-    updateActivityInsightText(monthlySummary.activeDays);
+    // This function is now deprecated - use loadActivityGraphsFromRoadmap instead
+    // Kept for backward compatibility but does nothing
+    console.log('⚠️ loadActivityGraphs() deprecated, use loadActivityGraphsFromRoadmap()');
+    loadActivityGraphsFromRoadmap();
 }
 
 function buildWeeklyActivitySeries(events) {
@@ -319,21 +189,26 @@ async function fetchCompletedRoadmapTasks() {
  */
 function convertDayNumberToDate(dayNumber, totalDays) {
     const roadmapStart = localStorage.getItem(`roadmapStartDate_${currentUserIdHome}`);
+    let startDate;
     
     if (roadmapStart) {
-        const startDate = new Date(roadmapStart);
-        const targetDate = new Date(startDate);
-        targetDate.setDate(startDate.getDate() + (dayNumber - 1));
-        targetDate.setHours(0, 0, 0, 0);
-        return targetDate;
+        startDate = new Date(roadmapStart);
     } else {
-        // Assume roadmap started totalDays ago from today
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        const targetDate = new Date(today);
-        targetDate.setDate(today.getDate() - (totalDays - dayNumber));
-        return targetDate;
+        // Assume roadmap started today
+        startDate = new Date();
     }
+    
+    // Always set time to start of day
+    startDate.setHours(0, 0, 0, 0);
+    
+    // Calculate target date by adding (dayNumber - 1) days to start date
+    const targetDate = new Date(startDate);
+    targetDate.setDate(startDate.getDate() + (dayNumber - 1));
+    targetDate.setHours(0, 0, 0, 0);
+    
+    console.log(`📅 Day ${dayNumber}: ${startDate.toDateString()} + ${dayNumber - 1} days = ${targetDate.toDateString()}`);
+    
+    return targetDate;
 }
 
 /**
@@ -351,20 +226,21 @@ async function loadActivityGraphsFromRoadmap() {
     completedRoadmapTasks = await fetchCompletedRoadmapTasks();
     hasCompletedTasks = completedRoadmapTasks.length > 0;
     
+    // Find the activity card (contains "Your Activity" title and activity-graphs)
+    const activityCard = document.querySelector('.dashboard-card:has(.activity-graphs)');
+    
     if (!hasCompletedTasks) {
-        console.log('No completed roadmap tasks yet, skipping chart rendering');
+        console.log('📊 No completed roadmap tasks yet, hiding activity charts');
         // Hide the activity section if no completed tasks
-        const activitySection = document.querySelector('.activity-section');
-        if (activitySection) {
-            activitySection.style.display = 'none';
+        if (activityCard) {
+            activityCard.style.display = 'none';
         }
         return;
     }
     
     // Show the activity section since we have data
-    const activitySection = document.querySelector('.activity-section');
-    if (activitySection) {
-        activitySection.style.display = 'block';
+    if (activityCard) {
+        activityCard.style.display = 'block';
     }
     
     // Convert completed tasks to event-like objects for reuse of existing functions
@@ -376,6 +252,7 @@ async function loadActivityGraphsFromRoadmap() {
     let weeklySeries = buildWeeklyActivitySeries(taskEvents);
     let monthlySummary = buildMonthlyActivitySummary(taskEvents);
     
+    console.log('📊 Rendering with', completedRoadmapTasks.length, 'completed tasks');
     console.log('📊 Weekly series:', weeklySeries, 'Monthly:', monthlySummary);
     
     try {
@@ -504,8 +381,9 @@ function updateActivityInsightTextFromRoadmap(activeDaysThisMonth) {
         startDate: t.completedDate
     })));
     const activeDaysThisWeek = thisWeekSeries.filter(count => count > 0).length;
+    const totalCompletedThisWeek = thisWeekSeries.reduce((a, b) => a + b, 0);
 
-    insight.textContent = `You've completed ${activeDaysThisWeek} tasks out of 7 days this week, and ${activeDaysThisMonth} days this month.`;
+    insight.textContent = `You've completed ${totalCompletedThisWeek} tasks this week across ${activeDaysThisWeek} days, and ${activeDaysThisMonth} days this month.`;
 }
 
 /**
