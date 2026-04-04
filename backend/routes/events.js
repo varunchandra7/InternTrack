@@ -14,31 +14,48 @@ router.get('/', async (req, res) => {
         const { type, month, year, userId } = req.query;
         
         let dbEvents = [];
-        let query = {};
         
-        // Only try to query database events if userId is valid
+        // Build base filters for event type and date range
+        let baseQuery = {};
+        
+        if (type && type !== 'all') {
+            baseQuery.type = type;
+        }
+        
+        if (month && year) {
+            const startOfMonth = new Date(year, month - 1, 1);
+            const endOfMonth = new Date(year, month, 0, 23, 59, 59);
+            baseQuery.startDate = {
+                $gte: startOfMonth,
+                $lte: endOfMonth
+            };
+        }
+        
+        // Fetch events from database
         if (userId && mongoose.Types.ObjectId.isValid(userId)) {
-            query.userId = userId;
-            
-            // Filter by event type if provided
-            if (type && type !== 'all') {
-                query.type = type;
-            }
-            
-            // Filter by month and year if provided
-            if (month && year) {
-                const startOfMonth = new Date(year, month - 1, 1);
-                const endOfMonth = new Date(year, month, 0, 23, 59, 59);
-                query.startDate = {
-                    $gte: startOfMonth,
-                    $lte: endOfMonth
-                };
-            }
+            // Get both user-specific events and global admin events
+            const userQuery = { ...baseQuery, userId: userId };
+            const globalQuery = { ...baseQuery, isGlobal: true };
             
             try {
-                dbEvents = await Event.find(query).sort({ startDate: 1 });
+                const userEvents = await Event.find(userQuery).sort({ startDate: 1 });
+                const globalEvents = await Event.find(globalQuery).sort({ startDate: 1 });
+                
+                // Merge and remove duplicates
+                const eventMap = new Map();
+                [...userEvents, ...globalEvents].forEach(event => {
+                    eventMap.set(event._id.toString(), event);
+                });
+                dbEvents = Array.from(eventMap.values()).sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
             } catch (error) {
                 console.log('Error fetching database events:', error.message);
+            }
+        } else {
+            // If no userId, only fetch global events
+            try {
+                dbEvents = await Event.find({ ...baseQuery, isGlobal: true }).sort({ startDate: 1 });
+            } catch (error) {
+                console.log('Error fetching global events:', error.message);
             }
         }
         

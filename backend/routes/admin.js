@@ -183,7 +183,9 @@ router.post('/events', adminAuth, async (req, res) => {
       eligibility,
       prize,
       registrationLink,
-      color: color || '#007bff'
+      color: color || '#007bff',
+      isGlobal: true,
+      createdBy: req.user._id
     });
 
     await newEvent.save();
