@@ -142,4 +142,66 @@ router.get('/statistics', adminAuth, async (req, res) => {
   }
 });
 
+/**
+ * @route   POST /api/admin/events
+ * @desc    Create a new event (admin only)
+ * @access  Admin Only
+ */
+router.post('/events', adminAuth, async (req, res) => {
+  try {
+    const { title, company, type, startDate, endDate, deadline, description, skills, rounds, location, eligibility, prize, registrationLink, color } = req.body;
+
+    // Validate required fields
+    if (!title || !company || !type || !startDate || !description) {
+      return res.status(400).json({
+        success: false,
+        message: 'Please provide all required fields: title, company, type, startDate, description'
+      });
+    }
+
+    // Validate event type
+    const validTypes = ['hackathon', 'internship', 'contest', 'deadline'];
+    if (!validTypes.includes(type.toLowerCase())) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid event type. Must be one of: ${validTypes.join(', ')}`
+      });
+    }
+
+    // Create new event
+    const newEvent = new Event({
+      title,
+      company,
+      type: type.toLowerCase(),
+      startDate: new Date(startDate),
+      endDate: endDate ? new Date(endDate) : undefined,
+      deadline: deadline ? new Date(deadline) : undefined,
+      description,
+      skills: skills ? (Array.isArray(skills) ? skills : [skills]) : [],
+      rounds: rounds ? (Array.isArray(rounds) ? rounds : [rounds]) : [],
+      location: location || 'Remote',
+      eligibility,
+      prize,
+      registrationLink,
+      color: color || '#007bff'
+    });
+
+    await newEvent.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Event created successfully',
+      event: newEvent
+    });
+
+  } catch (error) {
+    console.error('Error creating event:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error creating event',
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;

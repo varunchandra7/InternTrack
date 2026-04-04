@@ -301,6 +301,124 @@
             padding: 40px;
             color: #999;
         }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .btn-primary {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .btn-primary:hover {
+            background-color: #218838;
+        }
+
+        .admin-section {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #eee;
+        }
+
+        .btn-cancel {
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-cancel:hover {
+            background-color: #5a6268;
+        }
+
+        .btn-submit {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-submit:hover {
+            background-color: #218838;
+        }
+
+        .btn-submit:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+
+        .admin-section h2 {
+            margin: 0 0 20px 0;
+        }
     </style>
 </head>
 <body>
@@ -331,6 +449,13 @@
             </div>
         </div>
 
+        <div class="admin-section">
+            <div class="section-header">
+                <h2 class="section-title">Event Management</h2>
+                <button class="btn-primary" onclick="openAddEventModal()">Add New Event</button>
+            </div>
+        </div>
+
         <div class="users-section">
             <h2 class="section-title">Students</h2>
             
@@ -352,6 +477,100 @@
             <span class="close-modal" onclick="closeUserModal()">&times;</span>
             <h2>Student Details</h2>
             <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <!-- Add Event Modal -->
+    <div id="add-event-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeAddEventModal()">&times;</span>
+            <h2>Add New Event</h2>
+            <form id="add-event-form" onsubmit="submitAddEvent(event)">
+                <div class="form-group">
+                    <label for="event-title">Event Title *</label>
+                    <input type="text" id="event-title" placeholder="e.g., Summer Internship Program" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="event-company">Company *</label>
+                        <input type="text" id="event-company" placeholder="e.g., Google" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="event-type">Event Type *</label>
+                        <select id="event-type" required>
+                            <option value="">Select Type</option>
+                            <option value="internship">Internship</option>
+                            <option value="hackathon">Hackathon</option>
+                            <option value="contest">Contest</option>
+                            <option value="deadline">Deadline</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="event-start-date">Start Date *</label>
+                        <input type="datetime-local" id="event-start-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="event-end-date">End Date</label>
+                        <input type="datetime-local" id="event-end-date">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="event-deadline">Application Deadline</label>
+                    <input type="datetime-local" id="event-deadline">
+                </div>
+
+                <div class="form-group">
+                    <label for="event-description">Description *</label>
+                    <textarea id="event-description" placeholder="Event details and requirements..." required></textarea>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="event-location">Location</label>
+                        <input type="text" id="event-location" placeholder="e.g., Remote or City" value="Remote">
+                    </div>
+                    <div class="form-group">
+                        <label for="event-eligibility">Eligibility</label>
+                        <input type="text" id="event-eligibility" placeholder="e.g., B.Tech, 2nd/3rd/4th year">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="event-prize">Prize/Stipend</label>
+                        <input type="text" id="event-prize" placeholder="e.g., 50,000 INR/month">
+                    </div>
+                    <div class="form-group">
+                        <label for="event-color">Event Color</label>
+                        <input type="color" id="event-color" value="#007bff">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="event-registration-link">Registration Link</label>
+                    <input type="url" id="event-registration-link" placeholder="https://example.com/register">
+                </div>
+
+                <div class="form-group">
+                    <label for="event-skills">Skills (comma-separated)</label>
+                    <input type="text" id="event-skills" placeholder="e.g., Java, Spring, MongoDB">
+                </div>
+
+                <div class="form-group">
+                    <label for="event-rounds">Rounds (comma-separated)</label>
+                    <input type="text" id="event-rounds" placeholder="e.g., Online Test, Technical Interview, HR">
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn-cancel" onclick="closeAddEventModal()">Cancel</button>
+                    <button type="submit" class="btn-submit" id="submit-btn">Add Event</button>
+                </div>
+            </form>
         </div>
     </div>
 

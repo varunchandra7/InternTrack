@@ -318,11 +318,115 @@ function logout() {
     }
 }
 
+/**
+ * Open add event modal
+ */
+function openAddEventModal() {
+    document.getElementById('add-event-modal').style.display = 'block';
+}
+
+/**
+ * Close add event modal
+ */
+function closeAddEventModal() {
+    document.getElementById('add-event-modal').style.display = 'none';
+    document.getElementById('add-event-form').reset();
+}
+
+/**
+ * Submit add event form
+ */
+async function submitAddEvent(event) {
+    event.preventDefault();
+
+    try {
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        
+        if (!token) {
+            showMessage('Authentication required. Please login again.', 'error');
+            return;
+        }
+
+        // Get form data
+        const title = document.getElementById('event-title').value;
+        const company = document.getElementById('event-company').value;
+        const type = document.getElementById('event-type').value;
+        const startDate = document.getElementById('event-start-date').value;
+        const endDate = document.getElementById('event-end-date').value;
+        const deadline = document.getElementById('event-deadline').value;
+        const description = document.getElementById('event-description').value;
+        const location = document.getElementById('event-location').value;
+        const eligibility = document.getElementById('event-eligibility').value;
+        const prize = document.getElementById('event-prize').value;
+        const registrationLink = document.getElementById('event-registration-link').value;
+        const color = document.getElementById('event-color').value;
+        const skillsInput = document.getElementById('event-skills').value;
+        const roundsInput = document.getElementById('event-rounds').value;
+
+        // Parse skills and rounds
+        const skills = skillsInput ? skillsInput.split(',').map(s => s.trim()).filter(s => s) : [];
+        const rounds = roundsInput ? roundsInput.split(',').map(r => r.trim()).filter(r => r) : [];
+
+        // Disable submit button
+        const submitBtn = document.getElementById('submit-btn');
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Adding Event...';
+
+        const response = await fetch(`${API_BASE_URL}/admin/events`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                title,
+                company,
+                type,
+                startDate,
+                endDate: endDate || undefined,
+                deadline: deadline || undefined,
+                description,
+                location,
+                eligibility,
+                prize,
+                registrationLink,
+                color,
+                skills,
+                rounds
+            })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.success) {
+            showMessage('Event created successfully!', 'success');
+            closeAddEventModal();
+            // Reload statistics to update total events
+            loadStatistics();
+        } else {
+            showMessage(data.message || 'Failed to create event', 'error');
+        }
+
+    } catch (error) {
+        console.error('Error adding event:', error);
+        showMessage('Error adding event: ' + error.message, 'error');
+    } finally {
+        const submitBtn = document.getElementById('submit-btn');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Add Event';
+    }
+}
+
 // Close modal when clicking outside
 window.onclick = function(event) {
-    const modal = document.getElementById('user-modal');
-    if (event.target === modal) {
-        modal.style.display = 'none';
+    const userModal = document.getElementById('user-modal');
+    const addEventModal = document.getElementById('add-event-modal');
+    
+    if (event.target === userModal) {
+        userModal.style.display = 'none';
+    }
+    if (event.target === addEventModal) {
+        addEventModal.style.display = 'none';
     }
 };
 
