@@ -15,6 +15,7 @@ validateEnv();
 const authRoutes = require('./routes/auth');
 const eventRoutes = require('./routes/events');
 const roadmapRoutes = require('./routes/roadmap');
+const adminRoutes = require('./routes/admin');
 
 // Initialize Express app
 const app = express();
@@ -56,6 +57,7 @@ mongoose.connect(process.env.MONGODB_URI)
 app.use('/api/auth', authRoutes);
 app.use('/api/events', eventRoutes);
 app.use('/api/roadmap', roadmapRoutes);
+app.use('/api/admin', adminRoutes);
 
 // Test route
 app.get('/api/test', (req, res) => {

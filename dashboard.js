@@ -24,6 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.admin-only').forEach(el => {
             el.style.display = '';
         });
+        // Show admin nav link
+        const adminNavLink = document.getElementById('adminNavLink');
+        if (adminNavLink) {
+            adminNavLink.style.display = 'flex';
+        }
     }
 });
 
