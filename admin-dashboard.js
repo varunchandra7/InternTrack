@@ -28,7 +28,13 @@ document.addEventListener('DOMContentLoaded', () => {
  */
 async function loadStatistics() {
     try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        
+        if (!token) {
+            showMessage('No authentication token found. Please login again.', 'error');
+            return;
+        }
+
         const response = await fetch(`${API_BASE_URL}/admin/statistics`, {
             method: 'GET',
             headers: {
@@ -38,7 +44,8 @@ async function loadStatistics() {
         });
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
@@ -48,10 +55,12 @@ async function loadStatistics() {
             document.getElementById('verified-students').textContent = data.statistics.verifiedStudents;
             document.getElementById('unverified-students').textContent = data.statistics.unverifiedStudents;
             document.getElementById('total-events').textContent = data.statistics.totalEvents;
+        } else {
+            showMessage(data.message || 'Failed to load statistics', 'error');
         }
     } catch (error) {
         console.error('Error loading statistics:', error);
-        showMessage('Error loading statistics', 'error');
+        showMessage('Error loading statistics: ' + error.message, 'error');
     }
 }
 
@@ -60,7 +69,15 @@ async function loadStatistics() {
  */
 async function loadUsers() {
     try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        
+        if (!token) {
+            showMessage('No authentication token found. Please login again.', 'error');
+            document.getElementById('users-container').innerHTML = 
+                '<div class="error-message">Authentication required. Please login again.</div>';
+            return;
+        }
+
         document.getElementById('users-container').innerHTML = '<div class="loading">Loading students...</div>';
 
         const response = await fetch(`${API_BASE_URL}/admin/users`, {
@@ -72,7 +89,8 @@ async function loadUsers() {
         });
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
@@ -81,13 +99,15 @@ async function loadUsers() {
             allUsers = data.users;
             displayUsers(allUsers);
         } else {
-            showMessage(data.message, 'error');
+            showMessage(data.message || 'Failed to load students', 'error');
+            document.getElementById('users-container').innerHTML = 
+                `<div class="error-message">${data.message || 'Failed to load students'}</div>`;
         }
     } catch (error) {
         console.error('Error loading users:', error);
-        showMessage('Error loading students', 'error');
+        showMessage('Error loading students: ' + error.message, 'error');
         document.getElementById('users-container').innerHTML = 
-            '<div class="error-message">Failed to load students. Please try again.</div>';
+            `<div class="error-message">Failed to load students. ${error.message}</div>`;
     }
 }
 
@@ -148,7 +168,13 @@ function displayUsers(users) {
  */
 async function viewUserDetails(userId) {
     try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+        
+        if (!token) {
+            showMessage('No authentication token found. Please login again.', 'error');
+            return;
+        }
+
         const response = await fetch(`${API_BASE_URL}/admin/user/${userId}`, {
             method: 'GET',
             headers: {
@@ -158,7 +184,8 @@ async function viewUserDetails(userId) {
         });
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.message || `HTTP error! status: ${response.status}`);
         }
 
         const data = await response.json();
@@ -166,11 +193,11 @@ async function viewUserDetails(userId) {
         if (data.success) {
             displayUserModal(data.user, data.events);
         } else {
-            showMessage(data.message, 'error');
+            showMessage(data.message || 'Failed to load user details', 'error');
         }
     } catch (error) {
         console.error('Error loading user details:', error);
-        showMessage('Error loading user details', 'error');
+        showMessage('Error loading user details: ' + error.message, 'error');
     }
 }
 
